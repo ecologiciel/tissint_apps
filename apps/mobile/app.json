@@ -1,0 +1,50 @@
+{
+  "expo": {
+    "name": "Tissint",
+    "slug": "tissint",
+    "scheme": "tissint",
+    "version": "0.1.0",
+    "orientation": "portrait",
+    "userInterfaceStyle": "light",
+    "assetBundlePatterns": ["**/*"],
+    "ios": {
+      "supportsTablet": false,
+      "bundleIdentifier": "ma.tissint.mobile",
+      "infoPlist": {
+        "NSCameraUsageDescription": "Tissint utilise la camera pour photographier les pierres a analyser.",
+        "NSLocationWhenInUseUsageDescription": "Tissint utilise la localisation optionnelle pour enrichir l'analyse et afficher uniquement la region publiquement."
+      }
+    },
+    "android": {
+      "package": "ma.tissint.mobile",
+      "permissions": ["CAMERA", "ACCESS_FINE_LOCATION", "ACCESS_COARSE_LOCATION"],
+      "adaptiveIcon": {
+        "backgroundColor": "#123F5A"
+      }
+    },
+    "plugins": [
+      "expo-router",
+      "expo-secure-store",
+      [
+        "expo-camera",
+        {
+          "cameraPermission": "Tissint a besoin de la camera pour scanner les pierres."
+        }
+      ],
+      [
+        "expo-location",
+        {
+          "locationWhenInUsePermission": "La localisation est optionnelle et aide a contextualiser l'analyse."
+        }
+      ]
+    ],
+    "experiments": {
+      "typedRoutes": true
+    },
+    "extra": {
+      "eas": {
+        "projectId": "replace-with-eas-project-id"
+      }
+    }
+  }
+}

@@ -1,0 +1,70 @@
+import type { AuthSession, LoginInput, RegisterInput } from "@tissint/shared";
+import { quotaLimitForRole } from "@tissint/shared";
+import { getOrCreateDeviceId } from "./device-id";
+import { env, isHttpApiEnabled } from "./env";
+import { tissintClient } from "./api";
+
+function mockSession(input: {
+  id: string;
+  firstName?: string;
+  lastName?: string;
+  phone?: string;
+  email?: string;
+  role?: "free" | "premium";
+}): AuthSession {
+  const role = input.role ?? "free";
+  const dailyLimit = quotaLimitForRole(role);
+  return {
+    user: {
+      id: input.id,
+      firstName: input.firstName,
+      lastName: input.lastName,
+      phone: input.phone,
+      email: input.email,
+      role,
+    },
+    tokens: {
+      accessToken: `mock-access-${input.id}`,
+      refreshToken: `mock-refresh-${input.id}`,
+      expiresAt: new Date(Date.now() + 1000 * 60 * 30).toISOString(),
+    },
+    quota: {
+      role,
+      dailyLimit,
+      remainingToday: dailyLimit,
+      resetsAt: new Date(Date.now() + 1000 * 60 * 60 * 12).toISOString(),
+    },
+  };
+}
+
+export async function loginWithCredentials(input: Omit<LoginInput, "deviceId">): Promise<AuthSession> {
+  const deviceId = await getOrCreateDeviceId();
+  if (isHttpApiEnabled()) {
+    return tissintClient.login({ ...input, deviceId });
+  }
+  await new Promise((resolve) => setTimeout(resolve, 550));
+  return mockSession({
+    id: input.phoneOrEmail.replace(/[^a-zA-Z0-9_-]/g, "_") || "demo_user",
+    phone: input.phoneOrEmail.includes("@") ? undefined : input.phoneOrEmail,
+    email: input.phoneOrEmail.includes("@") ? input.phoneOrEmail : undefined,
+    firstName: "Tissint",
+    lastName: env.apiMode === "mock" ? "Demo" : "User",
+    role: "free",
+  });
+}
+
+export async function registerAccount(input: Omit<RegisterInput, "deviceId">): Promise<AuthSession> {
+  const deviceId = await getOrCreateDeviceId();
+  if (isHttpApiEnabled()) {
+    return tissintClient.register({ ...input, deviceId });
+  }
+  await new Promise((resolve) => setTimeout(resolve, 700));
+  return mockSession({
+    id: input.phone.replace(/[^a-zA-Z0-9_-]/g, "_") || "new_user",
+    phone: input.phone,
+    email: input.email,
+    firstName: input.firstName,
+    lastName: input.lastName,
+    role: input.desiredRole,
+  });
+}
