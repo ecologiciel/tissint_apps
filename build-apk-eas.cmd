@@ -29,6 +29,10 @@ if errorlevel 1 (
 )
 
 echo.
+echo Initialisation EAS si necessaire:
+call ..\..\node_modules\.bin\eas.cmd init
+
+echo.
 echo Configuration EAS Android si necessaire:
 call ..\..\node_modules\.bin\eas.cmd build:configure --platform android
 

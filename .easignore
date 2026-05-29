@@ -1,0 +1,42 @@
+# Dependency directories
+node_modules
+apps/mobile/node_modules
+
+# Expo/local build output
+.expo
+apps/mobile/.expo
+apps/mobile/.expo-export*
+dist
+dist-ssr
+.output
+.vinxi
+.tanstack/**
+.nitro
+
+# Logs and local environment files
+logs
+*.log
+*.local
+.env
+.env.*
+!.env.example
+
+# Lovable/web prototype metadata not needed by EAS Android builds
+.lovable
+
+# Force EAS Android builds to use npm/package-lock.json for this monorepo.
+# The web prototype keeps a Bun lockfile, but Expo mobile dependencies are
+# resolved through npm workspaces.
+bun.lock
+bunfig.toml
+
+# Editor/system files
+.vscode/*
+!.vscode/extensions.json
+.idea
+.DS_Store
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
