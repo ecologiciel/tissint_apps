@@ -1,3 +1,3 @@
-import { AdminDashboardScreen } from "@/features/parity/AccountParityScreens";
+import { MvpAdminScreen } from "@/features/mvp/MvpSupportScreens";
 
-export default AdminDashboardScreen;
+export default MvpAdminScreen;

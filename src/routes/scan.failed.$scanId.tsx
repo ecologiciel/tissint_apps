@@ -15,9 +15,14 @@ function ScanFailedPage() {
 
   if (!lastScan || lastScan.scanId !== scanId) {
     return (
-      <div className="flex h-full flex-col items-center justify-center gap-4 p-6 text-center" dir="rtl">
+      <div
+        className="flex h-full flex-col items-center justify-center gap-4 p-6 text-center"
+        dir="rtl"
+      >
         <p className="text-sm text-muted-foreground">لا توجد نتيجة محفوظة</p>
-        <Link to="/scan" className="rounded-full bg-orange px-5 py-2 text-white text-sm">العودة للمسح</Link>
+        <Link to="/scan" className="rounded-full bg-orange px-5 py-2 text-white text-sm">
+          العودة للمسح
+        </Link>
       </div>
     );
   }
@@ -27,10 +32,14 @@ function ScanFailedPage() {
 
   const saveAsReference = () => {
     addToCollection({
-      id: "col-" + r.scanId, scanId: r.scanId,
+      id: "col-" + r.scanId,
+      scanId: r.scanId,
       name: "مرجع #" + r.scanId.slice(-3),
-      classification: r.classification, score: r.score, verdict: r.verdict,
-      imageSeed: r.imageSeed, createdAt: r.createdAt,
+      classification: r.classification,
+      score: r.score,
+      verdict: r.verdict,
+      imageSeed: r.imageSeed,
+      createdAt: r.createdAt,
     });
     setSaved(true);
     toast.success("تم الحفظ كمرجع في مجموعتك");
@@ -51,24 +60,41 @@ function ScanFailedPage() {
         <div className="mt-6 w-full max-w-sm rounded-2xl bg-card border border-border p-4 space-y-3">
           <MeteoriteThumb seed={r.imageSeed} className="aspect-[4/3] rounded-xl overflow-hidden" />
           <div className="text-right space-y-1.5 text-sm">
-            <div className="flex justify-between"><span className="text-muted-foreground">التصنيف</span><span className="font-bold">{r.classification}</span></div>
-            <div className="flex justify-between"><span className="text-muted-foreground">النتيجة</span><span className="font-black text-destructive">{r.score}%</span></div>
-            <div className="flex justify-between"><span className="text-muted-foreground">الملاحظة</span><span className="font-medium text-xs">{r.notes}</span></div>
+            <div className="flex justify-between">
+              <span className="text-muted-foreground">التصنيف</span>
+              <span className="font-bold">{r.classification}</span>
+            </div>
+            <div className="flex justify-between">
+              <span className="text-muted-foreground">النتيجة</span>
+              <span className="font-black text-destructive">{r.score}%</span>
+            </div>
+            <div className="flex justify-between">
+              <span className="text-muted-foreground">الملاحظة</span>
+              <span className="font-medium text-xs">{r.notes}</span>
+            </div>
           </div>
         </div>
       </main>
 
       <div className="p-5 space-y-2 border-t bg-card">
-        <Link to="/scan"
-          className="w-full block rounded-xl bg-gradient-to-r from-orange to-gold py-3.5 text-center font-black text-white shadow-lg flex items-center justify-center gap-2">
+        <Link
+          to="/scan"
+          className="w-full block rounded-xl bg-gradient-to-r from-orange to-gold py-3.5 text-center font-black text-white shadow-lg flex items-center justify-center gap-2"
+        >
           <Camera className="h-4 w-4" /> مسح عينة جديدة
         </Link>
-        <button onClick={saveAsReference} disabled={saved}
-          className="w-full rounded-xl bg-muted text-foreground py-3 font-bold flex items-center justify-center gap-2 disabled:opacity-50">
+        <button
+          onClick={saveAsReference}
+          disabled={saved}
+          className="w-full rounded-xl bg-muted text-foreground py-3 font-bold flex items-center justify-center gap-2 disabled:opacity-50"
+        >
           <BookmarkPlus className="h-4 w-4" /> {saved ? "محفوظ كمرجع" : "حفظ كمرجع فقط"}
         </button>
-        <Link to="/scan/result/$scanId" params={{ scanId: r.scanId }}
-          className="w-full block rounded-xl bg-transparent text-foreground py-3 text-center font-bold text-sm flex items-center justify-center gap-2">
+        <Link
+          to="/scan/result/$scanId"
+          params={{ scanId: r.scanId }}
+          className="w-full block rounded-xl bg-transparent text-foreground py-3 text-center font-bold text-sm flex items-center justify-center gap-2"
+        >
           عرض التفاصيل <ChevronRight className="h-4 w-4" />
         </Link>
       </div>

@@ -1,3 +1,3 @@
-import { HelpScreen } from "@/features/parity/AccountParityScreens";
+import { MvpHelpScreen } from "@/features/mvp/MvpSupportScreens";
 
-export default HelpScreen;
+export default MvpHelpScreen;

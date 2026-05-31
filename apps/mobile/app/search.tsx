@@ -1,3 +1,3 @@
-import { SearchScreen } from "@/features/parity/AccountParityScreens";
+import { MvpSearchScreen } from "@/features/mvp/MvpMarketScreens";
 
-export default SearchScreen;
+export default MvpSearchScreen;

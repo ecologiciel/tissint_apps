@@ -55,7 +55,7 @@ export interface NormalizedScanResult extends ScanDecision {
 
 export interface ScanMetadata {
   clientUuid: string;
-  userId: string;
+  userId?: string;
   weightGram?: number;
   magnetic?: boolean;
   latitude?: number;
@@ -199,8 +199,78 @@ export interface CreateAlertRuleInput {
   frequency: AlertFrequency;
 }
 
+export type ApiErrorCode =
+  | "UNAUTHORIZED"
+  | "PREMIUM_REQUIRED"
+  | "QUOTA_EXCEEDED"
+  | "NOT_FOUND"
+  | "VALIDATION_ERROR"
+  | "MISSING_EXTERNAL_PHOTOS"
+  | "INVALID_FILE_FORMAT"
+  | "FILE_TOO_LARGE"
+  | "CONFLICT"
+  | "SERVICE_UNAVAILABLE"
+  | "INTERNAL_PROCESSING_ERROR"
+  | "RATE_LIMITED"
+  | "NETWORK_ERROR"
+  | "HTTP_ERROR";
+
 export interface ApiErrorPayload {
-  code: string;
+  code: ApiErrorCode | string;
   message: string;
   status?: number;
+}
+
+export type PaymentProvider = "cmi" | "stripe" | "paypal" | "wallet";
+export type SubscriptionStatus = "none" | "active" | "past_due" | "cancelled" | "expired";
+export type InvoiceStatus = "paid" | "pending" | "failed" | "refunded";
+
+export interface Subscription {
+  status: SubscriptionStatus;
+  role: UserRole;
+  provider?: PaymentProvider;
+  plan?: "monthly" | "yearly";
+  renewsAt?: string;
+  cancelsAt?: string;
+}
+
+export interface CheckoutSession {
+  id: string;
+  provider: PaymentProvider;
+  checkoutUrl?: string;
+  amountDh: number;
+  currency: "MAD";
+  expiresAt?: string;
+}
+
+export interface Invoice {
+  id: string;
+  number: string;
+  amountDh: number;
+  vatDh?: number;
+  totalDh: number;
+  status: InvoiceStatus;
+  createdAt: string;
+  downloadUrl?: string;
+}
+
+export type QueuedUploadStatus = "queued" | "uploading" | "failed" | "synced";
+
+export interface QueuedUpload {
+  id: string;
+  clientUuid: string;
+  status: QueuedUploadStatus;
+  createdAt: string;
+  updatedAt: string;
+  retryCount: number;
+  lastError?: string;
+}
+
+export interface OfflineCacheSnapshot {
+  lastUpdatedAt?: string;
+  recentScans: number;
+  collectionItems: number;
+  marketplaceListings: number;
+  queuedUploads: number;
+  sizeBytes: number;
 }

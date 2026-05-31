@@ -1,19 +1,24 @@
 import type {
   AlertRule,
   AuthSession,
+  CheckoutSession,
   CollectionItem,
   CreateAlertRuleInput,
   CreateCollectionItemInput,
   CreateListingInput,
   FavoriteListing,
+  Invoice,
   LoginInput,
   MarketplaceListing,
   MarketplaceListingDetail,
+  PaymentProvider,
   PublishListingResult,
   QuotaSnapshot,
   RegisterInput,
   ScanMetadata,
+  Subscription,
 } from "@tissint/shared";
+import type { HealthResponse } from "./generated/server-types";
 import { HttpTransport } from "./http";
 import {
   normalizeAlertRule,
@@ -53,6 +58,12 @@ export interface PublishListingInput {
   description?: string;
 }
 
+export interface CheckoutInput {
+  plan: "monthly" | "yearly";
+  provider: PaymentProvider;
+  returnUrl?: string;
+}
+
 function appendImage(form: FormData, field: string, image: MobileImageFile) {
   form.append(field, {
     uri: image.uri,
@@ -66,6 +77,10 @@ export class TissintClient {
 
   constructor(config: TissintClientConfig) {
     this.http = new HttpTransport(config);
+  }
+
+  async health(): Promise<HealthResponse> {
+    return this.http.request<HealthResponse>("/health", { skipAuth: true });
   }
 
   async login(input: LoginInput): Promise<AuthSession> {
@@ -112,6 +127,14 @@ export class TissintClient {
     return normalizeAuthSession(payload);
   }
 
+  async logout(refreshToken?: string): Promise<void> {
+    await this.http.request("/api/v1/auth/logout", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(refreshToken ? { refresh_token: refreshToken } : {}),
+    });
+  }
+
   async quota(): Promise<QuotaSnapshot> {
     const payload = await this.http.request<ServerQuotaResponse>("/api/v1/quota/me");
     return normalizeQuota(payload);
@@ -120,11 +143,12 @@ export class TissintClient {
   async scanExterior(input: ScanExteriorInput) {
     const form = new FormData();
     form.append("client_uuid", input.metadata.clientUuid);
-    form.append("user_id", input.metadata.userId);
+    if (input.metadata.userId) form.append("user_id", input.metadata.userId);
     if (input.metadata.weightGram != null) form.append("weight", String(input.metadata.weightGram));
     if (input.metadata.magnetic != null) form.append("magnetic", String(input.metadata.magnetic));
     if (input.metadata.latitude != null) form.append("latitude", String(input.metadata.latitude));
-    if (input.metadata.longitude != null) form.append("longitude", String(input.metadata.longitude));
+    if (input.metadata.longitude != null)
+      form.append("longitude", String(input.metadata.longitude));
     for (const file of input.exteriorFiles) appendImage(form, "files_exterior", file);
     if (input.interiorFile) appendImage(form, "file_interior", input.interiorFile);
 
@@ -146,13 +170,27 @@ export class TissintClient {
     return normalizeScanResponse(payload);
   }
 
-  async publishListing(scanId: string, _input: PublishListingInput) {
-    return this.http.request(`/api/v1/marketplace/publish/${scanId}`, {
-      method: "POST",
-    });
+  async publishListing(scanId: string, _input?: PublishListingInput): Promise<PublishListingResult> {
+    const payload = await this.http.request<ServerPublishResponse>(
+      `/api/v1/marketplace/publish/${encodeURIComponent(scanId)}`,
+      {
+        method: "POST",
+      },
+    );
+    return normalizePublishResult(payload);
   }
 
   async createListing(input: CreateListingInput): Promise<PublishListingResult> {
+    const payload = await this.http.request<ServerPublishResponse>(
+      `/api/v1/marketplace/publish/${encodeURIComponent(input.scanId)}`,
+      {
+        method: "POST",
+      },
+    );
+    return normalizePublishResult(payload);
+  }
+
+  async createListingLegacy(input: CreateListingInput): Promise<PublishListingResult> {
     const payload = await this.http.request<ServerPublishResponse>("/api/v1/marketplace/listings", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
@@ -175,7 +213,9 @@ export class TissintClient {
   }
 
   async getListing(listingId: string): Promise<MarketplaceListingDetail> {
-    const payload = await this.http.request<ServerListingItem>(`/api/v1/marketplace/listings/${listingId}`);
+    const payload = await this.http.request<ServerListingItem>(
+      `/api/v1/marketplace/listings/${listingId}`,
+    );
     return normalizeListingDetail(payload);
   }
 
@@ -185,9 +225,12 @@ export class TissintClient {
   }
 
   async addToCollection(input: CreateCollectionItemInput): Promise<CollectionItem> {
-    const payload = await this.http.request<ServerCollectionItem>(`/api/v1/collection/${input.scanId}`, {
-      method: "POST",
-    });
+    const payload = await this.http.request<ServerCollectionItem>(
+      `/api/v1/collection/${input.scanId}`,
+      {
+        method: "POST",
+      },
+    );
     return normalizeCollectionItem(payload);
   }
 
@@ -202,9 +245,12 @@ export class TissintClient {
   }
 
   async addFavorite(listingId: string): Promise<FavoriteListing> {
-    const payload = await this.http.request<ServerFavoriteItem>(`/api/v1/marketplace/favorites/${listingId}`, {
-      method: "POST",
-    });
+    const payload = await this.http.request<ServerFavoriteItem>(
+      `/api/v1/marketplace/favorites/${listingId}`,
+      {
+        method: "POST",
+      },
+    );
     return normalizeFavorite(payload);
   }
 
@@ -232,5 +278,31 @@ export class TissintClient {
       }),
     });
     return normalizeAlertRule(payload);
+  }
+
+  async createCheckout(input: CheckoutInput): Promise<CheckoutSession> {
+    return this.http.request<CheckoutSession>("/api/v1/billing/checkout", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        plan: input.plan,
+        provider: input.provider,
+        return_url: input.returnUrl,
+      }),
+    });
+  }
+
+  async getSubscription(): Promise<Subscription> {
+    return this.http.request<Subscription>("/api/v1/billing/subscription");
+  }
+
+  async cancelSubscription(): Promise<Subscription> {
+    return this.http.request<Subscription>("/api/v1/billing/cancel", {
+      method: "POST",
+    });
+  }
+
+  async listInvoices(): Promise<Invoice[]> {
+    return this.http.request<Invoice[]>("/api/v1/billing/invoices");
   }
 }

@@ -1,3 +1,3 @@
-import { SellerProfileScreen } from "@/features/parity/CommerceParityScreens";
+import { MvpSellerProfileScreen } from "@/features/mvp/MvpMarketScreens";
 
-export default SellerProfileScreen;
+export default MvpSellerProfileScreen;

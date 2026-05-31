@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/Button";
 import { Card } from "@/components/ui/Card";
 import { AppText } from "@/components/ui/AppText";
 import { Screen } from "@/components/ui/Screen";
+import { MvpEmptyActionScreen } from "@/features/mvp/MvpEmptyState";
 import { t } from "@/i18n";
 import { useScanStore } from "@/store/scan-store";
 import { colors, spacing } from "@/theme";
@@ -22,23 +23,35 @@ export function ResultScreen() {
 
   if (!result) {
     return (
-      <Screen>
-        <Card>
-          <AppText variant="subtitle">Aucun resultat disponible</AppText>
-          <Button onPress={() => router.replace("/scanner")}>Retour au scan</Button>
-        </Card>
-      </Screen>
+      <MvpEmptyActionScreen
+        message="لا توجد نتيجة محفوظة"
+        buttonLabel="العودة للمسح"
+        onPress={() => router.replace("/scan" as never)}
+      />
     );
   }
 
   const Icon = iconForVerdict(result.verdict);
-  const tone = result.verdict === "earth_rock" ? "danger" : result.verdict === "needs_cut" ? "warning" : "success";
+  const tone =
+    result.verdict === "earth_rock"
+      ? "danger"
+      : result.verdict === "needs_cut"
+        ? "warning"
+        : "success";
 
   return (
     <Screen contentStyle={styles.screen}>
       <Card style={styles.hero}>
-        <View style={[styles.iconWrap, { backgroundColor: result.verdict === "earth_rock" ? "#FDE7E5" : "#E5F4EC" }]}>
-          <Icon color={result.verdict === "earth_rock" ? colors.danger : colors.success} size={38} />
+        <View
+          style={[
+            styles.iconWrap,
+            { backgroundColor: result.verdict === "earth_rock" ? "#FDE7E5" : "#E5F4EC" },
+          ]}
+        >
+          <Icon
+            color={result.verdict === "earth_rock" ? colors.danger : colors.success}
+            size={38}
+          />
         </View>
         <Badge
           label={
@@ -84,16 +97,22 @@ export function ResultScreen() {
           </Button>
         ) : null}
         {result.canPublishMarketplace ? (
-          <Button icon={Store} tone="secondary" onPress={() => router.push("/marketplace")}>
+          <Button icon={Store} tone="secondary" onPress={() => router.push("/market" as never)}>
             {t("result.sell")}
           </Button>
         ) : null}
         {result.canAddToCollection ? (
-          <Button icon={Award} tone="ghost" onPress={() => router.push({ pathname: "/certificate/[scanId]", params: { scanId: result.scanId } })}>
+          <Button
+            icon={Award}
+            tone="ghost"
+            onPress={() =>
+              router.push({ pathname: "/certificate/[scanId]", params: { scanId: result.scanId } })
+            }
+          >
             Certificat
           </Button>
         ) : null}
-        <Button tone="ghost" onPress={() => router.replace("/scanner")}>
+        <Button tone="ghost" onPress={() => router.replace("/scan" as never)}>
           {t("result.newScan")}
         </Button>
       </View>

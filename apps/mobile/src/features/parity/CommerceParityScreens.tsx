@@ -34,10 +34,18 @@ import { Badge } from "@/components/ui/Badge";
 import { useSessionStore } from "@/store/session-store";
 import { colors, spacing } from "@/theme";
 import { formatPrice } from "@tissint/shared";
-import { DEMO_COLLECTION, DEMO_MARKETPLACE_LISTINGS, PREMIUM_PLANS, REGIONS, type PremiumPlanId } from "./parity-data";
+import {
+  DEMO_COLLECTION,
+  DEMO_MARKETPLACE_LISTINGS,
+  PREMIUM_PLANS,
+  REGIONS,
+  type PremiumPlanId,
+} from "./parity-data";
 import { Field, HeaderBar, MetricTile, ProgressBar, SelectCard } from "./parity-ui";
 import { selectWalletBalance, useParityStore } from "./parity-store";
 import { MeteoriteThumb } from "@/components/tissint/MeteoriteThumb";
+import { MvpEmptyActionScreen } from "@/features/mvp/MvpEmptyState";
+import { useScanStore } from "@/store/scan-store";
 
 const statusLabels = {
   draft: "مسودة",
@@ -51,10 +59,13 @@ const statusLabels = {
 };
 
 export function MyListingsScreen() {
-  const [tab, setTab] = useState<"all" | "published" | "pending_admin" | "sold" | "rejected">("all");
+  const [tab, setTab] = useState<"all" | "published" | "pending_admin" | "sold" | "rejected">(
+    "all",
+  );
   const mine = DEMO_MARKETPLACE_LISTINGS.map((item, index) => ({
     ...item,
-    status: index === 1 ? "pending_admin" : index === 2 ? "sold" : index === 4 ? "rejected" : item.status,
+    status:
+      index === 1 ? "pending_admin" : index === 2 ? "sold" : index === 4 ? "rejected" : item.status,
   }));
   const visible = tab === "all" ? mine : mine.filter((item) => item.status === tab);
   const counts = {
@@ -70,8 +81,12 @@ export function MyListingsScreen() {
       <HeaderBar
         title="إعلاناتي"
         subtitle="إدارة البيع، السعر، الحذف، والأرشفة"
-        backTo="/marketplace"
-        right={<Button tone="secondary" icon={Plus} onPress={() => router.push("/scanner")}>فحص</Button>}
+        backTo="/market"
+        right={
+          <Button tone="secondary" icon={Plus} onPress={() => router.push("/scan" as never)}>
+            فحص
+          </Button>
+        }
       />
 
       <View style={styles.metricRow}>
@@ -89,8 +104,16 @@ export function MyListingsScreen() {
           ["sold", "مباع"],
           ["rejected", "مرفوض"],
         ].map(([id, label]) => (
-          <Pressable key={id} onPress={() => setTab(id as typeof tab)} style={[styles.tabChip, tab === id ? styles.tabChipActive : null]}>
-            <AppText variant="caption" color={tab === id ? "#FFFFFF" : colors.text} style={styles.bold}>
+          <Pressable
+            key={id}
+            onPress={() => setTab(id as typeof tab)}
+            style={[styles.tabChip, tab === id ? styles.tabChipActive : null]}
+          >
+            <AppText
+              variant="caption"
+              color={tab === id ? "#FFFFFF" : colors.text}
+              style={styles.bold}
+            >
               {label} ({counts[id as keyof typeof counts]})
             </AppText>
           </Pressable>
@@ -106,7 +129,15 @@ export function MyListingsScreen() {
             <View style={styles.flexEnd}>
               <Badge
                 label={statusLabels[listing.status]}
-                tone={listing.status === "rejected" ? "danger" : listing.status === "sold" ? "premium" : listing.status === "published" ? "success" : "warning"}
+                tone={
+                  listing.status === "rejected"
+                    ? "danger"
+                    : listing.status === "sold"
+                      ? "premium"
+                      : listing.status === "published"
+                        ? "success"
+                        : "warning"
+                }
               />
               <AppText variant="subtitle" numberOfLines={1}>
                 {listing.title}
@@ -119,18 +150,35 @@ export function MyListingsScreen() {
               </AppText>
             </View>
           </View>
-          {listing.status === "pending_admin" ? <AppText variant="caption">سيتم مراجعة الإعلان خلال 24 ساعة.</AppText> : null}
-          {listing.status === "rejected" ? <AppText variant="caption" color={colors.danger}>تم رفض الإعلان. راجع الصور أو الوصف.</AppText> : null}
+          {listing.status === "pending_admin" ? (
+            <AppText variant="caption">سيتم مراجعة الإعلان خلال 24 ساعة.</AppText>
+          ) : null}
+          {listing.status === "rejected" ? (
+            <AppText variant="caption" color={colors.danger}>
+              تم رفض الإعلان. راجع الصور أو الوصف.
+            </AppText>
+          ) : null}
           <View style={styles.buttonRow}>
             <Button
               tone="ghost"
               icon={Eye}
-              onPress={() => router.push({ pathname: "/marketplace/[listingId]", params: { listingId: listing.listingId } })}
+              onPress={() =>
+                router.push({
+                  pathname: "/market/[listingId]",
+                  params: { listingId: listing.listingId },
+                } as never)
+              }
             >
               عرض
             </Button>
-            <Button tone="ghost" icon={ChevronDown}>تعديل السعر</Button>
-            {listing.status !== "sold" ? <Button tone="danger" icon={Trash2}>حذف</Button> : null}
+            <Button tone="ghost" icon={ChevronDown}>
+              تعديل السعر
+            </Button>
+            {listing.status !== "sold" ? (
+              <Button tone="danger" icon={Trash2}>
+                حذف
+              </Button>
+            ) : null}
           </View>
         </Card>
       ))}
@@ -145,7 +193,11 @@ export function SellerProfileScreen() {
 
   return (
     <Screen contentStyle={styles.screen}>
-      <HeaderBar title="ملف البائع" subtitle="معلومات عامة بدون كشف الهاتف إلا ل Premium" backTo="/marketplace" />
+      <HeaderBar
+        title="ملف البائع"
+        subtitle="معلومات عامة بدون كشف الهاتف إلا ل Premium"
+        backTo="/market"
+      />
       <Card style={styles.centerCard}>
         <View style={styles.avatar}>
           <AppText color="#FFFFFF" variant="title" style={styles.centerText}>
@@ -172,11 +224,18 @@ export function SellerProfileScreen() {
         {sellerListings.map((listing) => (
           <Pressable
             key={listing.listingId}
-            onPress={() => router.push({ pathname: "/marketplace/[listingId]", params: { listingId: listing.listingId } })}
+            onPress={() =>
+              router.push({
+                pathname: "/market/[listingId]",
+                params: { listingId: listing.listingId },
+              } as never)
+            }
             style={styles.compactLine}
           >
             <AppText style={styles.flex}>{listing.title}</AppText>
-            <AppText color={colors.orange} style={styles.bold}>{formatPrice(listing)}</AppText>
+            <AppText color={colors.orange} style={styles.bold}>
+              {formatPrice(listing)}
+            </AppText>
           </Pressable>
         ))}
       </Card>
@@ -189,16 +248,23 @@ export function PriceHistoryScreen() {
   const [selected, setSelected] = useState(classes[0]);
   const matching = DEMO_MARKETPLACE_LISTINGS.filter((item) => item.dominantClass === selected);
   const avg = matching.length
-    ? Math.round(matching.reduce((sum, item) => sum + (item.priceValue ?? 0) / Math.max(item.weightGram ?? 1, 1), 0) / matching.length)
+    ? Math.round(
+        matching.reduce(
+          (sum, item) => sum + (item.priceValue ?? 0) / Math.max(item.weightGram ?? 1, 1),
+          0,
+        ) / matching.length,
+      )
     : 220;
-  const history = Array.from({ length: 14 }, (_, index) => Math.max(50, Math.round(avg + Math.sin(index * 0.8 + selected.length) * 45)));
+  const history = Array.from({ length: 14 }, (_, index) =>
+    Math.max(50, Math.round(avg + Math.sin(index * 0.8 + selected.length) * 45)),
+  );
   const min = Math.min(...history);
   const max = Math.max(...history);
   const trend = history[history.length - 1] - history[0];
 
   return (
     <Screen contentStyle={styles.screen}>
-      <HeaderBar title="سجل الأسعار" subtitle="متوسط آخر 30 يوم حسب التصنيف" backTo="/marketplace" />
+      <HeaderBar title="سجل الأسعار" subtitle="متوسط آخر 30 يوم حسب التصنيف" backTo="/market" />
       <View style={styles.chipRow}>
         {classes.map((classification) => (
           <Pressable
@@ -206,7 +272,11 @@ export function PriceHistoryScreen() {
             onPress={() => setSelected(classification)}
             style={[styles.tabChip, selected === classification ? styles.tabChipActive : null]}
           >
-            <AppText variant="caption" color={selected === classification ? "#FFFFFF" : colors.text} style={styles.bold}>
+            <AppText
+              variant="caption"
+              color={selected === classification ? "#FFFFFF" : colors.text}
+              style={styles.bold}
+            >
               {classification}
             </AppText>
           </Pressable>
@@ -216,7 +286,11 @@ export function PriceHistoryScreen() {
         <View style={styles.rowBetween}>
           <AppText variant="caption">متوسط السعر DH/g</AppText>
           <View style={styles.rowCenter}>
-            {trend >= 0 ? <TrendingUp color={colors.success} size={16} /> : <TrendingDown color={colors.danger} size={16} />}
+            {trend >= 0 ? (
+              <TrendingUp color={colors.success} size={16} />
+            ) : (
+              <TrendingDown color={colors.danger} size={16} />
+            )}
             <AppText color={trend >= 0 ? colors.success : colors.danger} style={styles.bold}>
               {trend >= 0 ? "+" : ""}
               {trend} DH
@@ -246,15 +320,24 @@ export function PriceHistoryScreen() {
       </Card>
       <Card style={styles.cardGap}>
         <AppText variant="subtitle">إعلانات مماثلة</AppText>
-        {matching.length === 0 ? <AppText variant="caption">لا توجد بيانات لهذا التصنيف.</AppText> : null}
+        {matching.length === 0 ? (
+          <AppText variant="caption">لا توجد بيانات لهذا التصنيف.</AppText>
+        ) : null}
         {matching.map((listing) => (
           <Pressable
             key={listing.listingId}
-            onPress={() => router.push({ pathname: "/marketplace/[listingId]", params: { listingId: listing.listingId } })}
+            onPress={() =>
+              router.push({
+                pathname: "/market/[listingId]",
+                params: { listingId: listing.listingId },
+              } as never)
+            }
             style={styles.compactLine}
           >
             <AppText style={styles.flex}>{listing.title}</AppText>
-            <AppText color={colors.orange} style={styles.bold}>{formatPrice(listing)}</AppText>
+            <AppText color={colors.orange} style={styles.bold}>
+              {formatPrice(listing)}
+            </AppText>
           </Pressable>
         ))}
       </Card>
@@ -272,9 +355,12 @@ export function CheckoutScreen() {
   const wallet = useParityStore(selectWalletBalance);
   const subscribePremium = useParityStore((state) => state.subscribePremium);
   const setRole = useSessionStore((state) => state.setRole);
-  const [methodId, setMethodId] = useState(methods.find((method) => method.isDefault)?.id ?? methods[0]?.id);
+  const [methodId, setMethodId] = useState(
+    methods.find((method) => method.isDefault)?.id ?? methods[0]?.id,
+  );
   const planObj = PREMIUM_PLANS.find((item) => item.id === plan) ?? PREMIUM_PLANS[0];
-  const discount = coupon.trim().toUpperCase() === "TISSINT10" ? Math.round(planObj.priceDh * 0.1) : 0;
+  const discount =
+    coupon.trim().toUpperCase() === "TISSINT10" ? Math.round(planObj.priceDh * 0.1) : 0;
   const total = planObj.priceDh - discount;
 
   function pay() {
@@ -310,25 +396,51 @@ export function CheckoutScreen() {
               key={method.id}
               active={methodId === method.id}
               title={`${method.label}${method.last4 ? ` **** ${method.last4}` : ""}`}
-              body={method.kind === "wallet" ? `الرصيد: ${wallet} DH${insufficient ? " - غير كاف" : ""}` : "جاهزة للدفع المحاكى"}
+              body={
+                method.kind === "wallet"
+                  ? `الرصيد: ${wallet} DH${insufficient ? " - غير كاف" : ""}`
+                  : "جاهزة للدفع المحاكى"
+              }
               onPress={() => !insufficient && setMethodId(method.id)}
             />
           );
         })}
-        <Button tone="ghost" icon={CreditCard} onPress={() => router.push("/billing")}>إدارة طرق الدفع</Button>
+        <Button tone="ghost" icon={CreditCard} onPress={() => router.push("/billing")}>
+          إدارة طرق الدفع
+        </Button>
       </Card>
       <Card style={styles.cardGap}>
         <Field value={coupon} onChangeText={setCoupon} placeholder="رمز الخصم TISSINT10" />
-        <View style={styles.summaryLine}><AppText>المجموع الفرعي</AppText><AppText>{planObj.priceDh} DH</AppText></View>
-        {discount ? <View style={styles.summaryLine}><AppText color={colors.success}>خصم</AppText><AppText color={colors.success}>-{discount} DH</AppText></View> : null}
-        <View style={styles.summaryLine}><AppText variant="caption">منها TVA 20%</AppText><AppText variant="caption">{(total - total / 1.2).toFixed(2)} DH</AppText></View>
-        <View style={styles.summaryLine}><AppText variant="title">المجموع</AppText><AppText variant="title" color={colors.orange}>{total} DH</AppText></View>
+        <View style={styles.summaryLine}>
+          <AppText>المجموع الفرعي</AppText>
+          <AppText>{planObj.priceDh} DH</AppText>
+        </View>
+        {discount ? (
+          <View style={styles.summaryLine}>
+            <AppText color={colors.success}>خصم</AppText>
+            <AppText color={colors.success}>-{discount} DH</AppText>
+          </View>
+        ) : null}
+        <View style={styles.summaryLine}>
+          <AppText variant="caption">منها TVA 20%</AppText>
+          <AppText variant="caption">{(total - total / 1.2).toFixed(2)} DH</AppText>
+        </View>
+        <View style={styles.summaryLine}>
+          <AppText variant="title">المجموع</AppText>
+          <AppText variant="title" color={colors.orange}>
+            {total} DH
+          </AppText>
+        </View>
         <Pressable style={styles.acceptRow} onPress={() => setAccepted((current) => !current)}>
-          <View style={[styles.checkbox, accepted ? styles.checkboxActive : null]}>{accepted ? <Check color="#FFFFFF" size={14} /> : null}</View>
+          <View style={[styles.checkbox, accepted ? styles.checkboxActive : null]}>
+            {accepted ? <Check color="#FFFFFF" size={14} /> : null}
+          </View>
           <AppText style={styles.flex}>أوافق على شروط الاشتراك المتجدد تلقائيا.</AppText>
         </Pressable>
       </Card>
-      <Button icon={Crown} tone="secondary" disabled={!accepted || !methodId} onPress={pay}>ادفع {total} DH</Button>
+      <Button icon={Crown} tone="secondary" disabled={!accepted || !methodId} onPress={pay}>
+        ادفع {total} DH
+      </Button>
     </Screen>
   );
 }
@@ -344,15 +456,27 @@ export function CheckoutSuccessScreen() {
       <View style={styles.successIcon}>
         <Check color="#FFFFFF" size={48} />
       </View>
-      <AppText variant="hero" color={colors.gold} style={styles.centerText}>مرحبا في Premium</AppText>
-      <AppText variant="body" color="rgba(255,255,255,0.74)" style={styles.centerText}>تم تفعيل الاشتراك بنجاح.</AppText>
+      <AppText variant="hero" color={colors.gold} style={styles.centerText}>
+        مرحبا في Premium
+      </AppText>
+      <AppText variant="body" color="rgba(255,255,255,0.74)" style={styles.centerText}>
+        تم تفعيل الاشتراك بنجاح.
+      </AppText>
       <Card style={styles.darkCard}>
         <AppText color="#FFFFFF">رقم الفاتورة: {invoice?.number}</AppText>
         <AppText color={colors.gold}>المبلغ: {invoice?.totalDh} DH</AppText>
-        {renewsAt ? <AppText color="rgba(255,255,255,0.72)">التجديد التالي: {new Date(renewsAt).toLocaleDateString("ar-MA")}</AppText> : null}
+        {renewsAt ? (
+          <AppText color="rgba(255,255,255,0.72)">
+            التجديد التالي: {new Date(renewsAt).toLocaleDateString("ar-MA")}
+          </AppText>
+        ) : null}
       </Card>
-      <Button tone="secondary" icon={Receipt} onPress={() => router.push("/billing")}>عرض الفواتير</Button>
-      <Button tone="ghost" icon={Download}>تنزيل الفاتورة PDF</Button>
+      <Button tone="secondary" icon={Receipt} onPress={() => router.push("/billing")}>
+        عرض الفواتير
+      </Button>
+      <Button tone="ghost" icon={Download}>
+        تنزيل الفاتورة PDF
+      </Button>
       <Button onPress={() => router.replace("/dashboard")}>الرئيسية</Button>
     </Screen>
   );
@@ -363,13 +487,19 @@ export function CheckoutFailedScreen() {
     <Screen contentStyle={styles.centerScreen}>
       <Card style={styles.centerCard}>
         <XCircle color={colors.danger} size={52} />
-        <AppText variant="hero" color={colors.navy} style={styles.centerText}>فشل الدفع</AppText>
+        <AppText variant="hero" color={colors.navy} style={styles.centerText}>
+          فشل الدفع
+        </AppText>
         <AppText variant="body" color={colors.textMuted} style={styles.centerText}>
           لم نتمكن من معالجة الدفع. لم يتم خصم أي مبلغ.
         </AppText>
         <Badge label="CARD_DECLINED" tone="danger" />
-        <Button icon={RefreshCw} onPress={() => router.replace("/checkout")}>إعادة المحاولة</Button>
-        <Button tone="ghost" onPress={() => router.push("/help")}>تواصل مع الدعم</Button>
+        <Button icon={RefreshCw} onPress={() => router.replace("/checkout")}>
+          إعادة المحاولة
+        </Button>
+        <Button tone="ghost" onPress={() => router.push("/help")}>
+          تواصل مع الدعم
+        </Button>
       </Card>
     </Screen>
   );
@@ -387,7 +517,11 @@ export function BillingScreen() {
 
   return (
     <Screen contentStyle={styles.screen}>
-      <HeaderBar title="الفوترة والاشتراك" subtitle="طرق الدفع، الفواتير، والتجديد" backTo="/profile" />
+      <HeaderBar
+        title="الفوترة والاشتراك"
+        subtitle="طرق الدفع، الفواتير، والتجديد"
+        backTo="/profile"
+      />
       <Card style={styles.cardGap}>
         <View style={styles.rowBetween}>
           <AppText variant="subtitle">الاشتراك الحالي</AppText>
@@ -397,29 +531,56 @@ export function BillingScreen() {
           <>
             <Badge label="نشط" tone="success" />
             <AppText>Premium {premiumPlan === "yearly" ? "سنوي" : "شهري"}</AppText>
-            <Button tone="danger" onPress={() => { cancelPremium(); setRole("free"); }}>إلغاء التجديد التلقائي</Button>
+            <Button
+              tone="danger"
+              onPress={() => {
+                cancelPremium();
+                setRole("free");
+              }}
+            >
+              إلغاء التجديد التلقائي
+            </Button>
           </>
         ) : (
           <>
             <AppText variant="caption">لا يوجد اشتراك نشط.</AppText>
-            <Button tone="secondary" icon={Crown} onPress={() => router.push("/premium")}>الترقية إلى Premium</Button>
+            <Button tone="secondary" icon={Crown} onPress={() => router.push("/premium")}>
+              الترقية إلى Premium
+            </Button>
           </>
         )}
       </Card>
       <Card style={styles.cardGap}>
         <View style={styles.rowBetween}>
           <AppText variant="subtitle">طرق الدفع</AppText>
-          <Button tone="ghost" icon={Plus}>إضافة</Button>
+          <Button tone="ghost" icon={Plus}>
+            إضافة
+          </Button>
         </View>
         {methods.map((method) => (
           <View key={method.id} style={styles.compactLine}>
             <CreditCard color={colors.navy} size={18} />
             <View style={styles.flex}>
-              <AppText>{method.label}{method.last4 ? ` **** ${method.last4}` : ""}</AppText>
-              {method.isDefault ? <AppText variant="caption" color={colors.success}>افتراضي</AppText> : null}
+              <AppText>
+                {method.label}
+                {method.last4 ? ` **** ${method.last4}` : ""}
+              </AppText>
+              {method.isDefault ? (
+                <AppText variant="caption" color={colors.success}>
+                  افتراضي
+                </AppText>
+              ) : null}
             </View>
-            {!method.isDefault ? <Button tone="ghost" icon={Star} onPress={() => setDefaultPaymentMethod(method.id)}>افتراضي</Button> : null}
-            {method.kind !== "wallet" ? <Button tone="ghost" icon={Trash2} onPress={() => removePaymentMethod(method.id)}>حذف</Button> : null}
+            {!method.isDefault ? (
+              <Button tone="ghost" icon={Star} onPress={() => setDefaultPaymentMethod(method.id)}>
+                افتراضي
+              </Button>
+            ) : null}
+            {method.kind !== "wallet" ? (
+              <Button tone="ghost" icon={Trash2} onPress={() => removePaymentMethod(method.id)}>
+                حذف
+              </Button>
+            ) : null}
           </View>
         ))}
       </Card>
@@ -430,14 +591,20 @@ export function BillingScreen() {
             <FileText color={colors.orange} size={18} />
             <View style={styles.flex}>
               <AppText>{invoice.label}</AppText>
-              <AppText variant="caption">{invoice.number} - {new Date(invoice.createdAt).toLocaleDateString("ar-MA")}</AppText>
+              <AppText variant="caption">
+                {invoice.number} - {new Date(invoice.createdAt).toLocaleDateString("ar-MA")}
+              </AppText>
             </View>
-            <AppText color={colors.orange} style={styles.bold}>{invoice.totalDh} DH</AppText>
+            <AppText color={colors.orange} style={styles.bold}>
+              {invoice.totalDh} DH
+            </AppText>
             <Download color={colors.navy} size={18} />
           </View>
         ))}
       </Card>
-      <Button icon={Wallet} tone="ghost" onPress={() => router.push("/wallet")}>فتح المحفظة</Button>
+      <Button icon={Wallet} tone="ghost" onPress={() => router.push("/wallet")}>
+        فتح المحفظة
+      </Button>
     </Screen>
   );
 }
@@ -445,19 +612,36 @@ export function BillingScreen() {
 export function WalletScreen() {
   const wallet = useParityStore(selectWalletBalance);
   const transactions = useParityStore((state) => state.transactions);
-  const methods = useParityStore((state) => state.paymentMethods.filter((method) => method.kind !== "wallet"));
+  const methods = useParityStore((state) =>
+    state.paymentMethods.filter((method) => method.kind !== "wallet"),
+  );
   const topUpWallet = useParityStore((state) => state.topUpWallet);
   const [amount, setAmount] = useState("100");
   const [methodId, setMethodId] = useState(methods[0]?.id ?? "");
-  const inflow = transactions.filter((tx) => tx.amountDh > 0 && tx.status === "completed").reduce((sum, tx) => sum + tx.amountDh, 0);
-  const outflow = -transactions.filter((tx) => tx.amountDh < 0 && tx.status === "completed").reduce((sum, tx) => sum + tx.amountDh, 0);
+  const inflow = transactions
+    .filter((tx) => tx.amountDh > 0 && tx.status === "completed")
+    .reduce((sum, tx) => sum + tx.amountDh, 0);
+  const outflow = -transactions
+    .filter((tx) => tx.amountDh < 0 && tx.status === "completed")
+    .reduce((sum, tx) => sum + tx.amountDh, 0);
 
   return (
     <Screen contentStyle={styles.screen}>
-      <HeaderBar title="المحفظة" subtitle="شحن، سحب، وسجل الحركات" backTo="/profile" right={<Button tone="ghost" icon={Receipt} onPress={() => router.push("/billing")}>فوترة</Button>} />
+      <HeaderBar
+        title="المحفظة"
+        subtitle="شحن، سحب، وسجل الحركات"
+        backTo="/profile"
+        right={
+          <Button tone="ghost" icon={Receipt} onPress={() => router.push("/billing")}>
+            فوترة
+          </Button>
+        }
+      />
       <Card style={styles.walletHero}>
         <Wallet color="#FFFFFF" size={28} />
-        <AppText variant="hero" color="#FFFFFF" style={styles.centerText}>{wallet.toLocaleString()} DH</AppText>
+        <AppText variant="hero" color="#FFFFFF" style={styles.centerText}>
+          {wallet.toLocaleString()} DH
+        </AppText>
         <View style={styles.metricRow}>
           <MetricTile label="دخل" value={`+${inflow}`} tone="success" />
           <MetricTile label="مصروف" value={`-${outflow}`} tone="orange" />
@@ -467,10 +651,21 @@ export function WalletScreen() {
         <AppText variant="subtitle">شحن المحفظة</AppText>
         <View style={styles.chipRow}>
           {[50, 100, 200, 500].map((preset) => (
-            <Button key={preset} tone={amount === String(preset) ? "secondary" : "ghost"} onPress={() => setAmount(String(preset))}>{preset} DH</Button>
+            <Button
+              key={preset}
+              tone={amount === String(preset) ? "secondary" : "ghost"}
+              onPress={() => setAmount(String(preset))}
+            >
+              {preset} DH
+            </Button>
           ))}
         </View>
-        <Field value={amount} onChangeText={setAmount} placeholder="المبلغ" keyboardType="number-pad" />
+        <Field
+          value={amount}
+          onChangeText={setAmount}
+          placeholder="المبلغ"
+          keyboardType="number-pad"
+        />
         {methods.map((method) => (
           <SelectCard
             key={method.id}
@@ -479,7 +674,11 @@ export function WalletScreen() {
             onPress={() => setMethodId(method.id)}
           />
         ))}
-        <Button icon={Plus} onPress={() => topUpWallet(Number(amount) || 0, methodId)} disabled={!methodId || Number(amount) <= 0}>
+        <Button
+          icon={Plus}
+          onPress={() => topUpWallet(Number(amount) || 0, methodId)}
+          disabled={!methodId || Number(amount) <= 0}
+        >
           تأكيد الشحن
         </Button>
       </Card>
@@ -487,12 +686,21 @@ export function WalletScreen() {
         <AppText variant="subtitle">آخر الحركات</AppText>
         {transactions.map((transaction) => (
           <View key={transaction.id} style={styles.compactLine}>
-            {transaction.amountDh >= 0 ? <TrendingUp color={colors.success} size={18} /> : <ShoppingBag color={colors.orange} size={18} />}
+            {transaction.amountDh >= 0 ? (
+              <TrendingUp color={colors.success} size={18} />
+            ) : (
+              <ShoppingBag color={colors.orange} size={18} />
+            )}
             <View style={styles.flex}>
               <AppText>{transaction.label}</AppText>
-              <AppText variant="caption">{new Date(transaction.createdAt).toLocaleDateString("ar-MA")} - {transaction.status}</AppText>
+              <AppText variant="caption">
+                {new Date(transaction.createdAt).toLocaleDateString("ar-MA")} - {transaction.status}
+              </AppText>
             </View>
-            <AppText color={transaction.amountDh >= 0 ? colors.success : colors.text} style={styles.bold}>
+            <AppText
+              color={transaction.amountDh >= 0 ? colors.success : colors.text}
+              style={styles.bold}
+            >
               {transaction.amountDh >= 0 ? "+" : ""}
               {transaction.amountDh} DH
             </AppText>
@@ -505,26 +713,70 @@ export function WalletScreen() {
 
 export function CertificateScreen() {
   const params = useLocalSearchParams<{ scanId?: string }>();
-  const scanId = params.scanId ?? "mock-scan-001";
-  const item = DEMO_COLLECTION.find((entry) => entry.scanId === scanId) ?? DEMO_COLLECTION[0];
+  const scanId = params.scanId;
+  const lastResult = useScanStore((state) => state.lastResult);
+  const item =
+    (scanId ? DEMO_COLLECTION.find((entry) => entry.scanId === scanId) : undefined) ??
+    (scanId && lastResult?.scanId === scanId
+      ? {
+          scanId: lastResult.scanId,
+          className: lastResult.className,
+          fusionScore: lastResult.fusionScore,
+          weightGram: undefined,
+          region: "غير محددة",
+        }
+      : undefined);
+
+  if (!scanId || !item) {
+    return (
+      <MvpEmptyActionScreen
+        message="لم يتم العثور على الفحص"
+        buttonLabel="العودة للمجموعة"
+        buttonWidth={138}
+        onPress={() => router.replace("/collection")}
+      />
+    );
+  }
 
   return (
     <Screen contentStyle={styles.screen}>
-      <HeaderBar title="شهادة التحليل" subtitle="وثيقة مساعدة لا تعوض المختبر" backTo={`/collection/${scanId}`} />
+      <HeaderBar
+        title="شهادة التحليل"
+        subtitle="وثيقة مساعدة لا تعوض المختبر"
+        backTo={`/collection/${scanId}`}
+      />
       <Card style={styles.certificateCard}>
         <Badge label="Tissint AI Aid" tone="premium" />
-        <AppText variant="hero" color={colors.navy} style={styles.centerText}>{item.className}</AppText>
-        <AppText variant="title" color={colors.orange} style={styles.centerText}>{Math.round(item.fusionScore * 100)}%</AppText>
-        <ProgressBar value={Math.round(item.fusionScore * 100)} color={item.fusionScore >= 0.85 ? colors.success : colors.warning} />
-        <View style={styles.summaryLine}><AppText>Scan ID</AppText><AppText>{item.scanId}</AppText></View>
-        <View style={styles.summaryLine}><AppText>الوزن</AppText><AppText>{item.weightGram}g</AppText></View>
-        <View style={styles.summaryLine}><AppText>المنطقة</AppText><AppText>{item.region}</AppText></View>
+        <AppText variant="hero" color={colors.navy} style={styles.centerText}>
+          {item.className}
+        </AppText>
+        <AppText variant="title" color={colors.orange} style={styles.centerText}>
+          {Math.round(item.fusionScore * 100)}%
+        </AppText>
+        <ProgressBar
+          value={Math.round(item.fusionScore * 100)}
+          color={item.fusionScore >= 0.85 ? colors.success : colors.warning}
+        />
+        <View style={styles.summaryLine}>
+          <AppText>Scan ID</AppText>
+          <AppText>{item.scanId}</AppText>
+        </View>
+        <View style={styles.summaryLine}>
+          <AppText>الوزن</AppText>
+          <AppText>{item.weightGram ?? "--"}g</AppText>
+        </View>
+        <View style={styles.summaryLine}>
+          <AppText>المنطقة</AppText>
+          <AppText>{item.region ?? "--"}</AppText>
+        </View>
         <AppText variant="caption" style={styles.centerText}>
           هذه الشهادة تعرض نتيجة مساعدة بصرية ولا تمثل اعتمادا مخبريا أو وثيقة بيع رسمية.
         </AppText>
       </Card>
       <Button icon={Download}>تنزيل PDF</Button>
-      <Button tone="ghost" icon={FileText}>مشاركة الشهادة</Button>
+      <Button tone="ghost" icon={FileText}>
+        مشاركة الشهادة
+      </Button>
     </Screen>
   );
 }

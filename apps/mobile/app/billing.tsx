@@ -1,3 +1,3 @@
-import { BillingScreen } from "@/features/parity/CommerceParityScreens";
+import { MvpBillingScreen } from "@/features/mvp/MvpAccountScreens";
 
-export default BillingScreen;
+export default MvpBillingScreen;

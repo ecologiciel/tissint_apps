@@ -56,11 +56,15 @@ export const messages = {
     "scanner.analyze": "Analyze",
     "scanner.permission": "Allow camera",
     "scanner.mock": "Mock mode",
-    "scan.verdict.earth_rock": "This appears to be a terrestrial rock. Good luck on your next search.",
-    "scan.verdict.needs_cut": "Sale locked: add a cut photo or complementary analysis for certification.",
+    "scan.verdict.earth_rock":
+      "This appears to be a terrestrial rock. Good luck on your next search.",
+    "scan.verdict.needs_cut":
+      "Sale locked: add a cut photo or complementary analysis for certification.",
     "scan.verdict.eligible": "Strong result. You can save this stone and publish it to the market.",
-    "scan.verdict.rare_hold": "Rare sample. Admin processing is active for 24 hours before contact is opened.",
-    "result.scientificNotice": "This analysis is an identification aid and does not replace laboratory expertise.",
+    "scan.verdict.rare_hold":
+      "Rare sample. Admin processing is active for 24 hours before contact is opened.",
+    "result.scientificNotice":
+      "This analysis is an identification aid and does not replace laboratory expertise.",
     "result.addCollection": "Add to collection",
     "result.sell": "Sell in market",
     "result.newScan": "New scan",

@@ -42,7 +42,9 @@ function OfflinePage() {
       </header>
 
       <main className="flex-1 overflow-y-auto p-5 space-y-4">
-        <div className={`rounded-2xl p-4 flex items-center gap-3 ${online ? "bg-success/15 text-success" : "bg-destructive/15 text-destructive"}`}>
+        <div
+          className={`rounded-2xl p-4 flex items-center gap-3 ${online ? "bg-success/15 text-success" : "bg-destructive/15 text-destructive"}`}
+        >
           <WifiOff className="h-6 w-6" />
           <div className="flex-1">
             <p className="font-bold text-sm">{online ? "متصل بالإنترنت" : "غير متصل"}</p>
@@ -65,13 +67,18 @@ function OfflinePage() {
               <Row label="الحجم" value={`${sizeKb} KB`} />
             </>
           ) : (
-            <p className="text-xs text-muted-foreground text-center py-4">لا توجد بيانات مخزّنة بعد</p>
+            <p className="text-xs text-muted-foreground text-center py-4">
+              لا توجد بيانات مخزّنة بعد
+            </p>
           )}
         </section>
 
         <div className="grid grid-cols-2 gap-3">
           <button
-            onClick={() => { setCache(readOfflineCache()); toast.success("تم التحديث"); }}
+            onClick={() => {
+              setCache(readOfflineCache());
+              toast.success("تم التحديث");
+            }}
             className="rounded-xl bg-card border-2 py-3 font-bold flex items-center justify-center gap-2 text-sm"
           >
             <RotateCw className="h-4 w-4" /> تحديث

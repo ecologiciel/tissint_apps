@@ -85,8 +85,13 @@ export interface Conversation {
 }
 
 export type NotificationKind =
-  | "scan_done" | "listing_approved" | "listing_rejected"
-  | "new_message" | "offer" | "system" | "premium";
+  | "scan_done"
+  | "listing_approved"
+  | "listing_rejected"
+  | "new_message"
+  | "offer"
+  | "system"
+  | "premium";
 
 export interface AppNotification {
   id: string;
@@ -141,4 +146,3 @@ export interface PremiumPlan {
   periodLabel: string;
   hint?: string;
 }
-

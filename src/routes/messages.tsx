@@ -44,7 +44,9 @@ function MessagesIndex() {
           <div className="py-20 text-center text-muted-foreground">
             <MessageCircle className="mx-auto h-10 w-10 mb-2 opacity-50" />
             <p>لا توجد محادثات بعد</p>
-            <Link to="/market" className="text-orange text-sm font-bold mt-2 inline-block">تصفح السوق</Link>
+            <Link to="/market" className="text-orange text-sm font-bold mt-2 inline-block">
+              تصفح السوق
+            </Link>
           </div>
         ) : (
           <ul className="space-y-1">
@@ -55,11 +57,16 @@ function MessagesIndex() {
                   params={{ threadId: c.id }}
                   className="flex items-center gap-3 rounded-2xl bg-card border border-border p-3 active:scale-[0.99] transition"
                 >
-                  <MeteoriteThumb seed={c.listingImageSeed || c.peerName} className="h-12 w-12 rounded-xl" />
+                  <MeteoriteThumb
+                    seed={c.listingImageSeed || c.peerName}
+                    className="h-12 w-12 rounded-xl"
+                  />
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center gap-1">
                       <p className="font-bold text-sm truncate">{c.peerName}</p>
-                      {c.peerVerified && <BadgeCheck className="h-3.5 w-3.5 text-success shrink-0" />}
+                      {c.peerVerified && (
+                        <BadgeCheck className="h-3.5 w-3.5 text-success shrink-0" />
+                      )}
                     </div>
                     <p className="text-[11px] text-muted-foreground truncate">{c.listingTitle}</p>
                     <p className="text-xs truncate mt-0.5">{c.lastMessage}</p>

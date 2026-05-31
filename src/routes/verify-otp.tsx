@@ -5,7 +5,9 @@ import { useApp } from "@/lib/store";
 import { toast } from "sonner";
 
 export const Route = createFileRoute("/verify-otp")({
-  validateSearch: (s: Record<string, unknown>) => ({ phone: (s.phone as string) || "+212 6 12 34 56 78" }),
+  validateSearch: (s: Record<string, unknown>) => ({
+    phone: (s.phone as string) || "+212 6 12 34 56 78",
+  }),
   component: VerifyOtp,
 });
 
@@ -38,7 +40,10 @@ function VerifyOtp() {
 
   const verify = () => {
     const code = digits.join("");
-    if (code.length < 6) { toast.error("الرجاء إدخال الرمز الكامل"); return; }
+    if (code.length < 6) {
+      toast.error("الرجاء إدخال الرمز الكامل");
+      return;
+    }
     setLoading(true);
     setTimeout(() => {
       setRole("free");
@@ -55,14 +60,25 @@ function VerifyOtp() {
   };
 
   return (
-    <AuthShell title="تأكيد الرقم" subtitle={`أدخل الرمز المرسل عبر SMS إلى ${phone}`} back="/register">
+    <AuthShell
+      title="تأكيد الرقم"
+      subtitle={`أدخل الرمز المرسل عبر SMS إلى ${phone}`}
+      back="/register"
+    >
       <div className="flex justify-center gap-2 mb-5" dir="ltr">
         {digits.map((d, i) => (
-          <input key={i} ref={(el) => { refs.current[i] = el; }}
-            inputMode="numeric" maxLength={1} value={d}
+          <input
+            key={i}
+            ref={(el) => {
+              refs.current[i] = el;
+            }}
+            inputMode="numeric"
+            maxLength={1}
+            value={d}
             onChange={(e) => setDigit(i, e.target.value)}
             onKeyDown={(e) => handleKey(i, e)}
-            className="h-12 w-10 rounded-xl border-2 border-stone/15 bg-white text-center text-xl font-black text-stone outline-none focus:border-orange focus:ring-2 focus:ring-orange/20" />
+            className="h-12 w-10 rounded-xl border-2 border-stone/15 bg-white text-center text-xl font-black text-stone outline-none focus:border-orange focus:ring-2 focus:ring-orange/20"
+          />
         ))}
       </div>
 
@@ -70,13 +86,19 @@ function VerifyOtp() {
         💡 رمز التجربة: <span className="font-mono font-bold text-orange">123456</span>
       </p>
 
-      <AuthButton onClick={verify} loading={loading}>تأكيد</AuthButton>
+      <AuthButton onClick={verify} loading={loading}>
+        تأكيد
+      </AuthButton>
 
       <div className="mt-4 text-center text-xs text-stone/60">
         {seconds > 0 ? (
-          <>إعادة الإرسال خلال <span className="font-bold text-stone">{seconds}s</span></>
+          <>
+            إعادة الإرسال خلال <span className="font-bold text-stone">{seconds}s</span>
+          </>
         ) : (
-          <button onClick={resend} className="text-orange font-bold">إعادة إرسال الرمز</button>
+          <button onClick={resend} className="text-orange font-bold">
+            إعادة إرسال الرمز
+          </button>
         )}
       </div>
     </AuthShell>

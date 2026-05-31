@@ -1,3 +1,3 @@
-import { CameraPermissionsScreen } from "@/features/parity/AuthParityScreens";
+import { MvpCameraPermissionsScreen } from "@/features/mvp/MvpAuthScreens";
 
-export default CameraPermissionsScreen;
+export default MvpCameraPermissionsScreen;

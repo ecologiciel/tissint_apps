@@ -52,7 +52,16 @@ import { useScanStore } from "@/store/scan-store";
 import { useSessionStore } from "@/store/session-store";
 import { colors, spacing } from "@/theme";
 import { DEMO_COLLECTION, DEMO_MARKETPLACE_LISTINGS } from "./parity-data";
-import { Field, HeaderBar, InfoLine, LinkLine, MetricTile, ProgressBar, SectionCard, ToggleLine } from "./parity-ui";
+import {
+  Field,
+  HeaderBar,
+  InfoLine,
+  LinkLine,
+  MetricTile,
+  ProgressBar,
+  SectionCard,
+  ToggleLine,
+} from "./parity-ui";
 import {
   selectUnreadMessages,
   selectUnreadNotifications,
@@ -82,14 +91,31 @@ export function ProfileScreen() {
         <View style={styles.avatar}>
           <User color="#FFFFFF" size={32} />
         </View>
-        <AppText variant="title" color={colors.navy} style={styles.centerText}>{name}</AppText>
-        <Badge label={role === "premium" ? "Premium" : role === "admin" ? "Admin" : "حساب مجاني"} tone={role === "premium" ? "premium" : "neutral"} />
-        <AppText variant="caption" style={styles.centerText}>@tissint_user_2026</AppText>
+        <AppText variant="title" color={colors.navy} style={styles.centerText}>
+          {name}
+        </AppText>
+        <Badge
+          label={role === "premium" ? "Premium" : role === "admin" ? "Admin" : "حساب مجاني"}
+          tone={role === "premium" ? "premium" : "neutral"}
+        />
+        <AppText variant="caption" style={styles.centerText}>
+          @tissint_user_2026
+        </AppText>
       </Card>
       <View style={styles.metricRow}>
         <MetricTile label="مجموعة" value={DEMO_COLLECTION.length} icon={Library} />
-        <MetricTile label="في السوق" value={DEMO_MARKETPLACE_LISTINGS.length} icon={Store} tone="orange" />
-        <MetricTile label="اليوم" value={`${quota.remainingToday}/${quota.dailyLimit}`} icon={TrendingUp} tone="success" />
+        <MetricTile
+          label="في السوق"
+          value={DEMO_MARKETPLACE_LISTINGS.length}
+          icon={Store}
+          tone="orange"
+        />
+        <MetricTile
+          label="اليوم"
+          value={`${quota.remainingToday}/${quota.dailyLimit}`}
+          icon={TrendingUp}
+          tone="success"
+        />
       </View>
       <SectionCard title="المعلومات الشخصية" icon={User}>
         <InfoLine icon={Mail} label="البريد" value={user?.email ?? "user@tissint.ma"} />
@@ -100,16 +126,35 @@ export function ProfileScreen() {
       <SectionCard title="الحساب والاشتراك" icon={Shield}>
         <LinkLine icon={Wallet} label="المحفظة" route="/wallet" badge={`${wallet} DH`} />
         <LinkLine icon={FileText} label="الفوترة والفواتير" route="/billing" />
-        <Button tone="secondary" icon={Crown} onPress={() => setRole(role === "premium" ? "free" : "premium")}>
+        <Button
+          tone="secondary"
+          icon={Crown}
+          onPress={() => setRole(role === "premium" ? "free" : "premium")}
+        >
           {role === "premium" ? "اختبار حساب مجاني" : "الترقية إلى Premium"}
         </Button>
       </SectionCard>
       <SectionCard title="نشاطي" icon={Star}>
-        <LinkLine icon={Library} label="مجموعتي" route="/collection" badge={DEMO_COLLECTION.length} />
+        <LinkLine
+          icon={Library}
+          label="مجموعتي"
+          route="/collection"
+          badge={DEMO_COLLECTION.length}
+        />
         <LinkLine icon={Star} label="المفضلات" route="/favorites" />
-        <LinkLine icon={Store} label="إعلاناتي في السوق" route="/marketplace/my-listings" />
-        <LinkLine icon={MessageCircle} label="الرسائل" route="/messages" badge={unreadMessages || undefined} />
-        <LinkLine icon={Bell} label="الإشعارات" route="/notifications" badge={unreadNotifications || undefined} />
+        <LinkLine icon={Store} label="إعلاناتي في السوق" route="/market/my-listings" />
+        <LinkLine
+          icon={MessageCircle}
+          label="الرسائل"
+          route="/messages"
+          badge={unreadMessages || undefined}
+        />
+        <LinkLine
+          icon={Bell}
+          label="الإشعارات"
+          route="/notifications"
+          badge={unreadNotifications || undefined}
+        />
         <LinkLine icon={TrendingUp} label="إحصائياتي" route="/stats" />
       </SectionCard>
       <SectionCard title="التفضيلات والمساعدة" icon={Settings}>
@@ -118,15 +163,25 @@ export function ProfileScreen() {
         <LinkLine icon={HelpCircle} label="مركز المساعدة" route="/help" />
         <LinkLine icon={FileText} label="الشروط والخصوصية" route="/legal/terms" />
       </SectionCard>
-      {role === "admin" ? <Button icon={Shield} tone="dark" onPress={() => router.push("/admin")}>لوحة الإدارة</Button> : null}
-      <Button tone="danger" icon={LogOut} onPress={logout}>تسجيل الخروج</Button>
-      <AppText variant="caption" style={styles.centerText}>Tissint v1.0.0 - جاهز للربط الإنتاجي</AppText>
+      {role === "admin" ? (
+        <Button icon={Shield} tone="dark" onPress={() => router.push("/admin")}>
+          لوحة الإدارة
+        </Button>
+      ) : null}
+      <Button tone="danger" icon={LogOut} onPress={logout}>
+        تسجيل الخروج
+      </Button>
+      <AppText variant="caption" style={styles.centerText}>
+        Tissint v1.0.0 - جاهز للربط الإنتاجي
+      </AppText>
     </Screen>
   );
 }
 
 export function SettingsScreen() {
-  const [section, setSection] = useState<"security" | "appearance" | "notifications" | "privacy" | "devices">("security");
+  const [section, setSection] = useState<
+    "security" | "appearance" | "notifications" | "privacy" | "devices"
+  >("security");
   const store = useParityStore();
   const [oldPwd, setOldPwd] = useState("");
   const [newPwd, setNewPwd] = useState("");
@@ -143,9 +198,19 @@ export function SettingsScreen() {
           ["privacy", "الخصوصية", Lock],
           ["devices", "الأجهزة", Smartphone],
         ].map(([id, label, Icon]) => (
-          <Pressable key={id as string} onPress={() => setSection(id as typeof section)} style={[styles.tabChip, section === id ? styles.tabChipActive : null]}>
+          <Pressable
+            key={id as string}
+            onPress={() => setSection(id as typeof section)}
+            style={[styles.tabChip, section === id ? styles.tabChipActive : null]}
+          >
             <Icon color={section === id ? "#FFFFFF" : colors.navy} size={15} />
-            <AppText variant="caption" color={section === id ? "#FFFFFF" : colors.text} style={styles.bold}>{label as string}</AppText>
+            <AppText
+              variant="caption"
+              color={section === id ? "#FFFFFF" : colors.text}
+              style={styles.bold}
+            >
+              {label as string}
+            </AppText>
           </Pressable>
         ))}
       </View>
@@ -153,12 +218,30 @@ export function SettingsScreen() {
       {section === "security" ? (
         <>
           <SectionCard title="المصادقة الثنائية" icon={Shield}>
-            <ToggleLine label="تفعيل 2FA عبر SMS" value={store.smsEnabled} onPress={store.toggleSms} />
-            <ToggleLine label="بصمة الإصبع / Face ID" value={store.biometricEnabled} onPress={store.toggleBiometric} />
+            <ToggleLine
+              label="تفعيل 2FA عبر SMS"
+              value={store.smsEnabled}
+              onPress={store.toggleSms}
+            />
+            <ToggleLine
+              label="بصمة الإصبع / Face ID"
+              value={store.biometricEnabled}
+              onPress={store.toggleBiometric}
+            />
           </SectionCard>
           <SectionCard title="تغيير كلمة المرور" icon={Lock}>
-            <Field value={oldPwd} onChangeText={setOldPwd} placeholder="كلمة المرور الحالية" secureTextEntry />
-            <Field value={newPwd} onChangeText={setNewPwd} placeholder="كلمة المرور الجديدة" secureTextEntry />
+            <Field
+              value={oldPwd}
+              onChangeText={setOldPwd}
+              placeholder="كلمة المرور الحالية"
+              secureTextEntry
+            />
+            <Field
+              value={newPwd}
+              onChangeText={setNewPwd}
+              placeholder="كلمة المرور الجديدة"
+              secureTextEntry
+            />
             <Button disabled={newPwd.length < 8}>تحديث</Button>
           </SectionCard>
         </>
@@ -167,10 +250,20 @@ export function SettingsScreen() {
       {section === "appearance" ? (
         <SectionCard title="المظهر واللغة" icon={Languages}>
           {(["light", "dark", "auto"] as const).map((theme) => (
-            <SelectSmall key={theme} label={theme === "light" ? "فاتح" : theme === "dark" ? "داكن" : "تلقائي"} active={store.themeMode === theme} onPress={() => store.setThemeMode(theme)} />
+            <SelectSmall
+              key={theme}
+              label={theme === "light" ? "فاتح" : theme === "dark" ? "داكن" : "تلقائي"}
+              active={store.themeMode === theme}
+              onPress={() => store.setThemeMode(theme)}
+            />
           ))}
           {(["ar", "fr", "en"] as const).map((locale) => (
-            <SelectSmall key={locale} label={locale === "ar" ? "العربية" : locale === "fr" ? "Français" : "English"} active={store.locale === locale} onPress={() => store.setLocale(locale)} />
+            <SelectSmall
+              key={locale}
+              label={locale === "ar" ? "العربية" : locale === "fr" ? "Français" : "English"}
+              active={store.locale === locale}
+              onPress={() => store.setLocale(locale)}
+            />
           ))}
         </SectionCard>
       ) : null}
@@ -186,14 +279,30 @@ export function SettingsScreen() {
       {section === "privacy" ? (
         <>
           <SectionCard title="الخصوصية والبيانات" icon={Lock}>
-            <ToggleLine label="مشاركة إحداثيات دقيقة مع الإدارة فقط" value={store.locationSharingEnabled} onPress={store.toggleLocationSharing} />
-            <ToggleLine label="تحليلات لتحسين النماذج" value={store.analyticsEnabled} onPress={store.toggleAnalytics} />
-            <Button tone="ghost" icon={Download}>تصدير بياناتي</Button>
+            <ToggleLine
+              label="مشاركة إحداثيات دقيقة مع الإدارة فقط"
+              value={store.locationSharingEnabled}
+              onPress={store.toggleLocationSharing}
+            />
+            <ToggleLine
+              label="تحليلات لتحسين النماذج"
+              value={store.analyticsEnabled}
+              onPress={store.toggleAnalytics}
+            />
+            <Button tone="ghost" icon={Download}>
+              تصدير بياناتي
+            </Button>
           </SectionCard>
           <Card style={styles.cardGap}>
-            <AppText variant="subtitle" color={colors.danger}>حذف الحساب</AppText>
+            <AppText variant="subtitle" color={colors.danger}>
+              حذف الحساب
+            </AppText>
             <AppText variant="caption">تتم معالجة طلب الحذف خلال 30 يوما.</AppText>
-            <Button tone={confirmDelete ? "danger" : "ghost"} icon={Trash2} onPress={() => setConfirmDelete((current) => !current)}>
+            <Button
+              tone={confirmDelete ? "danger" : "ghost"}
+              icon={Trash2}
+              onPress={() => setConfirmDelete((current) => !current)}
+            >
               {confirmDelete ? "تأكيد الحذف" : "طلب حذف الحساب"}
             </Button>
           </Card>
@@ -202,7 +311,11 @@ export function SettingsScreen() {
 
       {section === "devices" ? (
         <SectionCard title="الأجهزة النشطة" icon={Smartphone}>
-          {["Android 15 - هذا الجهاز", "Chrome Windows - منذ 3 ساعات", "Samsung Galaxy - منذ 5 أيام"].map((device) => (
+          {[
+            "Android 15 - هذا الجهاز",
+            "Chrome Windows - منذ 3 ساعات",
+            "Samsung Galaxy - منذ 5 أيام",
+          ].map((device) => (
             <View key={device} style={styles.compactLine}>
               <Smartphone color={colors.navy} size={18} />
               <AppText style={styles.flex}>{device}</AppText>
@@ -215,10 +328,23 @@ export function SettingsScreen() {
   );
 }
 
-function SelectSmall({ label, active, onPress }: { label: string; active: boolean; onPress: () => void }) {
+function SelectSmall({
+  label,
+  active,
+  onPress,
+}: {
+  label: string;
+  active: boolean;
+  onPress: () => void;
+}) {
   return (
-    <Pressable onPress={onPress} style={[styles.selectSmall, active ? styles.selectSmallActive : null]}>
-      <AppText color={active ? colors.orange : colors.text} style={styles.bold}>{label}</AppText>
+    <Pressable
+      onPress={onPress}
+      style={[styles.selectSmall, active ? styles.selectSmallActive : null]}
+    >
+      <AppText color={active ? colors.orange : colors.text} style={styles.bold}>
+        {label}
+      </AppText>
       {active ? <Check color={colors.orange} size={16} /> : null}
     </Pressable>
   );
@@ -236,7 +362,11 @@ export function NotificationsScreen() {
         title="الإشعارات"
         subtitle={unread ? `${unread} غير مقروءة` : "كل الإشعارات مقروءة"}
         backTo="/dashboard"
-        right={<Button tone="ghost" icon={CheckCheck} onPress={markAll}>الكل</Button>}
+        right={
+          <Button tone="ghost" icon={CheckCheck} onPress={markAll}>
+            الكل
+          </Button>
+        }
       />
       {notifications.map((notification) => (
         <Pressable
@@ -246,14 +376,20 @@ export function NotificationsScreen() {
             if (notification.route) router.push(notification.route as never);
           }}
         >
-          <Card style={[styles.notificationCard, !notification.read ? styles.notificationUnread : null]}>
+          <Card
+            style={[styles.notificationCard, !notification.read ? styles.notificationUnread : null]}
+          >
             <Bell color={notification.read ? colors.textMuted : colors.orange} size={22} />
             <View style={styles.flex}>
               <View style={styles.rowBetween}>
                 <AppText variant="subtitle">{notification.title}</AppText>
-                <AppText variant="caption">{new Date(notification.createdAt).toLocaleDateString("ar-MA")}</AppText>
+                <AppText variant="caption">
+                  {new Date(notification.createdAt).toLocaleDateString("ar-MA")}
+                </AppText>
               </View>
-              <AppText variant="body" color={colors.textMuted}>{notification.body}</AppText>
+              <AppText variant="body" color={colors.textMuted}>
+                {notification.body}
+              </AppText>
             </View>
           </Card>
         </Pressable>
@@ -266,9 +402,15 @@ export function SearchScreen() {
   const [query, setQuery] = useState("");
   const [scope, setScope] = useState<"all" | "market" | "collection" | "messages">("all");
   const conversations = useParityStore((state) => state.conversations);
-  const market = DEMO_MARKETPLACE_LISTINGS.filter((item) => matches(query, item.title, item.dominantClass, item.region ?? ""));
-  const collection = DEMO_COLLECTION.filter((item) => matches(query, item.name, item.className, item.region));
-  const messages = conversations.filter((item) => matches(query, item.peerName, item.listingTitle, item.lastMessage));
+  const market = DEMO_MARKETPLACE_LISTINGS.filter((item) =>
+    matches(query, item.title, item.dominantClass, item.region ?? ""),
+  );
+  const collection = DEMO_COLLECTION.filter((item) =>
+    matches(query, item.name, item.className, item.region),
+  );
+  const messages = conversations.filter((item) =>
+    matches(query, item.peerName, item.listingTitle, item.lastMessage),
+  );
   const total = market.length + collection.length + messages.length;
   const show = (target: typeof scope) => scope === "all" || scope === target;
 
@@ -283,8 +425,18 @@ export function SearchScreen() {
           ["collection", "المجموعة", collection.length],
           ["messages", "الرسائل", messages.length],
         ].map(([id, label, count]) => (
-          <Pressable key={id as string} onPress={() => setScope(id as typeof scope)} style={[styles.tabChip, scope === id ? styles.tabChipActive : null]}>
-            <AppText variant="caption" color={scope === id ? "#FFFFFF" : colors.text} style={styles.bold}>{label as string} ({count as number})</AppText>
+          <Pressable
+            key={id as string}
+            onPress={() => setScope(id as typeof scope)}
+            style={[styles.tabChip, scope === id ? styles.tabChipActive : null]}
+          >
+            <AppText
+              variant="caption"
+              color={scope === id ? "#FFFFFF" : colors.text}
+              style={styles.bold}
+            >
+              {label as string} ({count as number})
+            </AppText>
           </Pressable>
         ))}
       </View>
@@ -292,16 +444,54 @@ export function SearchScreen() {
         <SectionCard title="رائج الآن" icon={Search}>
           <View style={styles.chipRow}>
             {["Chondrite", "Tissint", "Pallasite", "Shergottite", "تاتا"].map((term) => (
-              <Button key={term} tone="ghost" onPress={() => setQuery(term)}>{term}</Button>
+              <Button key={term} tone="ghost" onPress={() => setQuery(term)}>
+                {term}
+              </Button>
             ))}
           </View>
-          <Button icon={Store} onPress={() => router.push("/marketplace")}>تصفح السوق</Button>
+          <Button icon={Store} onPress={() => router.push("/market" as never)}>
+            تصفح السوق
+          </Button>
         </SectionCard>
       ) : null}
-      {query && total === 0 ? <Card><AppText style={styles.centerText}>لا توجد نتائج.</AppText></Card> : null}
-      {query && show("market") && market.length ? <SearchSection title="السوق" items={market.map((item) => ({ id: item.listingId, title: item.title, body: item.dominantClass, route: `/marketplace/${item.listingId}` }))} /> : null}
-      {query && show("collection") && collection.length ? <SearchSection title="مجموعتي" items={collection.map((item) => ({ id: item.id, title: item.name, body: item.className, route: `/collection/${item.scanId}` }))} /> : null}
-      {query && show("messages") && messages.length ? <SearchSection title="الرسائل" items={messages.map((item) => ({ id: item.id, title: item.peerName, body: item.lastMessage, route: `/messages/${item.id}` }))} /> : null}
+      {query && total === 0 ? (
+        <Card>
+          <AppText style={styles.centerText}>لا توجد نتائج.</AppText>
+        </Card>
+      ) : null}
+      {query && show("market") && market.length ? (
+        <SearchSection
+          title="السوق"
+          items={market.map((item) => ({
+            id: item.listingId,
+            title: item.title,
+            body: item.dominantClass,
+            route: `/market/${item.listingId}`,
+          }))}
+        />
+      ) : null}
+      {query && show("collection") && collection.length ? (
+        <SearchSection
+          title="مجموعتي"
+          items={collection.map((item) => ({
+            id: item.id,
+            title: item.name,
+            body: item.className,
+            route: `/collection/${item.scanId}`,
+          }))}
+        />
+      ) : null}
+      {query && show("messages") && messages.length ? (
+        <SearchSection
+          title="الرسائل"
+          items={messages.map((item) => ({
+            id: item.id,
+            title: item.peerName,
+            body: item.lastMessage,
+            route: `/messages/${item.id}`,
+          }))}
+        />
+      ) : null}
     </Screen>
   );
 }
@@ -312,11 +502,21 @@ function matches(q: string, ...values: string[]) {
   return values.some((value) => value.toLowerCase().includes(needle));
 }
 
-function SearchSection({ title, items }: { title: string; items: { id: string; title: string; body: string; route: string }[] }) {
+function SearchSection({
+  title,
+  items,
+}: {
+  title: string;
+  items: { id: string; title: string; body: string; route: string }[];
+}) {
   return (
     <SectionCard title={title}>
       {items.map((item) => (
-        <Pressable key={item.id} onPress={() => router.push(item.route as never)} style={styles.compactLine}>
+        <Pressable
+          key={item.id}
+          onPress={() => router.push(item.route as never)}
+          style={styles.compactLine}
+        >
           <View style={styles.thumbTiny}>
             <MeteoriteThumb rare={item.title.includes("Shergottite")} />
           </View>
@@ -334,7 +534,10 @@ export function StatsScreen() {
   const quota = useSessionStore((state) => state.quota);
   const wallet = useParityStore(selectWalletBalance);
   const likely = DEMO_COLLECTION.filter((item) => item.fusionScore >= 0.85).length;
-  const avg = Math.round((DEMO_COLLECTION.reduce((sum, item) => sum + item.fusionScore, 0) / DEMO_COLLECTION.length) * 100);
+  const avg = Math.round(
+    (DEMO_COLLECTION.reduce((sum, item) => sum + item.fusionScore, 0) / DEMO_COLLECTION.length) *
+      100,
+  );
   const byClass = DEMO_COLLECTION.reduce<Record<string, number>>((acc, item) => {
     acc[item.className] = (acc[item.className] ?? 0) + 1;
     return acc;
@@ -354,7 +557,9 @@ export function StatsScreen() {
           {[2, 1, 3, 0, 4, 2, quota.dailyLimit - quota.remainingToday].map((value, index) => (
             <View key={index} style={styles.chartCol}>
               <View style={[styles.chartBar, { height: `${Math.max(8, value * 18)}%` }]} />
-              <AppText variant="caption" style={styles.centerText}>{index + 1}</AppText>
+              <AppText variant="caption" style={styles.centerText}>
+                {index + 1}
+              </AppText>
             </View>
           ))}
         </View>
@@ -362,7 +567,10 @@ export function StatsScreen() {
       <SectionCard title="التصنيفات" icon={Database}>
         {Object.entries(byClass).map(([classification, value]) => (
           <View key={classification} style={styles.cardGap}>
-            <View style={styles.rowBetween}><AppText>{classification}</AppText><AppText>{value}</AppText></View>
+            <View style={styles.rowBetween}>
+              <AppText>{classification}</AppText>
+              <AppText>{value}</AppText>
+            </View>
             <ProgressBar value={(value / DEMO_COLLECTION.length) * 100} color={colors.navy} />
           </View>
         ))}
@@ -375,16 +583,26 @@ export function HelpScreen() {
   const [open, setOpen] = useState("scan");
   const faqs = [
     ["scan", "كيف أحصل على أفضل فحص؟", "استعمل إضاءة طبيعية، صور 3 زوايا، ولا تستعمل صور المعرض."],
-    ["market", "لماذا التواصل مقفل؟", "أرقام الهاتف وWhatsApp متاحة فقط للحسابات Premium أو الإدارة."],
+    [
+      "market",
+      "لماذا التواصل مقفل؟",
+      "أرقام الهاتف وWhatsApp متاحة فقط للحسابات Premium أو الإدارة.",
+    ],
     ["rare", "ما معنى معالجة 24 ساعة؟", "العينات النادرة تخضع لرادار إداري قبل فتح التواصل."],
-    ["payment", "هل الدفع حقيقي الآن؟", "في MVP الدفع محاكى، لكن الشاشات جاهزة للربط مع CMI/Stripe/PayPal."],
+    [
+      "payment",
+      "هل الدفع حقيقي الآن؟",
+      "في MVP الدفع محاكى، لكن الشاشات جاهزة للربط مع CMI/Stripe/PayPal.",
+    ],
   ];
   return (
     <Screen contentStyle={styles.screen}>
       <HeaderBar title="مركز المساعدة" subtitle="دعم الفحص والسوق والحساب" backTo="/profile" />
       <View style={styles.metricRow}>
         <Button icon={MessageCircle}>تواصل معنا</Button>
-        <Button tone="ghost" icon={BookOpen}>دليل الاستخدام</Button>
+        <Button tone="ghost" icon={BookOpen}>
+          دليل الاستخدام
+        </Button>
       </View>
       {faqs.map(([id, title, body]) => (
         <Card key={id} style={styles.cardGap}>
@@ -392,7 +610,11 @@ export function HelpScreen() {
             <AppText variant="subtitle">{title}</AppText>
             <HelpCircle color={colors.orange} size={18} />
           </Pressable>
-          {open === id ? <AppText variant="body" color={colors.textMuted}>{body}</AppText> : null}
+          {open === id ? (
+            <AppText variant="body" color={colors.textMuted}>
+              {body}
+            </AppText>
+          ) : null}
         </Card>
       ))}
     </Screen>
@@ -402,10 +624,16 @@ export function HelpScreen() {
 export function OfflineScreen() {
   return (
     <Screen contentStyle={styles.screen}>
-      <HeaderBar title="الوضع غير المتصل" subtitle="جاهزية ميدانية للمناطق بدون شبكة" backTo="/profile" />
+      <HeaderBar
+        title="الوضع غير المتصل"
+        subtitle="جاهزية ميدانية للمناطق بدون شبكة"
+        backTo="/profile"
+      />
       <Card style={styles.centerCard}>
         <WifiOff color={colors.orange} size={46} />
-        <AppText variant="title" color={colors.navy} style={styles.centerText}>قائمة انتظار الرفع</AppText>
+        <AppText variant="title" color={colors.navy} style={styles.centerText}>
+          قائمة انتظار الرفع
+        </AppText>
         <AppText variant="body" color={colors.textMuted} style={styles.centerText}>
           في الإنتاج، سيتم حفظ الصور والطلبات محليا بشكل مشفر ثم رفعها عند عودة الشبكة.
         </AppText>
@@ -422,10 +650,22 @@ export function OfflineScreen() {
 
 export function LegalScreen({ kind }: { kind: "about" | "terms" | "privacy" | "cookies" }) {
   const content = {
-    about: ["عن Tissint", "Tissint تطبيق مغربي لمساعدة الباحثين والمشترين على تنظيم فحص النيازك والسوق."],
-    terms: ["شروط الاستخدام", "التحليل مساعدة بصرية وليس خبرة مخبرية. يمنع نشر أرقام الهاتف داخل الوصف أو الصور."],
-    privacy: ["سياسة الخصوصية", "نحمي الهاتف، WhatsApp، والإحداثيات الدقيقة. المنطقة العامة فقط تظهر للعموم."],
-    cookies: ["ملفات تعريف الارتباط", "تطبيق الهاتف يستعمل تخزينا آمنا للجلسة ومعرف الجهاز، وليس cookies الويب التقليدية."],
+    about: [
+      "عن Tissint",
+      "Tissint تطبيق مغربي لمساعدة الباحثين والمشترين على تنظيم فحص النيازك والسوق.",
+    ],
+    terms: [
+      "شروط الاستخدام",
+      "التحليل مساعدة بصرية وليس خبرة مخبرية. يمنع نشر أرقام الهاتف داخل الوصف أو الصور.",
+    ],
+    privacy: [
+      "سياسة الخصوصية",
+      "نحمي الهاتف، WhatsApp، والإحداثيات الدقيقة. المنطقة العامة فقط تظهر للعموم.",
+    ],
+    cookies: [
+      "ملفات تعريف الارتباط",
+      "تطبيق الهاتف يستعمل تخزينا آمنا للجلسة ومعرف الجهاز، وليس cookies الويب التقليدية.",
+    ],
   }[kind];
 
   return (
@@ -433,7 +673,9 @@ export function LegalScreen({ kind }: { kind: "about" | "terms" | "privacy" | "c
       <HeaderBar title={content[0]} subtitle="نسخة تطبيق الهاتف" backTo="/profile" />
       <Card style={styles.cardGap}>
         <FileText color={colors.orange} size={34} />
-        <AppText variant="body" color={colors.textMuted}>{content[1]}</AppText>
+        <AppText variant="body" color={colors.textMuted}>
+          {content[1]}
+        </AppText>
         <AppText variant="caption">آخر تحديث: 29 مايو 2026</AppText>
       </Card>
     </Screen>
@@ -448,15 +690,27 @@ export function CompareScreen() {
 
   return (
     <Screen contentStyle={styles.screen}>
-      <HeaderBar title="مقارنة العينات" subtitle="قارن التصنيف والscore والوزن" backTo="/collection" />
+      <HeaderBar
+        title="مقارنة العينات"
+        subtitle="قارن التصنيف والscore والوزن"
+        backTo="/collection"
+      />
       <View style={styles.twoCol}>
         {[a, b].map((item, index) => (
           <Card key={index} style={styles.compareCard}>
             <MeteoriteThumb rare={item.isRare} />
-            <AppText variant="subtitle" style={styles.centerText}>{item.name}</AppText>
-            <AppText color={colors.orange} style={styles.centerText}>{Math.round(item.fusionScore * 100)}%</AppText>
-            <AppText variant="caption" style={styles.centerText}>{item.className}</AppText>
-            <AppText variant="caption" style={styles.centerText}>{item.weightGram}g</AppText>
+            <AppText variant="subtitle" style={styles.centerText}>
+              {item.name}
+            </AppText>
+            <AppText color={colors.orange} style={styles.centerText}>
+              {Math.round(item.fusionScore * 100)}%
+            </AppText>
+            <AppText variant="caption" style={styles.centerText}>
+              {item.className}
+            </AppText>
+            <AppText variant="caption" style={styles.centerText}>
+              {item.weightGram}g
+            </AppText>
           </Card>
         ))}
       </View>
@@ -464,8 +718,18 @@ export function CompareScreen() {
         {DEMO_COLLECTION.map((item) => (
           <View key={item.scanId} style={styles.compactLine}>
             <AppText style={styles.flex}>{item.name}</AppText>
-            <Button tone={left === item.scanId ? "secondary" : "ghost"} onPress={() => setLeft(item.scanId)}>A</Button>
-            <Button tone={right === item.scanId ? "secondary" : "ghost"} onPress={() => setRight(item.scanId)}>B</Button>
+            <Button
+              tone={left === item.scanId ? "secondary" : "ghost"}
+              onPress={() => setLeft(item.scanId)}
+            >
+              A
+            </Button>
+            <Button
+              tone={right === item.scanId ? "secondary" : "ghost"}
+              onPress={() => setRight(item.scanId)}
+            >
+              B
+            </Button>
           </View>
         ))}
       </SectionCard>
@@ -477,21 +741,31 @@ export function MessagesScreen() {
   const conversations = useParityStore((state) => state.conversations);
   return (
     <Screen contentStyle={styles.screen}>
-      <HeaderBar title="الرسائل" subtitle="Messagerie prévue, non prioritaire MVP" backTo="/profile" />
+      <HeaderBar
+        title="الرسائل"
+        subtitle="Messagerie prévue, non prioritaire MVP"
+        backTo="/profile"
+      />
       {conversations.map((conversation) => (
         <Pressable
           key={conversation.id}
-          onPress={() => router.push({ pathname: "/messages/[threadId]", params: { threadId: conversation.id } })}
+          onPress={() =>
+            router.push({ pathname: "/messages/[threadId]", params: { threadId: conversation.id } })
+          }
         >
           <Card style={styles.notificationCard}>
             <MessageCircle color={colors.orange} size={22} />
             <View style={styles.flex}>
               <View style={styles.rowBetween}>
                 <AppText variant="subtitle">{conversation.peerName}</AppText>
-                {conversation.unread ? <Badge label={String(conversation.unread)} tone="warning" /> : null}
+                {conversation.unread ? (
+                  <Badge label={String(conversation.unread)} tone="warning" />
+                ) : null}
               </View>
               <AppText variant="caption">{conversation.listingTitle}</AppText>
-              <AppText variant="body" color={colors.textMuted}>{conversation.lastMessage}</AppText>
+              <AppText variant="body" color={colors.textMuted}>
+                {conversation.lastMessage}
+              </AppText>
             </View>
           </Card>
         </Pressable>
@@ -504,23 +778,43 @@ export function ThreadScreen() {
   const params = useLocalSearchParams<{ threadId?: string }>();
   const threadId = params.threadId ?? "th-001";
   const conversations = useParityStore((state) => state.conversations);
-  const messages = useParityStore((state) => state.messages.filter((message) => message.threadId === threadId));
+  const messages = useParityStore((state) =>
+    state.messages.filter((message) => message.threadId === threadId),
+  );
   const sendMessage = useParityStore((state) => state.sendMessage);
   const [draft, setDraft] = useState("");
   const conversation = conversations.find((item) => item.id === threadId);
   return (
     <Screen contentStyle={styles.screen}>
-      <HeaderBar title={conversation?.peerName ?? "رسالة"} subtitle={conversation?.listingTitle} backTo="/messages" />
+      <HeaderBar
+        title={conversation?.peerName ?? "رسالة"}
+        subtitle={conversation?.listingTitle}
+        backTo="/messages"
+      />
       <View style={styles.messageList}>
         {messages.map((message) => (
-          <View key={message.id} style={[styles.bubble, message.fromMe ? styles.bubbleMine : styles.bubblePeer]}>
+          <View
+            key={message.id}
+            style={[styles.bubble, message.fromMe ? styles.bubbleMine : styles.bubblePeer]}
+          >
             <AppText color={message.fromMe ? "#FFFFFF" : colors.text}>{message.text}</AppText>
           </View>
         ))}
       </View>
       <Card style={styles.composer}>
-        <View style={styles.flex}><Field value={draft} onChangeText={setDraft} placeholder="اكتب رسالة..." /></View>
-        <Button icon={Send} onPress={() => { sendMessage(threadId, draft); setDraft(""); }} disabled={!draft.trim()}>إرسال</Button>
+        <View style={styles.flex}>
+          <Field value={draft} onChangeText={setDraft} placeholder="اكتب رسالة..." />
+        </View>
+        <Button
+          icon={Send}
+          onPress={() => {
+            sendMessage(threadId, draft);
+            setDraft("");
+          }}
+          disabled={!draft.trim()}
+        >
+          إرسال
+        </Button>
       </Card>
     </Screen>
   );
@@ -537,9 +831,15 @@ export function AdminDashboardScreen() {
       <Screen contentStyle={styles.centerScreen}>
         <Card style={styles.centerCard}>
           <Shield color={colors.warning} size={42} />
-          <AppText variant="title" style={styles.centerText}>Accès admin requis</AppText>
-          <Button tone="dark" onPress={() => setRole("admin")}>Activer mode admin test</Button>
-          <Button tone="ghost" onPress={() => router.back()}>Retour</Button>
+          <AppText variant="title" style={styles.centerText}>
+            Accès admin requis
+          </AppText>
+          <Button tone="dark" onPress={() => setRole("admin")}>
+            Activer mode admin test
+          </Button>
+          <Button tone="ghost" onPress={() => router.back()}>
+            Retour
+          </Button>
         </Card>
       </Screen>
     );
@@ -550,14 +850,28 @@ export function AdminDashboardScreen() {
       <HeaderBar title="لوحة الإدارة" subtitle="Radar rare, décisions, audit" backTo="/profile" />
       <View style={styles.metricRow}>
         <MetricTile label="Rares" value={rare.length} icon={AlertTriangle} tone="gold" />
-        <MetricTile label="Hold 24h" value={rare.filter((item) => item.status === "institutional_hold_24h").length} icon={Clock} tone="orange" />
-        <MetricTile label="Dernier scan" value={lastResult ? Math.round(lastResult.fusionScore * 100) : "--"} icon={Shield} />
+        <MetricTile
+          label="Hold 24h"
+          value={rare.filter((item) => item.status === "institutional_hold_24h").length}
+          icon={Clock}
+          tone="orange"
+        />
+        <MetricTile
+          label="Dernier scan"
+          value={lastResult ? Math.round(lastResult.fusionScore * 100) : "--"}
+          icon={Shield}
+        />
       </View>
       {rare.map((listing) => (
         <Card key={listing.listingId} style={styles.cardGap}>
-          <Badge label={listing.status === "institutional_hold_24h" ? "institutional_hold_24h" : "rare"} tone="premium" />
+          <Badge
+            label={listing.status === "institutional_hold_24h" ? "institutional_hold_24h" : "rare"}
+            tone="premium"
+          />
           <AppText variant="title">{listing.title}</AppText>
-          <AppText variant="caption">{listing.region} - {Math.round(listing.confidence * 100)}%</AppText>
+          <AppText variant="caption">
+            {listing.region} - {Math.round(listing.confidence * 100)}%
+          </AppText>
           <View style={styles.buttonRow}>
             <Button tone="dark">Réserver</Button>
             <Button tone="secondary">Contacter</Button>

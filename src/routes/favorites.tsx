@@ -43,18 +43,24 @@ function FavoritesPage() {
                 <Link to="/market/$listingId" params={{ listingId: l.id }}>
                   <MeteoriteThumb seed={l.imageSeed} className="aspect-square" />
                 </Link>
-                <button onClick={() => { toggleFavorite(l.id); toast.success("تمت الإزالة من المفضلات"); }}
-                  className="absolute top-2 left-2 grid h-8 w-8 place-items-center rounded-full bg-white/90 backdrop-blur text-destructive shadow">
+                <button
+                  onClick={() => {
+                    toggleFavorite(l.id);
+                    toast.success("تمت الإزالة من المفضلات");
+                  }}
+                  className="absolute top-2 left-2 grid h-8 w-8 place-items-center rounded-full bg-white/90 backdrop-blur text-destructive shadow"
+                >
                   <Trash2 className="h-3.5 w-3.5" />
                 </button>
-                <Link to="/market/$listingId" params={{ listingId: l.id }}
-                  className="block p-2.5">
+                <Link to="/market/$listingId" params={{ listingId: l.id }} className="block p-2.5">
                   <p className="text-xs font-bold truncate">{l.title}</p>
                   <p className="text-[10px] text-muted-foreground truncate flex items-center gap-1">
                     <MapPin className="h-3 w-3" /> {l.region}
                   </p>
                   <div className="mt-1 flex items-center justify-between">
-                    <span className="text-sm font-black text-orange">{l.priceDh.toLocaleString()} د.م</span>
+                    <span className="text-sm font-black text-orange">
+                      {l.priceDh.toLocaleString()} د.م
+                    </span>
                     {l.sellerVerified && <BadgeCheck className="h-4 w-4 text-success" />}
                   </div>
                 </Link>
@@ -66,7 +72,10 @@ function FavoritesPage() {
 
       {items.length > 0 && (
         <div className="px-5 pb-2">
-          <Link to="/market" className="flex items-center justify-center gap-2 rounded-full bg-muted py-3 text-xs font-bold">
+          <Link
+            to="/market"
+            className="flex items-center justify-center gap-2 rounded-full bg-muted py-3 text-xs font-bold"
+          >
             <Store className="h-4 w-4" /> اكتشف المزيد في السوق
           </Link>
         </div>

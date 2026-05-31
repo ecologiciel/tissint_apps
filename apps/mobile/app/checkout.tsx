@@ -1,3 +1,3 @@
-import { CheckoutScreen } from "@/features/parity/CommerceParityScreens";
+import { MvpCheckoutScreen } from "@/features/mvp/MvpMarketScreens";
 
-export default CheckoutScreen;
+export default MvpCheckoutScreen;

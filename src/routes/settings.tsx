@@ -3,9 +3,26 @@ import { useState } from "react";
 import { useApp } from "@/lib/store";
 import { toast } from "sonner";
 import {
-  ChevronLeft, Shield, Smartphone, Globe, Bell, Moon, Sun, Trash2,
-  Download, KeyRound, Eye, EyeOff, Mail, MapPin, Lock, LogOut, AlertTriangle,
-  Check, Languages, Monitor,
+  ChevronLeft,
+  Shield,
+  Smartphone,
+  Globe,
+  Bell,
+  Moon,
+  Sun,
+  Trash2,
+  Download,
+  KeyRound,
+  Eye,
+  EyeOff,
+  Mail,
+  MapPin,
+  Lock,
+  LogOut,
+  AlertTriangle,
+  Check,
+  Languages,
+  Monitor,
 } from "lucide-react";
 
 export const Route = createFileRoute("/settings")({ component: SettingsPage });
@@ -13,9 +30,30 @@ export const Route = createFileRoute("/settings")({ component: SettingsPage });
 type Section = "security" | "appearance" | "notifications" | "privacy" | "devices";
 
 const DEVICES = [
-  { id: "d1", name: "iPhone 15 Pro", os: "iOS 18", lastSeen: "نشط الآن", current: true, location: "الرباط، المغرب" },
-  { id: "d2", name: "MacBook Air", os: "macOS Sonoma", lastSeen: "منذ 3 ساعات", current: false, location: "الرباط، المغرب" },
-  { id: "d3", name: "Samsung Galaxy", os: "Android 14", lastSeen: "منذ 5 أيام", current: false, location: "الدار البيضاء" },
+  {
+    id: "d1",
+    name: "iPhone 15 Pro",
+    os: "iOS 18",
+    lastSeen: "نشط الآن",
+    current: true,
+    location: "الرباط، المغرب",
+  },
+  {
+    id: "d2",
+    name: "MacBook Air",
+    os: "macOS Sonoma",
+    lastSeen: "منذ 3 ساعات",
+    current: false,
+    location: "الرباط، المغرب",
+  },
+  {
+    id: "d3",
+    name: "Samsung Galaxy",
+    os: "Android 14",
+    lastSeen: "منذ 5 أيام",
+    current: false,
+    location: "الدار البيضاء",
+  },
 ];
 
 function SettingsPage() {
@@ -76,9 +114,13 @@ function SettingsPage() {
           const I = t.icon;
           const active = section === t.id;
           return (
-            <button key={t.id} onClick={() => setSection(t.id as Section)}
-              className={`shrink-0 flex items-center gap-1.5 rounded-full px-3 py-1.5 text-xs font-bold ${active ? "bg-orange text-white" : "bg-white/10"}`}>
-              <I className="h-3.5 w-3.5" />{t.label}
+            <button
+              key={t.id}
+              onClick={() => setSection(t.id as Section)}
+              className={`shrink-0 flex items-center gap-1.5 rounded-full px-3 py-1.5 text-xs font-bold ${active ? "bg-orange text-white" : "bg-white/10"}`}
+            >
+              <I className="h-3.5 w-3.5" />
+              {t.label}
             </button>
           );
         })}
@@ -88,21 +130,56 @@ function SettingsPage() {
         {section === "security" && (
           <>
             <Card title="المصادقة الثنائية (2FA)" icon={KeyRound}>
-              <Toggle label="تفعيل 2FA عبر SMS" value={twoFA} onChange={(v) => { setTwoFA(v); toast.success(v ? "تم التفعيل" : "تم الإلغاء"); }} />
+              <Toggle
+                label="تفعيل 2FA عبر SMS"
+                value={twoFA}
+                onChange={(v) => {
+                  setTwoFA(v);
+                  toast.success(v ? "تم التفعيل" : "تم الإلغاء");
+                }}
+              />
               <Toggle label="بصمة الإصبع / Face ID" value={biometric} onChange={setBiometric} />
-              <p className="text-[11px] text-muted-foreground px-1 mt-1">حماية إضافية ضد سرقة الحساب.</p>
+              <p className="text-[11px] text-muted-foreground px-1 mt-1">
+                حماية إضافية ضد سرقة الحساب.
+              </p>
             </Card>
 
             <Card title="تغيير كلمة المرور" icon={Lock}>
-              <PwdInput label="الحالية" value={oldPwd} onChange={setOldPwd} show={showPwd} setShow={setShowPwd} />
-              <PwdInput label="الجديدة" value={newPwd} onChange={setNewPwd} show={showPwd} setShow={setShowPwd} />
-              <button onClick={() => { if (newPwd.length < 8) return toast.error("8 أحرف على الأقل"); toast.success("تم التحديث"); setOldPwd(""); setNewPwd(""); }}
-                className="w-full mt-2 rounded-xl bg-orange text-white py-2.5 text-sm font-bold">تحديث</button>
+              <PwdInput
+                label="الحالية"
+                value={oldPwd}
+                onChange={setOldPwd}
+                show={showPwd}
+                setShow={setShowPwd}
+              />
+              <PwdInput
+                label="الجديدة"
+                value={newPwd}
+                onChange={setNewPwd}
+                show={showPwd}
+                setShow={setShowPwd}
+              />
+              <button
+                onClick={() => {
+                  if (newPwd.length < 8) return toast.error("8 أحرف على الأقل");
+                  toast.success("تم التحديث");
+                  setOldPwd("");
+                  setNewPwd("");
+                }}
+                className="w-full mt-2 rounded-xl bg-orange text-white py-2.5 text-sm font-bold"
+              >
+                تحديث
+              </button>
             </Card>
 
             <Card title="الجلسات النشطة" icon={Shield}>
-              <button onClick={() => { setDevices((d) => d.filter((x) => x.current)); toast.success("تم تسجيل الخروج من كل الأجهزة"); }}
-                className="w-full rounded-xl bg-destructive/10 text-destructive py-2.5 text-sm font-bold flex items-center justify-center gap-2">
+              <button
+                onClick={() => {
+                  setDevices((d) => d.filter((x) => x.current));
+                  toast.success("تم تسجيل الخروج من كل الأجهزة");
+                }}
+                className="w-full rounded-xl bg-destructive/10 text-destructive py-2.5 text-sm font-bold flex items-center justify-center gap-2"
+              >
                 <LogOut className="h-4 w-4" /> تسجيل خروج من كل الأجهزة
               </button>
             </Card>
@@ -113,17 +190,27 @@ function SettingsPage() {
           <>
             <Card title="السمة" icon={Moon}>
               <div className="grid grid-cols-3 gap-2">
-                {([
-                  { id: "light", label: "فاتح", icon: Sun },
-                  { id: "dark", label: "داكن", icon: Moon },
-                  { id: "auto", label: "تلقائي", icon: Monitor },
-                ] as const).map((t) => {
+                {(
+                  [
+                    { id: "light", label: "فاتح", icon: Sun },
+                    { id: "dark", label: "داكن", icon: Moon },
+                    { id: "auto", label: "تلقائي", icon: Monitor },
+                  ] as const
+                ).map((t) => {
                   const I = t.icon;
                   const active = theme === t.id;
                   return (
-                    <button key={t.id} onClick={() => { setTheme(t.id); toast.success("تم التحديث"); }}
-                      className={`rounded-xl p-3 flex flex-col items-center gap-1 border-2 ${active ? "border-orange bg-orange/10" : "border-border bg-card"}`}>
-                      <I className={`h-5 w-5 ${active ? "text-orange" : "text-muted-foreground"}`} />
+                    <button
+                      key={t.id}
+                      onClick={() => {
+                        setTheme(t.id);
+                        toast.success("تم التحديث");
+                      }}
+                      className={`rounded-xl p-3 flex flex-col items-center gap-1 border-2 ${active ? "border-orange bg-orange/10" : "border-border bg-card"}`}
+                    >
+                      <I
+                        className={`h-5 w-5 ${active ? "text-orange" : "text-muted-foreground"}`}
+                      />
                       <span className="text-xs font-bold">{t.label}</span>
                     </button>
                   );
@@ -132,13 +219,21 @@ function SettingsPage() {
             </Card>
 
             <Card title="اللغة" icon={Languages}>
-              {([
-                { id: "ar", label: "العربية", flag: "🇲🇦" },
-                { id: "fr", label: "Français", flag: "🇫🇷" },
-                { id: "en", label: "English", flag: "🇬🇧" },
-              ] as const).map((l) => (
-                <button key={l.id} onClick={() => { setLang(l.id); toast.success("تم تغيير اللغة"); }}
-                  className="w-full flex items-center gap-3 p-3 rounded-lg hover:bg-warm/40">
+              {(
+                [
+                  { id: "ar", label: "العربية", flag: "🇲🇦" },
+                  { id: "fr", label: "Français", flag: "🇫🇷" },
+                  { id: "en", label: "English", flag: "🇬🇧" },
+                ] as const
+              ).map((l) => (
+                <button
+                  key={l.id}
+                  onClick={() => {
+                    setLang(l.id);
+                    toast.success("تم تغيير اللغة");
+                  }}
+                  className="w-full flex items-center gap-3 p-3 rounded-lg hover:bg-warm/40"
+                >
                   <span className="text-xl">{l.flag}</span>
                   <span className="flex-1 text-right text-sm font-semibold">{l.label}</span>
                   {lang === l.id && <Check className="h-4 w-4 text-success" />}
@@ -151,7 +246,12 @@ function SettingsPage() {
         {section === "notifications" && (
           <Card title="قنوات الإشعار" icon={Bell}>
             <Toggle label="إشعارات Push" value={pushNotif} onChange={setPushNotif} icon={Bell} />
-            <Toggle label="البريد الإلكتروني" value={emailNotif} onChange={setEmailNotif} icon={Mail} />
+            <Toggle
+              label="البريد الإلكتروني"
+              value={emailNotif}
+              onChange={setEmailNotif}
+              icon={Mail}
+            />
             <Toggle label="رسائل SMS" value={smsNotif} onChange={setSmsNotif} icon={Smartphone} />
             <Toggle label="عروض تسويقية" value={marketingNotif} onChange={setMarketingNotif} />
             <p className="text-[11px] text-muted-foreground px-1 mt-1">
@@ -165,20 +265,29 @@ function SettingsPage() {
             <Card title="البيانات والتخصيص" icon={Lock}>
               <Toggle label="تحليلات مجهولة" value={analytics} onChange={setAnalytics} />
               <Toggle label="اقتراحات مخصصة" value={personalized} onChange={setPersonalized} />
-              <Toggle label="مشاركة الموقع الجغرافي" value={shareLoc} onChange={setShareLoc} icon={MapPin} />
+              <Toggle
+                label="مشاركة الموقع الجغرافي"
+                value={shareLoc}
+                onChange={setShareLoc}
+                icon={MapPin}
+              />
             </Card>
 
             <Card title="حقوقك (CNDP / RGPD)" icon={Shield}>
-              <button onClick={exportData}
-                className="w-full flex items-center gap-3 p-3 rounded-xl bg-muted hover:bg-warm/60">
+              <button
+                onClick={exportData}
+                className="w-full flex items-center gap-3 p-3 rounded-xl bg-muted hover:bg-warm/60"
+              >
                 <Download className="h-4 w-4 text-navy" />
                 <div className="flex-1 text-right">
                   <p className="text-sm font-bold">تحميل بياناتي</p>
                   <p className="text-[11px] text-muted-foreground">ملف JSON يحتوي كل بياناتك</p>
                 </div>
               </button>
-              <Link to="/legal/privacy"
-                className="w-full flex items-center gap-3 p-3 rounded-xl bg-muted hover:bg-warm/60">
+              <Link
+                to="/legal/privacy"
+                className="w-full flex items-center gap-3 p-3 rounded-xl bg-muted hover:bg-warm/60"
+              >
                 <Eye className="h-4 w-4 text-navy" />
                 <div className="flex-1 text-right">
                   <p className="text-sm font-bold">سياسة الخصوصية</p>
@@ -189,8 +298,10 @@ function SettingsPage() {
 
             <Card title="منطقة الخطر" icon={AlertTriangle}>
               {!confirmDelete ? (
-                <button onClick={() => setConfirmDelete(true)}
-                  className="w-full rounded-xl bg-destructive/10 text-destructive py-3 text-sm font-bold flex items-center justify-center gap-2">
+                <button
+                  onClick={() => setConfirmDelete(true)}
+                  className="w-full rounded-xl bg-destructive/10 text-destructive py-3 text-sm font-bold flex items-center justify-center gap-2"
+                >
                   <Trash2 className="h-4 w-4" /> حذف حسابي نهائياً
                 </button>
               ) : (
@@ -199,8 +310,18 @@ function SettingsPage() {
                     <AlertTriangle className="h-3.5 w-3.5" /> هذا الإجراء لا يمكن التراجع عنه
                   </p>
                   <div className="flex gap-2">
-                    <button onClick={() => setConfirmDelete(false)} className="flex-1 rounded-lg bg-card py-2 text-xs font-bold">إلغاء</button>
-                    <button onClick={deleteAccount} className="flex-1 rounded-lg bg-destructive text-white py-2 text-xs font-bold">تأكيد الحذف</button>
+                    <button
+                      onClick={() => setConfirmDelete(false)}
+                      className="flex-1 rounded-lg bg-card py-2 text-xs font-bold"
+                    >
+                      إلغاء
+                    </button>
+                    <button
+                      onClick={deleteAccount}
+                      className="flex-1 rounded-lg bg-destructive text-white py-2 text-xs font-bold"
+                    >
+                      تأكيد الحذف
+                    </button>
                   </div>
                 </div>
               )}
@@ -219,13 +340,26 @@ function SettingsPage() {
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center gap-1.5">
                       <p className="text-sm font-bold truncate">{d.name}</p>
-                      {d.current && <span className="text-[9px] font-bold bg-success/20 text-success px-1.5 py-0.5 rounded-full">حالي</span>}
+                      {d.current && (
+                        <span className="text-[9px] font-bold bg-success/20 text-success px-1.5 py-0.5 rounded-full">
+                          حالي
+                        </span>
+                      )}
                     </div>
-                    <p className="text-[11px] text-muted-foreground">{d.os} · {d.lastSeen}</p>
-                    <p className="text-[10px] text-muted-foreground flex items-center gap-1"><MapPin className="h-2.5 w-2.5" /> {d.location}</p>
+                    <p className="text-[11px] text-muted-foreground">
+                      {d.os} · {d.lastSeen}
+                    </p>
+                    <p className="text-[10px] text-muted-foreground flex items-center gap-1">
+                      <MapPin className="h-2.5 w-2.5" /> {d.location}
+                    </p>
                   </div>
                   {!d.current && (
-                    <button onClick={() => revoke(d.id)} className="text-[10px] font-bold rounded-full bg-destructive/10 text-destructive px-2.5 py-1">إلغاء</button>
+                    <button
+                      onClick={() => revoke(d.id)}
+                      className="text-[10px] font-bold rounded-full bg-destructive/10 text-destructive px-2.5 py-1"
+                    >
+                      إلغاء
+                    </button>
                   )}
                 </div>
               ))}
@@ -237,7 +371,15 @@ function SettingsPage() {
   );
 }
 
-function Card({ title, icon: Icon, children }: { title: string; icon: any; children: React.ReactNode }) {
+function Card({
+  title,
+  icon: Icon,
+  children,
+}: {
+  title: string;
+  icon: any;
+  children: React.ReactNode;
+}) {
   return (
     <section className="rounded-2xl bg-card border border-border overflow-hidden">
       <div className="flex items-center gap-2 px-4 py-3 border-b border-border bg-warm/30">
@@ -249,27 +391,64 @@ function Card({ title, icon: Icon, children }: { title: string; icon: any; child
   );
 }
 
-function Toggle({ label, value, onChange, icon: Icon }: { label: string; value: boolean; onChange: (v: boolean) => void; icon?: any }) {
+function Toggle({
+  label,
+  value,
+  onChange,
+  icon: Icon,
+}: {
+  label: string;
+  value: boolean;
+  onChange: (v: boolean) => void;
+  icon?: any;
+}) {
   return (
-    <button onClick={() => onChange(!value)} className="w-full flex items-center gap-3 px-2 py-2.5 rounded-lg">
+    <button
+      onClick={() => onChange(!value)}
+      className="w-full flex items-center gap-3 px-2 py-2.5 rounded-lg"
+    >
       {Icon && <Icon className="h-4 w-4 text-muted-foreground shrink-0" />}
       <span className="text-sm font-semibold flex-1 text-right">{label}</span>
-      <span className={`h-5 w-9 rounded-full transition relative shrink-0 ${value ? "bg-orange" : "bg-muted"}`}>
-        <span className={`absolute top-0.5 h-4 w-4 rounded-full bg-white shadow transition ${value ? "right-0.5" : "right-[18px]"}`} />
+      <span
+        className={`h-5 w-9 rounded-full transition relative shrink-0 ${value ? "bg-orange" : "bg-muted"}`}
+      >
+        <span
+          className={`absolute top-0.5 h-4 w-4 rounded-full bg-white shadow transition ${value ? "right-0.5" : "right-[18px]"}`}
+        />
       </span>
     </button>
   );
 }
 
-function PwdInput({ label, value, onChange, show, setShow }: { label: string; value: string; onChange: (v: string) => void; show: boolean; setShow: (v: boolean) => void }) {
+function PwdInput({
+  label,
+  value,
+  onChange,
+  show,
+  setShow,
+}: {
+  label: string;
+  value: string;
+  onChange: (v: string) => void;
+  show: boolean;
+  setShow: (v: boolean) => void;
+}) {
   return (
     <label className="block mb-2">
       <span className="block text-xs font-bold text-muted-foreground mb-1">{label}</span>
       <div className="flex items-center gap-2 rounded-xl border border-border bg-warm px-3 py-2">
-        <input type={show ? "text" : "password"} value={value} onChange={(e) => onChange(e.target.value)}
-          className="flex-1 bg-transparent outline-none text-sm" />
+        <input
+          type={show ? "text" : "password"}
+          value={value}
+          onChange={(e) => onChange(e.target.value)}
+          className="flex-1 bg-transparent outline-none text-sm"
+        />
         <button onClick={() => setShow(!show)} type="button">
-          {show ? <EyeOff className="h-4 w-4 text-muted-foreground" /> : <Eye className="h-4 w-4 text-muted-foreground" />}
+          {show ? (
+            <EyeOff className="h-4 w-4 text-muted-foreground" />
+          ) : (
+            <Eye className="h-4 w-4 text-muted-foreground" />
+          )}
         </button>
       </div>
     </label>

@@ -14,7 +14,10 @@ function ForgotPassword() {
 
   const submit = (e: React.FormEvent) => {
     e.preventDefault();
-    if (!email) { toast.error("أدخل بريدك الإلكتروني"); return; }
+    if (!email) {
+      toast.error("أدخل بريدك الإلكتروني");
+      return;
+    }
     setLoading(true);
     setTimeout(() => {
       setSent(true);
@@ -28,7 +31,14 @@ function ForgotPassword() {
       title="نسيت كلمة المرور؟"
       subtitle="أدخل بريدك وسنرسل لك رابطاً لإعادة التعيين"
       back="/login"
-      footer={<>تذكرت كلمة المرور؟ <Link to="/login" className="text-gold font-bold underline">عودة إلى الدخول</Link></>}
+      footer={
+        <>
+          تذكرت كلمة المرور؟{" "}
+          <Link to="/login" className="text-gold font-bold underline">
+            عودة إلى الدخول
+          </Link>
+        </>
+      }
     >
       {sent ? (
         <div className="text-center py-4">
@@ -37,11 +47,13 @@ function ForgotPassword() {
           </div>
           <h3 className="mt-4 font-black text-stone">تحقق من بريدك</h3>
           <p className="mt-2 text-sm text-stone/70">
-            أرسلنا رابط إعادة التعيين إلى <span className="font-bold">{email}</span>.
-            الرابط صالح لمدة ساعة.
+            أرسلنا رابط إعادة التعيين إلى <span className="font-bold">{email}</span>. الرابط صالح
+            لمدة ساعة.
           </p>
           <div className="mt-5">
-            <AuthButton onClick={() => nav({ to: "/reset-password" })}>محاكاة فتح الرابط</AuthButton>
+            <AuthButton onClick={() => nav({ to: "/reset-password" })}>
+              محاكاة فتح الرابط
+            </AuthButton>
           </div>
           <button onClick={() => setSent(false)} className="mt-3 text-xs text-orange font-bold">
             تغيير البريد الإلكتروني
@@ -49,9 +61,18 @@ function ForgotPassword() {
         </div>
       ) : (
         <form onSubmit={submit}>
-          <AuthInput label="البريد الإلكتروني" type="email" value={email} onChange={setEmail}
-            placeholder="exemple@tissint.ma" icon={Mail} dir="ltr" />
-          <AuthButton type="submit" loading={loading}>إرسال رابط الإعادة</AuthButton>
+          <AuthInput
+            label="البريد الإلكتروني"
+            type="email"
+            value={email}
+            onChange={setEmail}
+            placeholder="exemple@tissint.ma"
+            icon={Mail}
+            dir="ltr"
+          />
+          <AuthButton type="submit" loading={loading}>
+            إرسال رابط الإعادة
+          </AuthButton>
         </form>
       )}
     </AuthShell>

@@ -2,21 +2,28 @@ import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useApp } from "@/lib/store";
 import { TabBar } from "@/components/tissint/tab-bar";
 import {
-  Bell, CheckCheck, ChevronLeft, MessageCircle, ScanLine,
-  ShieldCheck, ShieldX, Crown, Info,
+  Bell,
+  CheckCheck,
+  ChevronLeft,
+  MessageCircle,
+  ScanLine,
+  ShieldCheck,
+  ShieldX,
+  Crown,
+  Info,
 } from "lucide-react";
 import type { NotificationKind } from "@/lib/tissint-types";
 
 export const Route = createFileRoute("/notifications")({ component: NotificationsPage });
 
 const ICONS: Record<NotificationKind, { icon: typeof Bell; color: string; bg: string }> = {
-  new_message:      { icon: MessageCircle, color: "text-primary", bg: "bg-primary/10" },
-  scan_done:        { icon: ScanLine,      color: "text-orange",  bg: "bg-orange/10"  },
-  listing_approved: { icon: ShieldCheck,   color: "text-success", bg: "bg-success/10" },
-  listing_rejected: { icon: ShieldX,       color: "text-destructive", bg: "bg-destructive/10" },
-  offer:            { icon: Bell,          color: "text-gold",    bg: "bg-gold/10"    },
-  premium:          { icon: Crown,         color: "text-gold",    bg: "bg-gold/10"    },
-  system:           { icon: Info,          color: "text-muted-foreground", bg: "bg-muted" },
+  new_message: { icon: MessageCircle, color: "text-primary", bg: "bg-primary/10" },
+  scan_done: { icon: ScanLine, color: "text-orange", bg: "bg-orange/10" },
+  listing_approved: { icon: ShieldCheck, color: "text-success", bg: "bg-success/10" },
+  listing_rejected: { icon: ShieldX, color: "text-destructive", bg: "bg-destructive/10" },
+  offer: { icon: Bell, color: "text-gold", bg: "bg-gold/10" },
+  premium: { icon: Crown, color: "text-gold", bg: "bg-gold/10" },
+  system: { icon: Info, color: "text-muted-foreground", bg: "bg-muted" },
 };
 
 function relTime(iso: string) {
@@ -31,7 +38,8 @@ function relTime(iso: string) {
 
 function NotificationsPage() {
   const nav = useNavigate();
-  const { notifications, markNotificationRead, markAllNotificationsRead, unreadNotifications } = useApp();
+  const { notifications, markNotificationRead, markAllNotificationsRead, unreadNotifications } =
+    useApp();
   const sorted = [...notifications].sort((a, b) => +new Date(b.createdAt) - +new Date(a.createdAt));
 
   const handleOpen = (id: string, linkTo?: string, params?: Record<string, string>) => {
@@ -44,7 +52,10 @@ function NotificationsPage() {
     <div className="flex h-full flex-col bg-warm" dir="rtl">
       <header className="bg-navy text-warm px-5 pt-12 pb-5 rounded-b-3xl shadow-lg">
         <div className="flex items-center justify-between">
-          <Link to="/dashboard" className="grid h-9 w-9 place-items-center rounded-full bg-white/10">
+          <Link
+            to="/dashboard"
+            className="grid h-9 w-9 place-items-center rounded-full bg-white/10"
+          >
             <ChevronLeft className="h-5 w-5 rotate-180" />
           </Link>
           <h1 className="text-base font-bold">الإشعارات</h1>
@@ -80,13 +91,17 @@ function NotificationsPage() {
                       n.read ? "bg-card border-border" : "bg-card border-orange/40 shadow-sm"
                     }`}
                   >
-                    <span className={`grid h-10 w-10 place-items-center rounded-xl shrink-0 ${meta.bg} ${meta.color}`}>
+                    <span
+                      className={`grid h-10 w-10 place-items-center rounded-xl shrink-0 ${meta.bg} ${meta.color}`}
+                    >
                       <Icon className="h-5 w-5" />
                     </span>
                     <div className="flex-1 min-w-0">
                       <div className="flex items-center justify-between gap-2">
                         <p className="font-bold text-sm truncate">{n.title}</p>
-                        <span className="text-[10px] text-muted-foreground shrink-0">{relTime(n.createdAt)}</span>
+                        <span className="text-[10px] text-muted-foreground shrink-0">
+                          {relTime(n.createdAt)}
+                        </span>
                       </div>
                       <p className="text-xs text-muted-foreground mt-0.5 leading-snug">{n.body}</p>
                     </div>

@@ -9,14 +9,22 @@ export function exportCollectionJSON(items: CollectionItem[]): string {
       items,
     },
     null,
-    2
+    2,
   );
 }
 
 export function exportCollectionCSV(items: CollectionItem[]): string {
   const headers = [
-    "id", "scanId", "name", "classification", "score", "verdict",
-    "weightG", "origin", "notes", "createdAt",
+    "id",
+    "scanId",
+    "name",
+    "classification",
+    "score",
+    "verdict",
+    "weightG",
+    "origin",
+    "notes",
+    "createdAt",
   ];
   const escape = (v: any) => {
     if (v == null) return "";

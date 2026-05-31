@@ -1,11 +1,45 @@
-import { StyleSheet, View } from "react-native";
+import { StyleSheet, View, type StyleProp, type ViewStyle } from "react-native";
 import { colors, radius } from "@/theme";
 
-export function MeteoriteThumb({ rare = false }: { rare?: boolean }) {
+function hashSeed(seed = "tissint") {
+  let hash = 0;
+  for (let index = 0; index < seed.length; index += 1) {
+    hash = (hash * 31 + seed.charCodeAt(index)) % 9973;
+  }
+  return hash;
+}
+
+function palette(seed?: string, rare?: boolean) {
+  if (rare) return ["#123F5A", "#F7C75E", "#2A3A44"];
+  const palettes = [
+    ["#504236", "#A56B3F", "#211B17"],
+    ["#303A42", "#6C7780", "#171C21"],
+    ["#5B4B3D", "#D8891C", "#282018"],
+    ["#3E454A", "#8A6A4E", "#20252B"],
+  ];
+  return palettes[hashSeed(seed) % palettes.length];
+}
+
+export function MeteoriteThumb({
+  rare = false,
+  seed,
+  style,
+}: {
+  rare?: boolean;
+  seed?: string;
+  style?: StyleProp<ViewStyle>;
+}) {
+  const [background, rock, shadow] = palette(seed, rare);
   return (
-    <View style={[styles.root, rare ? styles.rare : null]}>
-      <View style={styles.rock} />
-      <View style={styles.craterOne} />
+    <View style={[styles.root, { backgroundColor: background }, style]}>
+      <View style={[styles.glow, { backgroundColor: rock }]} />
+      <View
+        style={[
+          styles.rock,
+          { backgroundColor: rock, borderColor: rare ? colors.gold : "rgba(255,255,255,0.12)" },
+        ]}
+      />
+      <View style={[styles.craterOne, { backgroundColor: shadow }]} />
       <View style={styles.craterTwo} />
     </View>
   );
@@ -20,17 +54,19 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "center",
   },
-  rare: {
-    backgroundColor: colors.navy,
+  glow: {
+    position: "absolute",
+    width: "92%",
+    height: "92%",
+    borderRadius: 999,
+    opacity: 0.22,
   },
   rock: {
     width: "62%",
     height: "58%",
     borderRadius: 24,
-    backgroundColor: "#4E4339",
     transform: [{ rotate: "-12deg" }],
     borderWidth: 2,
-    borderColor: "rgba(255,255,255,0.12)",
   },
   craterOne: {
     position: "absolute",

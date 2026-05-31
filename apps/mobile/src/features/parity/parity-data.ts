@@ -113,7 +113,8 @@ export const DEMO_MARKETPLACE_LISTINGS: MarketplaceListing[] = [
     sellerWhatsapp: "+212600000001",
     sellerVerified: true,
     createdAt: "2026-05-26T10:00:00.000Z",
-    description: "عينة نظيفة بقشرة انصهار واضحة، من منطقة تيسينت. الصور المثبتة لا يمكن تغييرها بعد الاعتماد.",
+    description:
+      "عينة نظيفة بقشرة انصهار واضحة، من منطقة تيسينت. الصور المثبتة لا يمكن تغييرها بعد الاعتماد.",
   },
   {
     listingId: "mock-lst-002",
@@ -134,7 +135,8 @@ export const DEMO_MARKETPLACE_LISTINGS: MarketplaceListing[] = [
     sellerWhatsapp: "+212600000002",
     sellerVerified: true,
     createdAt: "2026-05-25T12:20:00.000Z",
-    description: "شريحة حجرية حديدية مع بلورات أوليفين واضحة. السعر قابل للتفاوض بعد معاينة الوثائق.",
+    description:
+      "شريحة حجرية حديدية مع بلورات أوليفين واضحة. السعر قابل للتفاوض بعد معاينة الوثائق.",
   },
   {
     listingId: "mock-lst-003",
@@ -155,7 +157,8 @@ export const DEMO_MARKETPLACE_LISTINGS: MarketplaceListing[] = [
     sellerWhatsapp: "+212600000003",
     sellerVerified: false,
     createdAt: "2026-05-24T08:40:00.000Z",
-    description: "حجر كامل مع قشرة انصهار جزئية. الوزن مؤكد بالجرام، والمنطقة العامة فقط ظاهرة للعموم.",
+    description:
+      "حجر كامل مع قشرة انصهار جزئية. الوزن مؤكد بالجرام، والمنطقة العامة فقط ظاهرة للعموم.",
   },
   {
     listingId: "mock-lst-rare",
@@ -291,7 +294,7 @@ export const DEMO_NOTIFICATIONS: DemoNotification[] = [
     body: "Chondrite H5 أصبح ظاهرا في السوق.",
     createdAt: "2026-05-28T18:00:00.000Z",
     read: false,
-    route: "/marketplace/my-listings",
+    route: "/market/my-listings",
   },
   {
     id: "n3",
@@ -329,16 +332,72 @@ export const DEMO_PAYMENT_METHODS: DemoPaymentMethod[] = [
 ];
 
 export const DEMO_TRANSACTIONS: DemoTransaction[] = [
-  { id: "tx-1", kind: "topup", label: "شحن المحفظة", amountDh: 200, status: "completed", createdAt: "2026-05-20T09:00:00.000Z" },
-  { id: "tx-2", kind: "premium", label: "اشتراك Premium شهري", amountDh: -100, status: "completed", createdAt: "2026-05-21T10:15:00.000Z", invoiceId: "inv-2" },
-  { id: "tx-3", kind: "sale", label: "بيع: Chondrite H4", amountDh: 1995, status: "completed", createdAt: "2026-05-24T16:40:00.000Z" },
-  { id: "tx-4", kind: "purchase", label: "طلب معاينة شريحة Pallasite", amountDh: -250, status: "pending", createdAt: "2026-05-26T12:00:00.000Z" },
+  {
+    id: "tx-1",
+    kind: "topup",
+    label: "شحن المحفظة",
+    amountDh: 200,
+    status: "completed",
+    createdAt: "2026-05-20T09:00:00.000Z",
+  },
+  {
+    id: "tx-2",
+    kind: "premium",
+    label: "اشتراك Premium شهري",
+    amountDh: -100,
+    status: "completed",
+    createdAt: "2026-05-21T10:15:00.000Z",
+    invoiceId: "inv-2",
+  },
+  {
+    id: "tx-3",
+    kind: "sale",
+    label: "بيع: Chondrite H4",
+    amountDh: 1995,
+    status: "completed",
+    createdAt: "2026-05-24T16:40:00.000Z",
+  },
+  {
+    id: "tx-4",
+    kind: "purchase",
+    label: "طلب معاينة شريحة Pallasite",
+    amountDh: -250,
+    status: "pending",
+    createdAt: "2026-05-26T12:00:00.000Z",
+  },
 ];
 
 export const DEMO_INVOICES: DemoInvoice[] = [
-  { id: "inv-1", number: "INV-2026-0041", label: "Premium شهري - أبريل", amountDh: 83.33, vatDh: 16.67, totalDh: 100, status: "paid", createdAt: "2026-04-21T10:00:00.000Z" },
-  { id: "inv-2", number: "INV-2026-0042", label: "Premium شهري - ماي", amountDh: 83.33, vatDh: 16.67, totalDh: 100, status: "paid", createdAt: "2026-05-21T10:15:00.000Z" },
-  { id: "inv-3", number: "INV-2026-0043", label: "عمولة بيع - Chondrite H4", amountDh: 87.5, vatDh: 17.5, totalDh: 105, status: "pending", createdAt: "2026-05-24T16:40:00.000Z" },
+  {
+    id: "inv-1",
+    number: "INV-2026-0041",
+    label: "Premium شهري - أبريل",
+    amountDh: 83.33,
+    vatDh: 16.67,
+    totalDh: 100,
+    status: "paid",
+    createdAt: "2026-04-21T10:00:00.000Z",
+  },
+  {
+    id: "inv-2",
+    number: "INV-2026-0042",
+    label: "Premium شهري - ماي",
+    amountDh: 83.33,
+    vatDh: 16.67,
+    totalDh: 100,
+    status: "paid",
+    createdAt: "2026-05-21T10:15:00.000Z",
+  },
+  {
+    id: "inv-3",
+    number: "INV-2026-0043",
+    label: "عمولة بيع - Chondrite H4",
+    amountDh: 87.5,
+    vatDh: 17.5,
+    totalDh: 105,
+    status: "pending",
+    createdAt: "2026-05-24T16:40:00.000Z",
+  },
 ];
 
 export const DEMO_CONVERSATIONS: DemoConversation[] = [
@@ -372,12 +431,48 @@ export const DEMO_CONVERSATIONS: DemoConversation[] = [
 ];
 
 export const DEMO_MESSAGES: DemoChatMessage[] = [
-  { id: "m1", threadId: "th-001", fromMe: true, text: "السلام عليكم، هل العينة لا تزال متوفرة؟", createdAt: "2026-05-27T13:50:00.000Z" },
-  { id: "m2", threadId: "th-001", fromMe: false, text: "وعليكم السلام، نعم متوفرة.", createdAt: "2026-05-27T14:00:00.000Z" },
-  { id: "m3", threadId: "th-001", fromMe: true, text: "هل السعر قابل للتفاوض؟", createdAt: "2026-05-27T14:10:00.000Z" },
-  { id: "m4", threadId: "th-001", fromMe: false, text: "نعم، السعر قابل للتفاوض قليلا.", createdAt: "2026-05-27T14:20:00.000Z" },
-  { id: "m5", threadId: "th-002", fromMe: true, text: "صور إضافية من فضلك؟", createdAt: "2026-05-26T09:50:00.000Z" },
-  { id: "m6", threadId: "th-002", fromMe: false, text: "يمكنني إرسال صور إضافية اليوم.", createdAt: "2026-05-26T10:05:00.000Z" },
+  {
+    id: "m1",
+    threadId: "th-001",
+    fromMe: true,
+    text: "السلام عليكم، هل العينة لا تزال متوفرة؟",
+    createdAt: "2026-05-27T13:50:00.000Z",
+  },
+  {
+    id: "m2",
+    threadId: "th-001",
+    fromMe: false,
+    text: "وعليكم السلام، نعم متوفرة.",
+    createdAt: "2026-05-27T14:00:00.000Z",
+  },
+  {
+    id: "m3",
+    threadId: "th-001",
+    fromMe: true,
+    text: "هل السعر قابل للتفاوض؟",
+    createdAt: "2026-05-27T14:10:00.000Z",
+  },
+  {
+    id: "m4",
+    threadId: "th-001",
+    fromMe: false,
+    text: "نعم، السعر قابل للتفاوض قليلا.",
+    createdAt: "2026-05-27T14:20:00.000Z",
+  },
+  {
+    id: "m5",
+    threadId: "th-002",
+    fromMe: true,
+    text: "صور إضافية من فضلك؟",
+    createdAt: "2026-05-26T09:50:00.000Z",
+  },
+  {
+    id: "m6",
+    threadId: "th-002",
+    fromMe: false,
+    text: "يمكنني إرسال صور إضافية اليوم.",
+    createdAt: "2026-05-26T10:05:00.000Z",
+  },
 ];
 
 export const PREMIUM_PLANS = [

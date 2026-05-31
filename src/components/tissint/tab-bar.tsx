@@ -35,7 +35,10 @@ export function TabBar() {
           if (t.to === "/premium" && role === "premium") return null;
           return (
             <li key={t.to} className="flex-1">
-              <Link to={t.to as never} className={`flex flex-col items-center gap-1 rounded-lg px-1 py-1.5 text-[11px] ${active ? "text-primary font-bold" : "text-muted-foreground"}`}>
+              <Link
+                to={t.to as never}
+                className={`flex flex-col items-center gap-1 rounded-lg px-1 py-1.5 text-[11px] ${active ? "text-primary font-bold" : "text-muted-foreground"}`}
+              >
                 <Icon className="h-5 w-5" />
                 <span>{t.label}</span>
               </Link>

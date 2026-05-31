@@ -3,9 +3,21 @@ import { useEffect, useRef, useState } from "react";
 import { useApp } from "@/lib/store";
 import { tissintApi } from "@/lib/tissint-api";
 import {
-  ChevronRight, Zap, AlertCircle, Camera, Check, X,
-  Sparkles, Scissors, ChevronUp, ChevronDown, Scale, Magnet, MapPin,
-  RotateCcw, Loader2,
+  ChevronRight,
+  Zap,
+  AlertCircle,
+  Camera,
+  Check,
+  X,
+  Sparkles,
+  Scissors,
+  ChevronUp,
+  ChevronDown,
+  Scale,
+  Magnet,
+  MapPin,
+  RotateCcw,
+  Loader2,
 } from "lucide-react";
 import { toast } from "sonner";
 
@@ -13,15 +25,15 @@ export const Route = createFileRoute("/scan")({ component: ScanPage });
 
 type Shot = {
   id: string;
-  label: string;            // "أمامية", "خلفية", "جانبية", "مقطع"
+  label: string; // "أمامية", "خلفية", "جانبية", "مقطع"
   optional?: boolean;
-  uri?: string;             // data URL (mock)
+  uri?: string; // data URL (mock)
 };
 
 const REQUIRED_SHOTS: Shot[] = [
   { id: "front", label: "أمامية" },
-  { id: "back",  label: "خلفية" },
-  { id: "side",  label: "جانبية" },
+  { id: "back", label: "خلفية" },
+  { id: "side", label: "جانبية" },
 ];
 const OPTIONAL_SHOT: Shot = { id: "cut", label: "صورة مقطع", optional: true };
 
@@ -49,7 +61,8 @@ function ScanPage() {
   const askPermission = async () => {
     try {
       const stream = await navigator.mediaDevices.getUserMedia({
-        video: { facingMode: "environment" }, audio: false,
+        video: { facingMode: "environment" },
+        audio: false,
       });
       streamRef.current = stream;
       if (videoRef.current) {
@@ -69,7 +82,6 @@ function ScanPage() {
       streamRef.current?.getTracks().forEach((t) => t.stop());
       streamRef.current = null;
     };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const capture = () => {
@@ -131,7 +143,10 @@ function ScanPage() {
     <div className="flex h-full flex-col bg-stone text-warm relative overflow-hidden" dir="rtl">
       {/* Header */}
       <header className="flex items-center justify-between px-5 pt-12 pb-3 z-20">
-        <Link to="/dashboard" className="grid h-10 w-10 place-items-center rounded-full bg-white/10 backdrop-blur">
+        <Link
+          to="/dashboard"
+          className="grid h-10 w-10 place-items-center rounded-full bg-white/10 backdrop-blur"
+        >
           <ChevronRight className="h-5 w-5" />
         </Link>
         <div className="text-center">
@@ -144,8 +159,13 @@ function ScanPage() {
       </header>
 
       {/* Camera viewport */}
-      <div className="relative flex-1 mx-3 rounded-3xl overflow-hidden bg-black"
-        style={{ background: "radial-gradient(circle at 50% 40%, oklch(0.22 0.02 250), oklch(0.08 0.01 250))" }}>
+      <div
+        className="relative flex-1 mx-3 rounded-3xl overflow-hidden bg-black"
+        style={{
+          background:
+            "radial-gradient(circle at 50% 40%, oklch(0.22 0.02 250), oklch(0.08 0.01 250))",
+        }}
+      >
         {permission === "granted" ? (
           <video
             ref={videoRef}
@@ -162,9 +182,13 @@ function ScanPage() {
                 </div>
                 <p className="text-sm font-bold">الكاميرا غير مفعلة</p>
                 <p className="text-xs text-warm/60 max-w-xs">
-                  يحتاج تيسنت للوصول إلى الكاميرا لالتقاط صور العينة. لا يمكن رفع صور من المعرض لضمان جودة التحليل.
+                  يحتاج تيسنت للوصول إلى الكاميرا لالتقاط صور العينة. لا يمكن رفع صور من المعرض
+                  لضمان جودة التحليل.
                 </p>
-                <button onClick={askPermission} className="rounded-full bg-orange text-white px-5 py-2 text-sm font-bold">
+                <button
+                  onClick={askPermission}
+                  className="rounded-full bg-orange text-white px-5 py-2 text-sm font-bold"
+                >
                   السماح بالوصول
                 </button>
               </div>
@@ -210,8 +234,13 @@ function ScanPage() {
                 {hasShot && s.uri?.startsWith("data:") ? (
                   <img src={s.uri} alt={s.label} className="h-full w-full object-cover" />
                 ) : hasShot ? (
-                  <div className="h-full w-full"
-                    style={{ background: "radial-gradient(circle, oklch(0.4 0.05 60), oklch(0.15 0.02 40))" }} />
+                  <div
+                    className="h-full w-full"
+                    style={{
+                      background:
+                        "radial-gradient(circle, oklch(0.4 0.05 60), oklch(0.15 0.02 40))",
+                    }}
+                  />
                 ) : (
                   <div className="h-full w-full bg-white/5 grid place-items-center">
                     <span className="text-[10px] text-warm/60">{s.label}</span>
@@ -229,7 +258,10 @@ function ScanPage() {
                 )}
                 {hasShot && (
                   <span
-                    onClick={(e) => { e.stopPropagation(); retake(i); }}
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      retake(i);
+                    }}
                     className="absolute bottom-1 right-1 grid h-5 w-5 place-items-center rounded-full bg-black/60 text-white"
                   >
                     <RotateCcw className="h-3 w-3" />
@@ -247,7 +279,9 @@ function ScanPage() {
           <div className="rounded-xl bg-destructive/20 border border-destructive p-3 flex items-center gap-2 text-xs">
             <AlertCircle className="h-4 w-4 text-destructive" />
             <span>بلغت الحد اليومي ({dailyLimit}).</span>
-            <Link to="/premium" className="text-orange font-bold underline">ترقية</Link>
+            <Link to="/premium" className="text-orange font-bold underline">
+              ترقية
+            </Link>
           </div>
         )}
 
@@ -259,7 +293,9 @@ function ScanPage() {
             title="بيانات العينة"
           >
             <Scale className="h-5 w-5" />
-            {weight && <span className="absolute -top-1 -right-1 h-3 w-3 rounded-full bg-success" />}
+            {weight && (
+              <span className="absolute -top-1 -right-1 h-3 w-3 rounded-full bg-success" />
+            )}
           </button>
 
           {/* Capture button */}
@@ -285,7 +321,9 @@ function ScanPage() {
             ) : (
               <Sparkles className="h-5 w-5" />
             )}
-            {canAnalyze && <span className="absolute inset-0 rounded-full ring-2 ring-orange/40 animate-ping" />}
+            {canAnalyze && (
+              <span className="absolute inset-0 rounded-full ring-2 ring-orange/40 animate-ping" />
+            )}
           </button>
         </div>
 
@@ -300,14 +338,20 @@ function ScanPage() {
 
       {/* Metadata Sheet */}
       {sheetOpen && (
-        <div className="absolute inset-0 z-30 bg-black/60 flex items-end" onClick={() => setSheetOpen(false)}>
+        <div
+          className="absolute inset-0 z-30 bg-black/60 flex items-end"
+          onClick={() => setSheetOpen(false)}
+        >
           <div
             onClick={(e) => e.stopPropagation()}
             className="w-full bg-stone border-t border-white/10 rounded-t-3xl p-5 space-y-4 animate-in slide-in-from-bottom"
           >
             <div className="flex items-center justify-between">
               <h3 className="font-bold">بيانات العينة</h3>
-              <button onClick={() => setSheetOpen(false)} className="grid h-8 w-8 place-items-center rounded-full bg-white/10">
+              <button
+                onClick={() => setSheetOpen(false)}
+                className="grid h-8 w-8 place-items-center rounded-full bg-white/10"
+              >
                 <X className="h-4 w-4" />
               </button>
             </div>
@@ -318,7 +362,9 @@ function ScanPage() {
                   <Scale className="h-3.5 w-3.5" /> الوزن (غرام)
                 </span>
                 <input
-                  type="number" inputMode="decimal" value={weight}
+                  type="number"
+                  inputMode="decimal"
+                  value={weight}
                   onChange={(e) => setWeight(e.target.value)}
                   placeholder="مثال: 45.2"
                   className="w-full bg-white/5 border border-white/10 rounded-xl px-3 py-2 text-sm"
@@ -330,13 +376,24 @@ function ScanPage() {
                   <Magnet className="h-3.5 w-3.5" /> المغناطيسية
                 </span>
                 <div className="grid grid-cols-3 gap-2">
-                  {([["none", "ضعيفة جداً"], ["weak", "متوسطة"], ["strong", "قوية"]] as const).map(([v, l]) => (
-                    <button key={v}
+                  {(
+                    [
+                      ["none", "ضعيفة جداً"],
+                      ["weak", "متوسطة"],
+                      ["strong", "قوية"],
+                    ] as const
+                  ).map(([v, l]) => (
+                    <button
+                      key={v}
                       onClick={() => setMagnetism(v)}
                       className={`rounded-xl py-2 text-xs font-bold border ${
-                        magnetism === v ? "bg-orange text-white border-orange" : "bg-white/5 border-white/10"
+                        magnetism === v
+                          ? "bg-orange text-white border-orange"
+                          : "bg-white/5 border-white/10"
                       }`}
-                    >{l}</button>
+                    >
+                      {l}
+                    </button>
                   ))}
                 </div>
               </div>
@@ -346,14 +403,18 @@ function ScanPage() {
                   <MapPin className="h-3.5 w-3.5" /> منطقة الاكتشاف
                 </span>
                 <input
-                  value={region} onChange={(e) => setRegion(e.target.value)}
+                  value={region}
+                  onChange={(e) => setRegion(e.target.value)}
                   className="w-full bg-white/5 border border-white/10 rounded-xl px-3 py-2 text-sm"
                 />
               </label>
             </div>
 
             <button
-              onClick={() => { setSheetOpen(false); toast.success("تم حفظ البيانات"); }}
+              onClick={() => {
+                setSheetOpen(false);
+                toast.success("تم حفظ البيانات");
+              }}
               className="w-full rounded-full bg-orange text-white py-3 font-bold text-sm"
             >
               حفظ ومتابعة

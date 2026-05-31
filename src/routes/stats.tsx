@@ -50,24 +50,55 @@ function StatsPage() {
       <main className="flex-1 overflow-y-auto p-5 space-y-4">
         {/* KPIs */}
         <div className="grid grid-cols-2 gap-3">
-          <KPI icon={Scale} label="إجمالي العيّنات" value={stats.total} color="text-primary" bg="bg-primary/10" />
-          <KPI icon={Award} label="احتمالات قوية" value={stats.likely} color="text-success" bg="bg-success/15" />
-          <KPI icon={Target} label="متوسط النقاط" value={`${stats.avgScore}/100`} color="text-orange" bg="bg-orange/15" />
-          <KPI icon={TrendingUp} label="مبيعات" value={stats.sold} color="text-gold" bg="bg-gold/15" />
+          <KPI
+            icon={Scale}
+            label="إجمالي العيّنات"
+            value={stats.total}
+            color="text-primary"
+            bg="bg-primary/10"
+          />
+          <KPI
+            icon={Award}
+            label="احتمالات قوية"
+            value={stats.likely}
+            color="text-success"
+            bg="bg-success/15"
+          />
+          <KPI
+            icon={Target}
+            label="متوسط النقاط"
+            value={`${stats.avgScore}/100`}
+            color="text-orange"
+            bg="bg-orange/15"
+          />
+          <KPI
+            icon={TrendingUp}
+            label="مبيعات"
+            value={stats.sold}
+            color="text-gold"
+            bg="bg-gold/15"
+          />
         </div>
 
         {/* Weekly chart */}
         <section className="rounded-2xl bg-card border p-4">
-          <h3 className="text-sm font-bold mb-3 flex items-center gap-2"><Calendar className="h-4 w-4" /> آخر 7 أيام</h3>
+          <h3 className="text-sm font-bold mb-3 flex items-center gap-2">
+            <Calendar className="h-4 w-4" /> آخر 7 أيام
+          </h3>
           <div className="flex items-end justify-between gap-1 h-28">
             {last7.map((d, i) => (
               <div key={i} className="flex-1 flex flex-col items-center gap-1">
-                <div className="w-full rounded-t bg-orange transition-all" style={{ height: `${(d.n / maxBar) * 100}%`, minHeight: 4 }} />
+                <div
+                  className="w-full rounded-t bg-orange transition-all"
+                  style={{ height: `${(d.n / maxBar) * 100}%`, minHeight: 4 }}
+                />
                 <span className="text-[10px] text-muted-foreground">{d.day}</span>
               </div>
             ))}
           </div>
-          <p className="text-xs text-muted-foreground mt-2 text-center">اليوم: {scansToday}/{dailyLimit === 999 ? "∞" : dailyLimit}</p>
+          <p className="text-xs text-muted-foreground mt-2 text-center">
+            اليوم: {scansToday}/{dailyLimit === 999 ? "∞" : dailyLimit}
+          </p>
         </section>
 
         {/* Classification breakdown */}
@@ -82,7 +113,10 @@ function StatsPage() {
                     <span className="text-muted-foreground">{n}</span>
                   </div>
                   <div className="h-2 rounded-full bg-muted overflow-hidden">
-                    <div className="h-full bg-primary" style={{ width: `${(n / stats.total) * 100}%` }} />
+                    <div
+                      className="h-full bg-primary"
+                      style={{ width: `${(n / stats.total) * 100}%` }}
+                    />
                   </div>
                 </div>
               ))}
@@ -97,8 +131,13 @@ function StatsPage() {
             {achievements.map((a) => {
               const Icon = a.icon;
               return (
-                <div key={a.id} className={`flex flex-col items-center gap-1 p-2 rounded-xl ${a.done ? "bg-gold/15" : "bg-muted opacity-50"}`}>
-                  <Icon className={`h-6 w-6 ${a.done ? "text-gold-foreground text-accent-foreground" : "text-muted-foreground"}`} />
+                <div
+                  key={a.id}
+                  className={`flex flex-col items-center gap-1 p-2 rounded-xl ${a.done ? "bg-gold/15" : "bg-muted opacity-50"}`}
+                >
+                  <Icon
+                    className={`h-6 w-6 ${a.done ? "text-gold-foreground text-accent-foreground" : "text-muted-foreground"}`}
+                  />
                   <span className="text-[10px] text-center">{a.label}</span>
                 </div>
               );
@@ -108,9 +147,20 @@ function StatsPage() {
 
         {/* Account summary */}
         <section className="rounded-2xl bg-card border p-4 text-sm space-y-2">
-          <div className="flex justify-between"><span className="text-muted-foreground">الخطة</span><span className="font-bold">{role === "premium" ? "Premium" : role === "admin" ? "Admin" : "مجاني"}</span></div>
-          <div className="flex justify-between"><span className="text-muted-foreground">رصيد المحفظة</span><span className="font-bold">{walletBalanceDh} د.م</span></div>
-          <div className="flex justify-between"><span className="text-muted-foreground">إعلانات نشطة</span><span className="font-bold">{stats.active}</span></div>
+          <div className="flex justify-between">
+            <span className="text-muted-foreground">الخطة</span>
+            <span className="font-bold">
+              {role === "premium" ? "Premium" : role === "admin" ? "Admin" : "مجاني"}
+            </span>
+          </div>
+          <div className="flex justify-between">
+            <span className="text-muted-foreground">رصيد المحفظة</span>
+            <span className="font-bold">{walletBalanceDh} د.م</span>
+          </div>
+          <div className="flex justify-between">
+            <span className="text-muted-foreground">إعلانات نشطة</span>
+            <span className="font-bold">{stats.active}</span>
+          </div>
         </section>
       </main>
     </div>

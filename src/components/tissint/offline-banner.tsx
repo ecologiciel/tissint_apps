@@ -15,7 +15,10 @@ export function OfflineBanner() {
   }, []);
   if (online) return null;
   return (
-    <div className="absolute top-0 inset-x-0 z-50 bg-destructive text-white px-4 py-2 flex items-center justify-center gap-2 text-xs font-bold animate-in slide-in-from-top" dir="rtl">
+    <div
+      className="absolute top-0 inset-x-0 z-50 bg-destructive text-white px-4 py-2 flex items-center justify-center gap-2 text-xs font-bold animate-in slide-in-from-top"
+      dir="rtl"
+    >
       <WifiOff className="h-3.5 w-3.5" />
       أنت غير متصل بالإنترنت — تعمل بالوضع المخزّن
     </div>

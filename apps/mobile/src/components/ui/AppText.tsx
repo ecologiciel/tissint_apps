@@ -16,7 +16,10 @@ export function AppText({
   numberOfLines?: number;
 }) {
   return (
-    <Text numberOfLines={numberOfLines} style={[styles.base, styles[variant], color ? { color } : null, style]}>
+    <Text
+      numberOfLines={numberOfLines}
+      style={[styles.base, styles[variant], color ? { color } : null, style]}
+    >
       {children}
     </Text>
   );

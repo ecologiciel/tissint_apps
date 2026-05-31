@@ -1,3 +1,3 @@
-import { StatsScreen } from "@/features/parity/AccountParityScreens";
+import { MvpStatsScreen } from "@/features/mvp/MvpMarketScreens";
 
-export default StatsScreen;
+export default MvpStatsScreen;

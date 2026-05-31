@@ -6,7 +6,12 @@ export const Route = createFileRoute("/premium")({ component: PremiumPage });
 
 type Plan = "monthly" | "yearly";
 
-const FEATURES: { label: string; free: string | boolean; premium: string | boolean; highlight?: boolean }[] = [
+const FEATURES: {
+  label: string;
+  free: string | boolean;
+  premium: string | boolean;
+  highlight?: boolean;
+}[] = [
   { label: "فحوصات يومياً", free: "3", premium: "غير محدود", highlight: true },
   { label: "أولوية تحليل AI", free: false, premium: true },
   { label: "دقة النموذج", free: "أساسية", premium: "متقدمة +12%" },
@@ -31,10 +36,15 @@ function PremiumPage() {
   return (
     <div className="flex h-full flex-col bg-stone text-warm overflow-hidden" dir="rtl">
       <header className="flex items-center justify-between px-5 pt-12 pb-2">
-        <Link to="/dashboard" className="grid h-10 w-10 place-items-center rounded-full bg-white/10">
+        <Link
+          to="/dashboard"
+          className="grid h-10 w-10 place-items-center rounded-full bg-white/10"
+        >
           <ChevronRight className="h-5 w-5" />
         </Link>
-        <span className="text-[10px] bg-gold/20 text-gold px-2 py-1 rounded-full font-bold">حصرياً للمغرب</span>
+        <span className="text-[10px] bg-gold/20 text-gold px-2 py-1 rounded-full font-bold">
+          حصرياً للمغرب
+        </span>
       </header>
 
       <main className="flex-1 px-5 pb-4 space-y-5 overflow-y-auto">
@@ -48,19 +58,28 @@ function PremiumPage() {
 
         {/* Plan toggle */}
         <div className="rounded-2xl bg-white/5 p-1 flex">
-          <button onClick={() => setPlan("monthly")}
-            className={`flex-1 rounded-xl py-2.5 text-xs font-bold ${plan === "monthly" ? "bg-orange text-white" : "text-warm/70"}`}>
+          <button
+            onClick={() => setPlan("monthly")}
+            className={`flex-1 rounded-xl py-2.5 text-xs font-bold ${plan === "monthly" ? "bg-orange text-white" : "text-warm/70"}`}
+          >
             شهري
           </button>
-          <button onClick={() => setPlan("yearly")}
-            className={`flex-1 rounded-xl py-2.5 text-xs font-bold relative ${plan === "yearly" ? "bg-orange text-white" : "text-warm/70"}`}>
+          <button
+            onClick={() => setPlan("yearly")}
+            className={`flex-1 rounded-xl py-2.5 text-xs font-bold relative ${plan === "yearly" ? "bg-orange text-white" : "text-warm/70"}`}
+          >
             سنوي
-            <span className="absolute -top-2 -left-1 text-[8px] bg-success text-white px-1.5 py-0.5 rounded-full">-20%</span>
+            <span className="absolute -top-2 -left-1 text-[8px] bg-success text-white px-1.5 py-0.5 rounded-full">
+              -20%
+            </span>
           </button>
         </div>
 
         <div className="rounded-3xl bg-gradient-to-br from-orange/20 to-gold/10 p-5 border border-gold/30 text-center">
-          <p className="text-5xl font-black text-gold">{price}<span className="text-base text-warm/70 mr-1">د.م</span></p>
+          <p className="text-5xl font-black text-gold">
+            {price}
+            <span className="text-base text-warm/70 mr-1">د.م</span>
+          </p>
           <p className="text-xs text-warm/60 mt-1">شهرياً • {total}</p>
           {save && <p className="text-[11px] text-success font-bold mt-1">✓ {save}</p>}
         </div>
@@ -73,14 +92,32 @@ function PremiumPage() {
             <span className="text-center bg-gold/20 text-gold rounded-md py-0.5">Premium</span>
           </div>
           {FEATURES.map((f, idx) => (
-            <div key={idx}
-              className={`grid grid-cols-[1fr_70px_90px] gap-1 px-3 py-2.5 items-center text-xs border-b border-white/5 last:border-0 ${f.highlight ? "bg-gold/5" : ""}`}>
+            <div
+              key={idx}
+              className={`grid grid-cols-[1fr_70px_90px] gap-1 px-3 py-2.5 items-center text-xs border-b border-white/5 last:border-0 ${f.highlight ? "bg-gold/5" : ""}`}
+            >
               <span className="font-semibold">{f.label}</span>
               <span className="text-center text-warm/60">
-                {typeof f.free === "boolean" ? (f.free ? <Check className="h-3.5 w-3.5 inline text-success" /> : <X className="h-3.5 w-3.5 inline text-warm/30" />) : f.free}
+                {typeof f.free === "boolean" ? (
+                  f.free ? (
+                    <Check className="h-3.5 w-3.5 inline text-success" />
+                  ) : (
+                    <X className="h-3.5 w-3.5 inline text-warm/30" />
+                  )
+                ) : (
+                  f.free
+                )}
               </span>
               <span className="text-center font-bold text-gold">
-                {typeof f.premium === "boolean" ? (f.premium ? <Check className="h-3.5 w-3.5 inline text-success" /> : <X className="h-3.5 w-3.5 inline" />) : f.premium}
+                {typeof f.premium === "boolean" ? (
+                  f.premium ? (
+                    <Check className="h-3.5 w-3.5 inline text-success" />
+                  ) : (
+                    <X className="h-3.5 w-3.5 inline" />
+                  )
+                ) : (
+                  f.premium
+                )}
               </span>
             </div>
           ))}
@@ -98,8 +135,10 @@ function PremiumPage() {
       </main>
 
       <div className="p-5 border-t border-white/10 space-y-2 bg-stone">
-        <button onClick={() => nav({ to: "/checkout", search: { plan } })}
-          className="w-full rounded-full bg-gradient-to-r from-orange to-gold py-4 font-black text-white shadow-xl">
+        <button
+          onClick={() => nav({ to: "/checkout", search: { plan } })}
+          className="w-full rounded-full bg-gradient-to-r from-orange to-gold py-4 font-black text-white shadow-xl"
+        >
           اشترك بـ {total}
         </button>
         <p className="text-center text-[10px] text-warm/40">يبدأ التجديد تلقائياً • قابل للإلغاء</p>

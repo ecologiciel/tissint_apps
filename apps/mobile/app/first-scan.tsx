@@ -1,3 +1,3 @@
-import { FirstScanGuideScreen } from "@/features/parity/AuthParityScreens";
+import { MvpFirstScanGuideScreen } from "@/features/mvp/MvpAuthScreens";
 
-export default FirstScanGuideScreen;
+export default MvpFirstScanGuideScreen;

@@ -9,44 +9,25 @@ import {
   type FavoriteListing,
   type MarketplaceListing,
   type MarketplaceListingDetail,
+  type MarketplaceStatus,
   type NormalizedScanResult,
   type PublishListingResult,
   type QuotaSnapshot,
   type SessionUser,
   type UserRole,
 } from "@tissint/shared";
+import type {
+  ApiErrorResponse as ServerApiErrorResponse,
+  MarketplaceListingResponse as ServerPublishContract,
+  PublicListingItem as ServerListingContract,
+  ScanDecisionResponse as ServerScanContract,
+} from "./generated/server-types";
 
-export interface ServerScanResponse {
-  scan_id: string;
-  status_code?: string;
-  is_meteorite?: boolean;
-  meteorite_probability?: number;
-  dominant_class?: string;
-  class_confidence?: number;
-  actions?: {
-    add_to_collection?: boolean;
-    enable_marketplace_button?: boolean;
-    invite_interior_cut?: boolean;
-  };
-  trigger_radar_admin?: boolean;
-  metadata_applied?: {
-    weight_provided?: boolean;
-    magnetic_status?: boolean | null;
-    has_coordinates?: boolean;
-  };
-  is_sync_retry?: boolean;
-}
+export type { ServerApiErrorResponse };
 
-export interface ServerListingItem {
-  listing_id: string;
-  scan_id: string;
-  price: number;
-  status: string;
-  dominant_class: string;
-  confidence: number;
-  weight?: number | null;
-  blurred_latitude?: number | null;
-  blurred_longitude?: number | null;
+export type ServerScanResponse = ServerScanContract;
+
+export interface ServerListingItem extends ServerListingContract {
   title?: string;
   description?: string;
   region?: string;
@@ -56,6 +37,8 @@ export interface ServerListingItem {
   seller_whatsapp?: string;
   seller_verified?: boolean;
   contact_locked_until?: string;
+  can_contact?: boolean;
+  contact_lock_reason?: string;
   is_rare?: boolean;
   price_mode?: MarketplaceListing["priceMode"];
   created_at?: string;
@@ -79,8 +62,11 @@ export interface ServerAlertRule {
 
 export interface ServerAuthResponse {
   access_token?: string;
+  accessToken?: string;
   refresh_token?: string;
+  refreshToken?: string;
   expires_at?: string;
+  expiresAt?: string;
   user?: {
     id?: string;
     user_id?: string;
@@ -90,6 +76,7 @@ export interface ServerAuthResponse {
     email?: string;
     role?: UserRole;
     premium_expires_at?: string;
+    premiumExpiresAt?: string;
   };
   quota?: {
     role?: UserRole;
@@ -118,19 +105,35 @@ export interface ServerCollectionItem {
   main_image_uri?: string;
 }
 
-export interface ServerPublishResponse {
-  message?: string;
-  scan_id: string;
-  is_rare_candidate?: boolean;
-  dominant_class?: string;
-  confidence?: number;
-  weight?: number | null;
-  blurred_latitude?: number | null;
-  blurred_longitude?: number | null;
+export interface ServerPublishResponse extends ServerPublishContract {
+  listing_id?: string;
+}
+
+const MARKETPLACE_STATUSES = new Set<MarketplaceStatus>([
+  "draft",
+  "pending_admin",
+  "institutional_hold_24h",
+  "published",
+  "admin_reserved",
+  "sold",
+  "rejected",
+  "archived",
+]);
+
+function normalizeMarketplaceStatus(status?: string): MarketplaceStatus {
+  if (!status) return "draft";
+  if (status === "available") return "published";
+  if (status === "reserved") return "admin_reserved";
+  if (status === "inactive") return "archived";
+  return MARKETPLACE_STATUSES.has(status as MarketplaceStatus)
+    ? (status as MarketplaceStatus)
+    : "draft";
 }
 
 export function normalizeScanResponse(payload: ServerScanResponse): NormalizedScanResult {
-  const fusionScore = normalizeScore(payload.meteorite_probability ?? payload.class_confidence ?? 0);
+  const fusionScore = normalizeScore(
+    payload.meteorite_probability ?? payload.class_confidence ?? 0,
+  );
   const className = payload.dominant_class ?? "Unknown";
   const decision = evaluateScanDecision({
     fusionScore,
@@ -144,7 +147,8 @@ export function normalizeScanResponse(payload: ServerScanResponse): NormalizedSc
     classConfidence: payload.class_confidence,
     rawStatusCode: payload.status_code,
     canAddToCollection: payload.actions?.add_to_collection ?? decision.canAddToCollection,
-    canPublishMarketplace: payload.actions?.enable_marketplace_button ?? decision.canPublishMarketplace,
+    canPublishMarketplace:
+      payload.actions?.enable_marketplace_button ?? decision.canPublishMarketplace,
     needsInteriorCut: payload.actions?.invite_interior_cut ?? decision.needsInteriorCut,
     modelScores: { fusion: fusionScore },
     metadataApplied: {
@@ -168,7 +172,7 @@ export function normalizeListing(payload: ServerListingItem): MarketplaceListing
     weightGram: payload.weight ?? undefined,
     priceValue: payload.price,
     priceMode: payload.price_mode ?? "fixed_total",
-    status: payload.status === "available" ? "published" : "archived",
+    status: normalizeMarketplaceStatus(payload.status),
     isRare: Boolean(payload.is_rare),
     region: payload.region,
     description: payload.description,
@@ -184,17 +188,27 @@ export function normalizeListing(payload: ServerListingItem): MarketplaceListing
   };
 }
 
-export function normalizeListingDetail(payload: ServerListingItem, canContact = false): MarketplaceListingDetail {
+export function normalizeListingDetail(
+  payload: ServerListingItem,
+  canContact = false,
+): MarketplaceListingDetail {
   const listing = normalizeListing(payload);
+  const serverCanContact = payload.can_contact ?? canContact;
   return {
     ...listing,
-    canContact,
-    scientificNotice: "Cette analyse est une aide a l'identification et ne remplace pas une expertise de laboratoire.",
-    contactLockReason: canContact ? undefined : "premium_required",
+    canContact: serverCanContact,
+    scientificNotice:
+      "Cette analyse est une aide a l'identification et ne remplace pas une expertise de laboratoire.",
+    contactLockReason: serverCanContact
+      ? undefined
+      : (payload.contact_lock_reason ?? "premium_required"),
   };
 }
 
-export function normalizeQuota(payload: ServerQuotaResponse, fallbackRole: UserRole = "free"): QuotaSnapshot {
+export function normalizeQuota(
+  payload: ServerQuotaResponse,
+  fallbackRole: UserRole = "free",
+): QuotaSnapshot {
   const role = payload.role ?? fallbackRole;
   const dailyLimit = payload.daily_limit ?? quotaLimitForRole(role);
   return {
@@ -205,7 +219,10 @@ export function normalizeQuota(payload: ServerQuotaResponse, fallbackRole: UserR
   };
 }
 
-export function normalizeAuthSession(payload: ServerAuthResponse, fallback: { phoneOrEmail?: string } = {}): AuthSession {
+export function normalizeAuthSession(
+  payload: ServerAuthResponse,
+  fallback: { phoneOrEmail?: string } = {},
+): AuthSession {
   const role = payload.user?.role ?? payload.quota?.role ?? "free";
   const id = payload.user?.id ?? payload.user?.user_id ?? fallback.phoneOrEmail ?? "user";
   const user: SessionUser = {
@@ -215,14 +232,14 @@ export function normalizeAuthSession(payload: ServerAuthResponse, fallback: { ph
     phone: payload.user?.phone,
     email: payload.user?.email,
     role,
-    premiumExpiresAt: payload.user?.premium_expires_at,
+    premiumExpiresAt: payload.user?.premium_expires_at ?? payload.user?.premiumExpiresAt,
   };
   return {
     user,
     tokens: {
-      accessToken: payload.access_token ?? "",
-      refreshToken: payload.refresh_token ?? "",
-      expiresAt: payload.expires_at,
+      accessToken: payload.access_token ?? payload.accessToken ?? "",
+      refreshToken: payload.refresh_token ?? payload.refreshToken ?? "",
+      expiresAt: payload.expires_at ?? payload.expiresAt,
     },
     quota: normalizeQuota(payload.quota ?? {}, role),
   };
@@ -243,13 +260,18 @@ export function normalizeCollectionItem(payload: ServerCollectionItem): Collecti
 
 export function normalizePublishResult(payload: ServerPublishResponse): PublishListingResult {
   const rare = Boolean(payload.is_rare_candidate);
+  const status = payload.status
+    ? normalizeMarketplaceStatus(payload.status)
+    : rare
+      ? "institutional_hold_24h"
+      : "pending_admin";
   return {
     scanId: payload.scan_id,
-    status: rare ? "institutional_hold_24h" : "pending_admin",
+    status,
     isRareCandidate: rare,
     message: payload.message ?? "Publication request accepted",
     listing: {
-      listingId: payload.scan_id,
+      listingId: payload.listing_id ?? payload.scan_id,
       scanId: payload.scan_id,
       title: payload.dominant_class ?? "Meteorite",
       dominantClass: payload.dominant_class ?? "Unknown",
@@ -257,7 +279,7 @@ export function normalizePublishResult(payload: ServerPublishResponse): PublishL
       fusionScore: payload.confidence,
       weightGram: payload.weight ?? undefined,
       priceMode: "on_request",
-      status: rare ? "institutional_hold_24h" : "pending_admin",
+      status,
       isRare: rare,
       blurredLatitude: payload.blurred_latitude ?? undefined,
       blurredLongitude: payload.blurred_longitude ?? undefined,

@@ -1,3 +1,3 @@
-import { WalletScreen } from "@/features/parity/CommerceParityScreens";
+import { MvpWalletScreen } from "@/features/mvp/MvpAccountScreens";
 
-export default WalletScreen;
+export default MvpWalletScreen;

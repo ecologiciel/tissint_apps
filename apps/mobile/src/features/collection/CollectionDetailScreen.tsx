@@ -9,6 +9,8 @@ import { Badge } from "@/components/ui/Badge";
 import { Button } from "@/components/ui/Button";
 import { Card } from "@/components/ui/Card";
 import { Screen } from "@/components/ui/Screen";
+import { DEMO_COLLECTION } from "@/features/parity/parity-data";
+import { MvpCollectionDetailScreen } from "@/features/mvp/MvpLibraryScreens";
 import { getCollectionItem } from "@/lib/api";
 import { useScanStore } from "@/store/scan-store";
 import { colors, spacing } from "@/theme";
@@ -19,11 +21,17 @@ export function CollectionDetailScreen() {
   const scanId = params.scanId ?? "";
   const [cutAdded, setCutAdded] = useState(false);
   const lastResult = useScanStore((state) => state.lastResult);
+  const knownItem =
+    DEMO_COLLECTION.some((entry) => entry.scanId === scanId) || lastResult?.scanId === scanId;
   const item = useQuery({
     queryKey: ["collection-item", scanId, lastResult?.scanId],
     queryFn: () => getCollectionItem(scanId, lastResult),
     enabled: Boolean(scanId),
   });
+
+  if (!knownItem) {
+    return <MvpCollectionDetailScreen hasItem={false} />;
+  }
 
   if (!item.data) {
     return (
@@ -77,7 +85,12 @@ export function CollectionDetailScreen() {
             <Button
               icon={Store}
               tone="secondary"
-              onPress={() => router.push({ pathname: "/marketplace/publish", params: { scanId: item.data.scanId } })}
+              onPress={() =>
+                router.push({
+                  pathname: "/market/publish/[scanId]",
+                  params: { scanId: item.data.scanId },
+                } as never)
+              }
             >
               Publier dans le marche
             </Button>
@@ -85,7 +98,12 @@ export function CollectionDetailScreen() {
           <Button
             icon={Award}
             tone="ghost"
-            onPress={() => router.push({ pathname: "/certificate/[scanId]", params: { scanId: item.data.scanId } })}
+            onPress={() =>
+              router.push({
+                pathname: "/certificate/[scanId]",
+                params: { scanId: item.data.scanId },
+              })
+            }
           >
             Certificat
           </Button>

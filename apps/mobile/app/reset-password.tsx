@@ -1,3 +1,3 @@
-import { ResetPasswordScreen } from "@/features/parity/AuthParityScreens";
+import { MvpResetPasswordScreen } from "@/features/mvp/MvpAuthScreens";
 
-export default ResetPasswordScreen;
+export default MvpResetPasswordScreen;

@@ -1,20 +1,21 @@
 import { CameraView, useCameraPermissions } from "expo-camera";
 import * as ImageManipulator from "expo-image-manipulator";
 import { router } from "expo-router";
-import { Camera, Check, Crosshair, MapPin, RotateCcw, Scale, Sparkles, SunMedium } from "lucide-react-native";
+import { Camera, Check, ChevronRight, Scale, Settings2, Sparkles } from "lucide-react-native";
 import { useRef, useState } from "react";
-import { ActivityIndicator, Pressable, StyleSheet, TextInput, View } from "react-native";
+import {
+  ActivityIndicator,
+  Pressable,
+  StyleSheet,
+  Text,
+  View,
+  useWindowDimensions,
+} from "react-native";
 import type { MobileImageFile } from "@tissint/api-client";
-import { Button } from "@/components/ui/Button";
-import { AppText } from "@/components/ui/AppText";
-import { Screen } from "@/components/ui/Screen";
-import { t } from "@/i18n";
 import { scanExterior } from "@/lib/api";
 import { getOrCreateDeviceId } from "@/lib/device-id";
-import { env } from "@/lib/env";
 import { useScanStore } from "@/store/scan-store";
 import { useSessionStore } from "@/store/session-store";
-import { colors, radius, spacing } from "@/theme";
 
 type Shot = {
   id: string;
@@ -23,29 +24,49 @@ type Shot = {
   file?: MobileImageFile;
 };
 
-const initialShots: Shot[] = [
+const scanShots: Shot[] = [
   { id: "front", label: "أمامية" },
   { id: "back", label: "خلفية" },
   { id: "side", label: "جانبية" },
-  { id: "cut", label: "مقطع", optional: true },
+  { id: "cut", label: "صورة مقطع", optional: true },
 ];
+
+const UI = {
+  dark: "#1C2024",
+  card: "#03080E",
+  orange: "#FF7A2A",
+  gold: "#F7C75E",
+  muted: "#B8B8B8",
+  chip: "#14181C",
+};
+
+function useMetrics() {
+  const { width, height } = useWindowDimensions();
+  const sx = width / 360;
+  const sy = height / 800;
+  const s = Math.min(sx, sy);
+  return {
+    width,
+    height,
+    x: (value: number) => value * sx,
+    y: (value: number) => value * sy,
+    z: (value: number) => value * s,
+  };
+}
 
 export function ScannerScreen() {
   const cameraRef = useRef<CameraView>(null);
   const [permission, requestPermission] = useCameraPermissions();
-  const [shots, setShots] = useState(initialShots);
+  const [shots, setShots] = useState(scanShots);
   const [activeIndex, setActiveIndex] = useState(0);
-  const [weight, setWeight] = useState("");
-  const [magnetic, setMagnetic] = useState<boolean | undefined>(undefined);
-  const [region, setRegion] = useState("Tata");
-  const [locationReady, setLocationReady] = useState(false);
   const [loading, setLoading] = useState(false);
   const { user } = useSessionStore();
   const { mockScenario, cycleMockScenario, setLastResult } = useScanStore();
+  const m = useMetrics();
 
   const requiredCount = shots.filter((shot) => !shot.optional && shot.file).length;
   const canAnalyze = requiredCount >= 3 && !loading;
-  const activeShot = shots[activeIndex];
+  const activeShot = shots[activeIndex] ?? shots[0];
 
   async function capture() {
     if (!permission?.granted) {
@@ -71,9 +92,14 @@ export function ScannerScreen() {
       type: "image/jpeg",
     };
 
-    setShots((current) => current.map((shot, index) => (index === activeIndex ? { ...shot, file } : shot)));
-    const next = shots.findIndex((shot, index) => index !== activeIndex && !shot.file);
-    if (next >= 0) setActiveIndex(next);
+    setShots((current) => {
+      const updated = current.map((shot, index) =>
+        index === activeIndex ? { ...shot, file } : shot,
+      );
+      const next = updated.findIndex((shot, index) => index !== activeIndex && !shot.file);
+      if (next >= 0) setActiveIndex(next);
+      return updated;
+    });
   }
 
   async function analyze() {
@@ -81,18 +107,15 @@ export function ScannerScreen() {
     setLoading(true);
     try {
       const deviceId = await getOrCreateDeviceId();
-      const exteriorFiles = shots.filter((shot) => !shot.optional && shot.file).map((shot) => shot.file!);
+      const exteriorFiles = shots
+        .filter((shot) => !shot.optional && shot.file)
+        .map((shot) => shot.file!);
       const interiorFile = shots.find((shot) => shot.optional)?.file;
       const result = await scanExterior(
         {
           metadata: {
             clientUuid: `${deviceId}-${Date.now()}`,
             userId: user?.id ?? "anonymous",
-            weightGram: Number(weight) || undefined,
-            magnetic,
-            latitude: locationReady ? 29.899 : undefined,
-            longitude: locationReady ? -7.317 : undefined,
-            region,
           },
           exteriorFiles,
           interiorFile,
@@ -100,353 +123,453 @@ export function ScannerScreen() {
         mockScenario,
       );
       setLastResult(result);
-      router.push("/scan/result");
+      router.push("/scan/result" as never);
     } finally {
       setLoading(false);
     }
   }
 
-  return (
-    <Screen dark scroll={false} contentStyle={styles.root}>
-      <View style={styles.header}>
-        <View>
-          <AppText variant="caption" color={colors.gold}>
-            {env.apiMode === "mock" ? `${t("scanner.mock")} ${mockScenario}` : "API serveur"}
-          </AppText>
-          <AppText variant="title" color="#FFFFFF">
-            {t("scanner.title")}
-          </AppText>
-        </View>
-        <Pressable style={styles.mockButton} onPress={cycleMockScenario}>
-          <AppText variant="caption" color="#FFFFFF">
-            {mockScenario}
-          </AppText>
-        </Pressable>
-      </View>
+  async function primaryAction() {
+    if (canAnalyze) await analyze();
+    else await capture();
+  }
 
-      <View style={styles.cameraBox}>
+  return (
+    <View style={styles.root}>
+      <Pressable
+        style={[
+          styles.stepPill,
+          { top: m.y(55), left: m.x(20), width: m.x(39), height: m.y(28), borderRadius: m.z(15) },
+        ]}
+      >
+        <Text style={[styles.stepText, { fontSize: m.z(12.5) }]}>2/5</Text>
+      </Pressable>
+      <Pressable
+        onPress={() => router.replace("/dashboard" as never)}
+        style={[
+          styles.backButton,
+          { top: m.y(48), right: m.x(20), width: m.z(40), height: m.z(40), borderRadius: m.z(20) },
+        ]}
+      >
+        <ChevronRight color="#FFFFFF" size={m.z(26)} strokeWidth={3} />
+      </Pressable>
+
+      <Text style={[styles.title, { top: m.y(50), fontSize: m.z(18.5), lineHeight: m.z(27) }]}>
+        التقاط العينة
+      </Text>
+      <Text style={[styles.subtitle, { top: m.y(73), fontSize: m.z(13.5), lineHeight: m.z(19) }]}>
+        صورة {requiredCount}/3 إلزامية
+      </Text>
+
+      <View
+        style={[
+          styles.cameraCard,
+          {
+            top: m.y(100),
+            left: m.x(12),
+            width: m.x(336),
+            height: m.y(564),
+            borderRadius: m.z(24),
+          },
+        ]}
+      >
         {permission?.granted ? (
           <CameraView ref={cameraRef} style={StyleSheet.absoluteFill} facing="back" />
+        ) : null}
+        <View style={[styles.cameraShade, !permission?.granted ? styles.cameraShadeDark : null]} />
+
+        <View
+          style={[
+            styles.instructionPill,
+            {
+              top: m.y(19),
+              alignSelf: "center",
+              borderRadius: m.z(17),
+              paddingHorizontal: m.x(14),
+            },
+          ]}
+        >
+          <Text style={[styles.instructionText, { fontSize: m.z(13.5), lineHeight: m.z(22) }]}>
+            ضع الحجر داخل الإطار - أمامية
+          </Text>
+        </View>
+
+        {!permission?.granted ? (
+          <View style={[styles.permissionCenter, { top: m.y(188), left: m.x(20), right: m.x(20) }]}>
+            <View
+              style={[
+                styles.permissionIcon,
+                { width: m.z(64), height: m.z(64), borderRadius: m.z(32) },
+              ]}
+            >
+              <Camera color="#FF3D4D" size={m.z(29)} strokeWidth={2.7} />
+            </View>
+            <Text
+              style={[
+                styles.permissionTitle,
+                { fontSize: m.z(18), lineHeight: m.z(28), marginTop: m.y(16) },
+              ]}
+            >
+              الكاميرا غير مفعلة
+            </Text>
+            <Text
+              style={[
+                styles.permissionBody,
+                { fontSize: m.z(14.5), lineHeight: m.z(24), marginTop: m.y(10) },
+              ]}
+            >
+              يحتاج تيسنت للوصول إلى الكاميرا لالتقاط صور العينة. لا يمكن رفع صور من المعرض لضمان
+              جودة التحليل.
+            </Text>
+            <Pressable
+              onPress={requestPermission}
+              style={[
+                styles.permissionButton,
+                { marginTop: m.y(18), width: m.x(143), height: m.y(36), borderRadius: m.z(19) },
+              ]}
+            >
+              <Text
+                style={[styles.permissionButtonText, { fontSize: m.z(17), lineHeight: m.z(24) }]}
+              >
+                السماح بالوصول
+              </Text>
+            </Pressable>
+          </View>
         ) : (
-          <View style={styles.permissionBox}>
-            <Camera color={colors.gold} size={42} />
-            <AppText variant="body" color="#FFFFFF" style={styles.permissionText}>
-              Tissint doit utiliser la camera. Aucun upload galerie n'est autorise.
-            </AppText>
-            <Button tone="secondary" onPress={requestPermission}>
-              {t("scanner.permission")}
-            </Button>
+          <View
+            style={[
+              styles.cameraGuide,
+              { top: m.y(165), left: m.x(78), right: m.x(78), bottom: m.y(151) },
+            ]}
+          >
+            <Corner position="topRight" />
+            <Corner position="topLeft" />
+            <Corner position="bottomRight" />
+            <Corner position="bottomLeft" />
           </View>
         )}
 
-        <View style={styles.frameGuide}>
-          <View style={[styles.corner, styles.cornerTopRight]} />
-          <View style={[styles.corner, styles.cornerTopLeft]} />
-          <View style={[styles.corner, styles.cornerBottomRight]} />
-          <View style={[styles.corner, styles.cornerBottomLeft]} />
-        </View>
-
-        <View style={styles.counter}>
-          <AppText variant="caption" color="#FFFFFF">
-            {requiredCount}/3 {t("scanner.required")}
-          </AppText>
-        </View>
-      </View>
-
-      <View style={styles.shots}>
-        {shots.map((shot, index) => (
-          <Pressable
-            key={shot.id}
-            onPress={() => setActiveIndex(index)}
-            style={[styles.shot, activeIndex === index ? styles.shotActive : null, shot.file ? styles.shotDone : null]}
-          >
-            {shot.file ? <Check color={colors.success} size={18} /> : <Camera color="rgba(255,255,255,0.6)" size={18} />}
-            <AppText variant="caption" color="#FFFFFF" style={styles.shotLabel}>
-              {shot.label}
-            </AppText>
-            {shot.file ? (
-              <Pressable
-                onPress={() => setShots((current) => current.map((item) => (item.id === shot.id ? { ...item, file: undefined } : item)))}
+        <View
+          style={[styles.shotRow, { left: m.x(12), right: m.x(12), bottom: m.y(12), gap: m.x(8) }]}
+        >
+          {shots.map((shot, index) => (
+            <Pressable
+              key={shot.id}
+              onPress={() => setActiveIndex(index)}
+              style={[
+                styles.shotCard,
+                {
+                  height: m.y(64),
+                  borderRadius: m.z(17),
+                  borderWidth: m.z(activeIndex === index ? 1.8 : 1.5),
+                },
+                activeIndex === index ? styles.shotCardActive : null,
+                shot.file ? styles.shotCardDone : null,
+              ]}
+            >
+              {shot.optional ? (
+                <View
+                  style={[
+                    styles.optionalPill,
+                    {
+                      top: m.y(7),
+                      right: m.x(6),
+                      borderRadius: m.z(12),
+                      paddingHorizontal: m.x(7),
+                    },
+                  ]}
+                >
+                  <Text style={[styles.optionalText, { fontSize: m.z(10.5) }]}>اختياري ✂</Text>
+                </View>
+              ) : null}
+              {shot.file ? <Check color="#2E8B57" size={m.z(16)} /> : null}
+              <Text
+                style={[
+                  styles.shotLabel,
+                  {
+                    fontSize: m.z(13),
+                    lineHeight: m.z(20),
+                    marginTop: shot.optional ? m.y(14) : 0,
+                  },
+                ]}
               >
-                <RotateCcw color="#FFFFFF" size={14} />
-              </Pressable>
-            ) : null}
-          </Pressable>
-        ))}
-      </View>
-
-      <View style={styles.qualityPanel}>
-        <View style={styles.qualityItem}>
-          <Check color={colors.success} size={15} />
-          <AppText variant="caption" color="#FFFFFF">
-            Stable
-          </AppText>
-        </View>
-        <View style={styles.qualityItem}>
-          <SunMedium color={colors.gold} size={15} />
-          <AppText variant="caption" color="#FFFFFF">
-            Lumiere OK
-          </AppText>
-        </View>
-        <View style={styles.qualityItem}>
-          <Crosshair color={colors.gold} size={15} />
-          <AppText variant="caption" color="#FFFFFF">
-            Pierre cadree
-          </AppText>
+                {shot.label}
+              </Text>
+            </Pressable>
+          ))}
         </View>
       </View>
 
-      <View style={styles.metadata}>
-        <View style={styles.inputWrap}>
-          <Scale color={colors.gold} size={16} />
-          <TextInput
-            value={weight}
-            onChangeText={setWeight}
-            keyboardType="decimal-pad"
-            placeholder="الوزن بالغرام"
-            placeholderTextColor="rgba(255,255,255,0.45)"
-            style={styles.input}
-          />
-        </View>
-        <View style={styles.inputWrap}>
-          <MapPin color={colors.gold} size={16} />
-          <TextInput
-            value={region}
-            onChangeText={setRegion}
-            placeholder="المنطقة"
-            placeholderTextColor="rgba(255,255,255,0.45)"
-            style={styles.input}
-          />
-        </View>
-      </View>
-
-      <View style={styles.magnetic}>
-        <Pressable style={[styles.magneticChoice, magnetic === false ? styles.magneticActive : null]} onPress={() => setMagnetic(false)}>
-          <AppText variant="caption" color="#FFFFFF">
-            غير مغناطيسي
-          </AppText>
+      <View style={[styles.bottomControls, { top: m.y(680), left: 0, right: 0 }]}>
+        <Pressable
+          style={[
+            styles.sideAction,
+            styles.sideActionOrange,
+            { width: m.z(48), height: m.z(48), borderRadius: m.z(24) },
+          ]}
+        >
+          <Sparkles color="rgba(255,255,255,0.58)" size={m.z(27)} strokeWidth={2.2} />
         </Pressable>
-        <Pressable style={[styles.magneticChoice, magnetic === true ? styles.magneticActive : null]} onPress={() => setMagnetic(true)}>
-          <AppText variant="caption" color="#FFFFFF">
-            مغناطيسي
-          </AppText>
+        <Pressable
+          onPress={primaryAction}
+          disabled={loading}
+          style={[
+            styles.captureOuter,
+            { width: m.z(80), height: m.z(80), borderRadius: m.z(40), borderWidth: m.z(4) },
+            canAnalyze ? styles.captureReady : null,
+          ]}
+        >
+          {loading ? (
+            <ActivityIndicator color="#FFFFFF" />
+          ) : (
+            <View
+              style={[
+                styles.captureInner,
+                { width: m.z(64), height: m.z(64), borderRadius: m.z(32) },
+              ]}
+            />
+          )}
+        </Pressable>
+        <Pressable
+          onPress={cycleMockScenario}
+          style={[styles.sideAction, { width: m.z(48), height: m.z(48), borderRadius: m.z(24) }]}
+        >
+          <Scale color="#FFFFFF" size={m.z(25)} strokeWidth={2.3} />
         </Pressable>
       </View>
 
-      <Pressable style={[styles.locationButton, locationReady ? styles.locationReady : null]} onPress={() => setLocationReady(true)}>
-        <MapPin color={locationReady ? "#FFFFFF" : colors.gold} size={16} />
-        <AppText variant="caption" color="#FFFFFF">
-          {locationReady ? "GPS approximatif ajoute" : "Ajouter position GPS"}
-        </AppText>
+      <Text
+        style={[styles.footerText, { top: m.y(773), fontSize: m.z(13.5), lineHeight: m.z(20) }]}
+      >
+        {canAnalyze ? "اضغط لتحليل الصور" : "التقط 3 صور إضافية لتفعيل التحليل"}
+      </Text>
+
+      <Pressable
+        onPress={() => router.push("/settings")}
+        style={[
+          styles.settingsFab,
+          {
+            left: m.x(16),
+            bottom: m.y(17),
+            width: m.z(48),
+            height: m.z(48),
+            borderRadius: m.z(24),
+          },
+        ]}
+      >
+        <Settings2 color="#FFFFFF" size={m.z(21)} strokeWidth={2.5} />
       </Pressable>
-
-      <View style={styles.actions}>
-        <Button icon={Camera} tone="ghost" onPress={capture} disabled={loading}>
-          {t("scanner.capture")}
-        </Button>
-        <Button icon={Sparkles} tone="primary" onPress={analyze} disabled={!canAnalyze} loading={loading}>
-          {loading ? "Analyse..." : t("scanner.analyze")}
-        </Button>
-      </View>
-
-      {loading ? (
-        <View style={styles.loadingOverlay}>
-          <ActivityIndicator color={colors.gold} size="large" />
-        </View>
-      ) : null}
-    </Screen>
+    </View>
   );
+}
+
+function Corner({ position }: { position: "topRight" | "topLeft" | "bottomRight" | "bottomLeft" }) {
+  return <View style={[styles.corner, styles[position]]} />;
 }
 
 const styles = StyleSheet.create({
   root: {
-    gap: spacing.md,
-    backgroundColor: colors.stone,
-  },
-  header: {
-    flexDirection: "row-reverse",
-    justifyContent: "space-between",
-    alignItems: "center",
-  },
-  mockButton: {
-    width: 42,
-    height: 42,
-    borderRadius: 21,
-    backgroundColor: "rgba(255,255,255,0.12)",
-    alignItems: "center",
-    justifyContent: "center",
-  },
-  cameraBox: {
     flex: 1,
-    minHeight: 330,
-    borderRadius: 28,
-    overflow: "hidden",
-    backgroundColor: "#10161D",
+    backgroundColor: UI.dark,
   },
-  permissionBox: {
-    flex: 1,
-    alignItems: "center",
-    justifyContent: "center",
-    padding: spacing.xl,
-    gap: spacing.lg,
-  },
-  permissionText: {
-    textAlign: "center",
-  },
-  frameGuide: {
+  stepPill: {
     position: "absolute",
-    top: 56,
-    bottom: 56,
-    left: 34,
-    right: 34,
-    borderRadius: 24,
+    backgroundColor: "#34383D",
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  stepText: {
+    color: "#D8D8D8",
+    fontWeight: "500",
+  },
+  backButton: {
+    position: "absolute",
+    backgroundColor: "#34383D",
+    alignItems: "center",
+    justifyContent: "center",
+    zIndex: 5,
+  },
+  title: {
+    position: "absolute",
+    left: 0,
+    right: 0,
+    color: "#FFF8EC",
+    fontWeight: "900",
+    textAlign: "center",
+    writingDirection: "rtl",
+  },
+  subtitle: {
+    position: "absolute",
+    left: 0,
+    right: 0,
+    color: UI.gold,
+    textAlign: "center",
+    writingDirection: "rtl",
+  },
+  cameraCard: {
+    position: "absolute",
+    backgroundColor: UI.card,
+    overflow: "hidden",
+  },
+  cameraShade: {
+    position: "absolute",
+    top: 0,
+    right: 0,
+    bottom: 0,
+    left: 0,
+    backgroundColor: "rgba(0,0,0,0.18)",
+  },
+  cameraShadeDark: {
+    backgroundColor: "#050A10",
+  },
+  instructionPill: {
+    position: "absolute",
+    backgroundColor: "rgba(0,0,0,0.38)",
+  },
+  instructionText: {
+    color: UI.muted,
+    textAlign: "center",
+    writingDirection: "rtl",
+  },
+  permissionCenter: {
+    position: "absolute",
+    alignItems: "center",
+  },
+  permissionIcon: {
+    backgroundColor: "rgba(255,61,77,0.24)",
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  permissionTitle: {
+    color: "#FFFFFF",
+    fontWeight: "900",
+    textAlign: "center",
+    writingDirection: "rtl",
+  },
+  permissionBody: {
+    color: UI.muted,
+    textAlign: "center",
+    writingDirection: "rtl",
+  },
+  permissionButton: {
+    backgroundColor: UI.orange,
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  permissionButtonText: {
+    color: "#FFFFFF",
+    fontWeight: "900",
+    textAlign: "center",
+    writingDirection: "rtl",
+  },
+  cameraGuide: {
+    position: "absolute",
   },
   corner: {
     position: "absolute",
-    width: 34,
-    height: 34,
-    borderColor: colors.gold,
+    width: 30,
+    height: 30,
+    borderColor: "rgba(255,255,255,0.84)",
   },
-  cornerTopRight: {
-    right: 0,
+  topRight: {
     top: 0,
-    borderRightWidth: 4,
-    borderTopWidth: 4,
-  },
-  cornerTopLeft: {
-    left: 0,
-    top: 0,
-    borderLeftWidth: 4,
-    borderTopWidth: 4,
-  },
-  cornerBottomRight: {
     right: 0,
-    bottom: 0,
+    borderTopWidth: 4,
     borderRightWidth: 4,
-    borderBottomWidth: 4,
   },
-  cornerBottomLeft: {
+  topLeft: {
+    top: 0,
     left: 0,
-    bottom: 0,
+    borderTopWidth: 4,
     borderLeftWidth: 4,
-    borderBottomWidth: 4,
   },
-  counter: {
+  bottomRight: {
+    bottom: 0,
+    right: 0,
+    borderBottomWidth: 4,
+    borderRightWidth: 4,
+  },
+  bottomLeft: {
+    bottom: 0,
+    left: 0,
+    borderBottomWidth: 4,
+    borderLeftWidth: 4,
+  },
+  shotRow: {
     position: "absolute",
-    top: 14,
-    alignSelf: "center",
-    borderRadius: radius.pill,
-    paddingHorizontal: spacing.md,
-    paddingVertical: spacing.xs,
-    backgroundColor: "rgba(0,0,0,0.45)",
-  },
-  shots: {
     flexDirection: "row-reverse",
-    gap: spacing.sm,
   },
-  shot: {
+  shotCard: {
     flex: 1,
-    minHeight: 62,
-    borderRadius: radius.md,
-    borderWidth: 1,
-    borderColor: "rgba(255,255,255,0.14)",
-    backgroundColor: "rgba(255,255,255,0.07)",
+    backgroundColor: UI.chip,
+    borderColor: "#484C50",
     alignItems: "center",
     justifyContent: "center",
-    gap: 2,
   },
-  shotActive: {
-    borderColor: colors.orange,
+  shotCardActive: {
+    borderColor: UI.orange,
   },
-  shotDone: {
-    borderColor: colors.success,
+  shotCardDone: {
+    borderColor: "#2E8B57",
   },
-  shotLabel: {
+  optionalPill: {
+    position: "absolute",
+    backgroundColor: UI.gold,
+  },
+  optionalText: {
+    color: "#1D242A",
+    fontWeight: "900",
     textAlign: "center",
-  },
-  qualityPanel: {
-    flexDirection: "row-reverse",
-    gap: spacing.sm,
-  },
-  qualityItem: {
-    flex: 1,
-    minHeight: 34,
-    borderRadius: radius.pill,
-    backgroundColor: "rgba(255,255,255,0.08)",
-    borderWidth: 1,
-    borderColor: "rgba(255,255,255,0.12)",
-    flexDirection: "row-reverse",
-    alignItems: "center",
-    justifyContent: "center",
-    gap: spacing.xs,
-  },
-  metadata: {
-    flexDirection: "row-reverse",
-    gap: spacing.sm,
-  },
-  inputWrap: {
-    flex: 1,
-    minHeight: 46,
-    borderRadius: radius.md,
-    backgroundColor: "rgba(255,255,255,0.08)",
-    borderWidth: 1,
-    borderColor: "rgba(255,255,255,0.12)",
-    paddingHorizontal: spacing.md,
-    flexDirection: "row-reverse",
-    alignItems: "center",
-    gap: spacing.sm,
-  },
-  input: {
-    flex: 1,
-    color: "#FFFFFF",
-    textAlign: "right",
     writingDirection: "rtl",
   },
-  magnetic: {
-    flexDirection: "row-reverse",
-    gap: spacing.sm,
+  shotLabel: {
+    color: UI.muted,
+    textAlign: "center",
+    writingDirection: "rtl",
   },
-  magneticChoice: {
-    flex: 1,
-    borderRadius: radius.pill,
-    paddingVertical: spacing.sm,
-    alignItems: "center",
-    borderWidth: 1,
-    borderColor: "rgba(255,255,255,0.12)",
-    backgroundColor: "rgba(255,255,255,0.06)",
-  },
-  magneticActive: {
-    backgroundColor: colors.orange,
-    borderColor: colors.orange,
-  },
-  locationButton: {
-    minHeight: 40,
-    borderRadius: radius.pill,
-    borderWidth: 1,
-    borderColor: "rgba(255,255,255,0.12)",
-    backgroundColor: "rgba(255,255,255,0.06)",
-    flexDirection: "row-reverse",
-    alignItems: "center",
-    justifyContent: "center",
-    gap: spacing.sm,
-  },
-  locationReady: {
-    backgroundColor: colors.success,
-    borderColor: colors.success,
-  },
-  actions: {
-    flexDirection: "row-reverse",
-    gap: spacing.sm,
-    paddingBottom: spacing.sm,
-  },
-  loadingOverlay: {
+  bottomControls: {
     position: "absolute",
-    top: 0,
-    right: 0,
-    bottom: 0,
-    left: 0,
-    backgroundColor: colors.overlay,
+    flexDirection: "row",
     alignItems: "center",
     justifyContent: "center",
+    gap: 24,
+  },
+  sideAction: {
+    backgroundColor: "#34383D",
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  sideActionOrange: {
+    backgroundColor: "#894E22",
+  },
+  captureOuter: {
+    borderColor: "#8D9297",
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  captureReady: {
+    borderColor: UI.orange,
+  },
+  captureInner: {
+    backgroundColor: "#8D9297",
+  },
+  footerText: {
+    position: "absolute",
+    left: 0,
+    right: 0,
+    color: UI.muted,
+    textAlign: "center",
+    writingDirection: "rtl",
+  },
+  settingsFab: {
+    position: "absolute",
+    backgroundColor: "#111820",
+    alignItems: "center",
+    justifyContent: "center",
+    shadowColor: "#000",
+    shadowOpacity: 0.24,
+    shadowRadius: 18,
+    shadowOffset: { width: 0, height: 12 },
+    elevation: 11,
   },
 });

@@ -29,6 +29,10 @@ export const tissintClient = new TissintClient({
   getAccessToken: () => accessToken,
 });
 
+export async function checkApiHealth() {
+  return tissintClient.health();
+}
+
 export async function getQuota(role: UserRole): Promise<QuotaSnapshot> {
   if (!isHttpApiEnabled()) {
     const dailyLimit = role === "premium" || role === "admin" ? 10 : role === "free" ? 5 : 0;
@@ -50,7 +54,11 @@ export async function scanExterior(input: ScanExteriorInput, mockScenario: ScanS
   return tissintClient.scanExterior(input);
 }
 
-export async function addInterior(scanId: string, file: MobileImageFile, mockScenario: ScanScenarioKey) {
+export async function addInterior(
+  scanId: string,
+  file: MobileImageFile,
+  mockScenario: ScanScenarioKey,
+) {
   if (!isHttpApiEnabled()) {
     await new Promise((resolve) => setTimeout(resolve, 650));
     return buildMockScanResult(mockScenario === "B" ? "C" : mockScenario, scanId);
@@ -65,16 +73,26 @@ export async function listMarketplace(): Promise<MarketplaceListing[]> {
   return tissintClient.listMarketplace();
 }
 
-export async function getListing(listingId: string, role: UserRole): Promise<MarketplaceListingDetail> {
+export async function getListing(
+  listingId: string,
+  role: UserRole,
+): Promise<MarketplaceListingDetail> {
   if (!isHttpApiEnabled()) {
-    const listing = DEMO_MARKETPLACE_LISTINGS.find((item) => item.listingId === listingId) ?? DEMO_MARKETPLACE_LISTINGS[0];
+    const listing =
+      DEMO_MARKETPLACE_LISTINGS.find((item) => item.listingId === listingId) ??
+      DEMO_MARKETPLACE_LISTINGS[0];
     const lockedByHold = listing.status === "institutional_hold_24h" && role !== "admin";
     const lockedByPremium = role !== "premium" && role !== "admin";
     return {
       ...listing,
       canContact: !lockedByHold && !lockedByPremium,
-      contactLockReason: lockedByHold ? "institutional_hold_24h" : lockedByPremium ? "premium_required" : undefined,
-      scientificNotice: "Cette analyse est une aide a l'identification et ne remplace pas une expertise de laboratoire.",
+      contactLockReason: lockedByHold
+        ? "institutional_hold_24h"
+        : lockedByPremium
+          ? "premium_required"
+          : undefined,
+      scientificNotice:
+        "Cette analyse est une aide a l'identification et ne remplace pas une expertise de laboratoire.",
       sellerName: role === "premium" || role === "admin" ? listing.sellerName : undefined,
       sellerPhone: role === "premium" || role === "admin" ? listing.sellerPhone : undefined,
       sellerWhatsapp: role === "premium" || role === "admin" ? listing.sellerWhatsapp : undefined,
@@ -83,7 +101,9 @@ export async function getListing(listingId: string, role: UserRole): Promise<Mar
   return tissintClient.getListing(listingId);
 }
 
-export async function listCollection(lastResult?: ReturnType<typeof buildMockScanResult> | null): Promise<CollectionItem[]> {
+export async function listCollection(
+  lastResult?: ReturnType<typeof buildMockScanResult> | null,
+): Promise<CollectionItem[]> {
   if (!isHttpApiEnabled()) {
     const base = DEMO_COLLECTION.map((item) => ({
       id: item.id,
@@ -123,7 +143,10 @@ export async function addScanToCollection(scanId: string): Promise<CollectionIte
   return tissintClient.addToCollection({ scanId });
 }
 
-export async function getCollectionItem(scanId: string, lastResult?: ReturnType<typeof buildMockScanResult> | null): Promise<CollectionItem> {
+export async function getCollectionItem(
+  scanId: string,
+  lastResult?: ReturnType<typeof buildMockScanResult> | null,
+): Promise<CollectionItem> {
   if (!isHttpApiEnabled()) {
     if (lastResult?.scanId === scanId) {
       return {
@@ -138,10 +161,13 @@ export async function getCollectionItem(scanId: string, lastResult?: ReturnType<
     return {
       id: scanId,
       scanId,
-      className: DEMO_COLLECTION.find((item) => item.scanId === scanId)?.className ?? "Chondrite H5",
+      className:
+        DEMO_COLLECTION.find((item) => item.scanId === scanId)?.className ?? "Chondrite H5",
       fusionScore: DEMO_COLLECTION.find((item) => item.scanId === scanId)?.fusionScore ?? 0.88,
       status: DEMO_COLLECTION.find((item) => item.scanId === scanId)?.status ?? "eligible",
-      createdAt: DEMO_COLLECTION.find((item) => item.scanId === scanId)?.createdAt ?? new Date().toISOString(),
+      createdAt:
+        DEMO_COLLECTION.find((item) => item.scanId === scanId)?.createdAt ??
+        new Date().toISOString(),
     };
   }
   return tissintClient.getCollectionItem(scanId);
@@ -149,7 +175,9 @@ export async function getCollectionItem(scanId: string, lastResult?: ReturnType<
 
 export async function createListing(input: CreateListingInput): Promise<PublishListingResult> {
   if (containsContactLeak(input.description ?? "")) {
-    throw new Error("La description contient un contact. Les coordonnees doivent rester protegees par Premium.");
+    throw new Error(
+      "La description contient un contact. Les coordonnees doivent rester protegees par Premium.",
+    );
   }
   if (!isHttpApiEnabled()) {
     await new Promise((resolve) => setTimeout(resolve, 650));

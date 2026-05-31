@@ -1,3 +1,3 @@
-import { OfflineScreen } from "@/features/parity/AccountParityScreens";
+import { MvpOfflineScreen } from "@/features/mvp/MvpLegalScreens";
 
-export default OfflineScreen;
+export default MvpOfflineScreen;

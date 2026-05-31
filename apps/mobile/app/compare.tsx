@@ -1,3 +1,3 @@
-import { CompareScreen } from "@/features/parity/AccountParityScreens";
+import { MvpCompareScreen } from "@/features/mvp/MvpLibraryScreens";
 
-export default CompareScreen;
+export default MvpCompareScreen;

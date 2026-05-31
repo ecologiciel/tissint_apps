@@ -1,3 +1,3 @@
-import { PriceHistoryScreen } from "@/features/parity/CommerceParityScreens";
+import { MvpPriceHistoryScreen } from "@/features/mvp/MvpLibraryScreens";
 
-export default PriceHistoryScreen;
+export default MvpPriceHistoryScreen;

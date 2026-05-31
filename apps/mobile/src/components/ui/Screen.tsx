@@ -25,7 +25,10 @@ export function Screen({
 
   return (
     <SafeAreaView style={[styles.root, { backgroundColor }]}>
-      <ScrollView contentContainerStyle={[styles.content, contentStyle]} showsVerticalScrollIndicator={false}>
+      <ScrollView
+        contentContainerStyle={[styles.content, contentStyle]}
+        showsVerticalScrollIndicator={false}
+      >
         {children}
       </ScrollView>
     </SafeAreaView>

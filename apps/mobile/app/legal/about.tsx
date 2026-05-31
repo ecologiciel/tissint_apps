@@ -1,5 +1,5 @@
-import { LegalScreen } from "@/features/parity/AccountParityScreens";
+import { MvpLegalScreen } from "@/features/mvp/MvpLegalScreens";
 
 export default function AboutLegalRoute() {
-  return <LegalScreen kind="about" />;
+  return <MvpLegalScreen kind="about" />;
 }

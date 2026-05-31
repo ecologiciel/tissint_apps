@@ -17,7 +17,10 @@ export function LegalShell({
     <div className="flex h-full flex-col bg-warm" dir="rtl">
       <header className="bg-navy text-warm px-5 pt-12 pb-5 rounded-b-3xl shadow-md">
         <div className="flex items-center justify-between">
-          <Link to={back as never} className="grid h-9 w-9 place-items-center rounded-full bg-white/10">
+          <Link
+            to={back as never}
+            className="grid h-9 w-9 place-items-center rounded-full bg-white/10"
+          >
             <ChevronLeft className="h-5 w-5 rotate-180" />
           </Link>
           <h1 className="text-base font-bold">{title}</h1>

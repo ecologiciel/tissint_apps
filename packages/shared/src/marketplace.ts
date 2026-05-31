@@ -15,7 +15,8 @@ export function sanitizeListingDescription(text: string): string {
 
 export function formatPrice(listing: Pick<MarketplaceListing, "priceMode" | "priceValue">): string {
   if (listing.priceMode === "on_request") return "Prix sur demande";
-  if (listing.priceMode === "negotiable") return listing.priceValue ? `${listing.priceValue} DH negociable` : "Negociable";
+  if (listing.priceMode === "negotiable")
+    return listing.priceValue ? `${listing.priceValue} DH negociable` : "Negociable";
   if (listing.priceMode === "price_per_gram") return `${listing.priceValue ?? 0} DH/g`;
   return `${listing.priceValue ?? 0} DH`;
 }

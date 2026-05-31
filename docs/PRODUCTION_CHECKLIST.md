@@ -10,6 +10,16 @@
 - [x] Client API auth/quota/collection/listing ajoute.
 - [x] Details collection et marketplace ajoutes.
 - [x] Favoris et alertes Premium ajoutes en mode mock/http.
+- [x] Config EAS preview/production force une API HTTP explicite.
+- [x] Fallback silencieux production vers mock bloque cote mobile.
+- [x] Secret public retire de `.env.example`.
+- [x] Elevation admin locale supprimee de l'ecran admin.
+- [x] Checklist routes production ajoutee.
+- [x] Lint racine recentre sur `apps/mobile` + `packages`; ancien prototype web exclu.
+- [x] Session restauree via refresh + `/auth/me` en mode HTTP.
+- [x] Access token non persiste dans Secure Store; refresh token garde cote Secure Store.
+- [x] Logout mobile appelle `/auth/logout` puis nettoie la session locale.
+- [x] Guard global ajoute pour bloquer les routes app aux invites et `/admin/radar` aux non-admin.
 - [ ] Ecrans principaux testes en RTL sur Android.
 - [ ] Camera testee sur appareil reel.
 - [ ] Upload multipart teste contre staging.

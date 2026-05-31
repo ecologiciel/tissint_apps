@@ -23,7 +23,10 @@ export function useOfflineCache() {
     try {
       const existing = JSON.parse(localStorage.getItem(CACHE_KEY) || "{}");
       const lastScans = lastScan
-        ? [lastScan, ...(existing.lastScans || []).filter((s: any) => s.scanId !== lastScan.scanId)].slice(0, 10)
+        ? [
+            lastScan,
+            ...(existing.lastScans || []).filter((s: any) => s.scanId !== lastScan.scanId),
+          ].slice(0, 10)
         : existing.lastScans || [];
       const payload: OfflineCache = {
         lastScans,

@@ -1,3 +1,3 @@
-import { ThreadScreen } from "@/features/parity/AccountParityScreens";
+import { MvpMessageThreadScreen } from "@/features/mvp/MvpSupportScreens";
 
-export default ThreadScreen;
+export default MvpMessageThreadScreen;

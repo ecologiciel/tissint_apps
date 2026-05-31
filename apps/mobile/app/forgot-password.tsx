@@ -1,3 +1,3 @@
-import { ForgotPasswordScreen } from "@/features/parity/AuthParityScreens";
+import { MvpForgotPasswordScreen } from "@/features/mvp/MvpAuthScreens";
 
-export default ForgotPasswordScreen;
+export default MvpForgotPasswordScreen;

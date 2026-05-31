@@ -1,3 +1,3 @@
-import { VerifyOtpScreen } from "@/features/parity/AuthParityScreens";
+import { MvpVerifyOtpScreen } from "@/features/mvp/MvpAuthScreens";
 
-export default VerifyOtpScreen;
+export default MvpVerifyOtpScreen;

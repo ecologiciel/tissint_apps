@@ -1,3 +1,3 @@
-import { ProfileScreen } from "@/features/parity/AccountParityScreens";
+import { MvpProfileScreen } from "@/features/mvp/MvpAccountScreens";
 
-export default ProfileScreen;
+export default MvpProfileScreen;

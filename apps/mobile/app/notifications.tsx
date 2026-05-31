@@ -1,3 +1,3 @@
-import { NotificationsScreen } from "@/features/parity/AccountParityScreens";
+import { MvpNotificationsScreen } from "@/features/mvp/MvpSupportScreens";
 
-export default NotificationsScreen;
+export default MvpNotificationsScreen;

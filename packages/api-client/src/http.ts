@@ -1,5 +1,9 @@
 import { normalizeBaseUrl, type TissintClientConfig } from "./config";
-import { TissintApiError } from "./errors";
+import { errorCodeForStatus, TissintApiError } from "./errors";
+
+export type TissintRequestInit = RequestInit & {
+  skipAuth?: boolean;
+};
 
 export class HttpTransport {
   private readonly baseUrl: string;
@@ -14,11 +18,12 @@ export class HttpTransport {
     this.timeoutMs = config.timeoutMs ?? 30000;
   }
 
-  async request<T>(path: string, init: RequestInit = {}): Promise<T> {
+  async request<T>(path: string, init: TissintRequestInit = {}): Promise<T> {
+    const { skipAuth, ...fetchInit } = init;
     const headers = new Headers(init.headers);
-    if (this.apiKey) headers.set("X-API-Key", this.apiKey);
+    if (!skipAuth && this.apiKey) headers.set("X-API-Key", this.apiKey);
 
-    const token = await this.getAccessToken?.();
+    const token = skipAuth ? null : await this.getAccessToken?.();
     if (token) headers.set("Authorization", `Bearer ${token}`);
 
     const controller = new AbortController();
@@ -26,7 +31,7 @@ export class HttpTransport {
 
     try {
       const response = await fetch(`${this.baseUrl}${path}`, {
-        ...init,
+        ...fetchInit,
         headers,
         signal: controller.signal,
       });
@@ -37,7 +42,7 @@ export class HttpTransport {
 
       if (!response.ok) {
         throw new TissintApiError({
-          code: payload?.error?.code ?? payload?.code ?? "HTTP_ERROR",
+          code: payload?.error?.code ?? payload?.code ?? errorCodeForStatus(response.status),
           message: payload?.error?.message ?? payload?.message ?? `HTTP ${response.status}`,
           status: response.status,
           payload,

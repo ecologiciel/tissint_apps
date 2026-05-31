@@ -102,7 +102,10 @@ export function OnboardingScreen() {
                   onPress={() => setRegion(item)}
                   style={[styles.regionButton, region === item ? styles.regionActive : null]}
                 >
-                  <AppText color={region === item ? "#FFFFFF" : "rgba(255,255,255,0.8)"} style={styles.center}>
+                  <AppText
+                    color={region === item ? "#FFFFFF" : "rgba(255,255,255,0.8)"}
+                    style={styles.center}
+                  >
                     {item}
                   </AppText>
                 </Pressable>
@@ -142,7 +145,14 @@ export function OnboardingScreen() {
       <View style={styles.footer}>
         <View style={styles.dots}>
           {Array.from({ length: total }).map((_, index) => (
-            <View key={index} style={[styles.dot, index <= step ? styles.dotActive : null, index === step ? styles.dotWide : null]} />
+            <View
+              key={index}
+              style={[
+                styles.dot,
+                index <= step ? styles.dotActive : null,
+                index === step ? styles.dotWide : null,
+              ]}
+            />
           ))}
         </View>
         <View style={styles.footerActions}>
@@ -177,7 +187,11 @@ export function VerifyOtpScreen() {
 
   return (
     <Screen contentStyle={styles.screen}>
-      <HeaderBar title="تأكيد الرقم" subtitle={`أدخل الرمز المرسل إلى ${phone}`} backTo="/auth/register" />
+      <HeaderBar
+        title="تأكيد الرقم"
+        subtitle={`أدخل الرمز المرسل إلى ${phone}`}
+        backTo="/auth/register"
+      />
       <Card style={styles.cardGap}>
         <View style={styles.otpRow}>
           {digits.map((digit, index) => (
@@ -185,7 +199,11 @@ export function VerifyOtpScreen() {
               key={index}
               value={digit}
               onChangeText={(value) =>
-                setDigits((current) => current.map((item, itemIndex) => (itemIndex === index ? value.replace(/\D/g, "").slice(-1) : item)))
+                setDigits((current) =>
+                  current.map((item, itemIndex) =>
+                    itemIndex === index ? value.replace(/\D/g, "").slice(-1) : item,
+                  ),
+                )
               }
               placeholder="0"
               keyboardType="number-pad"
@@ -212,7 +230,11 @@ export function ForgotPasswordScreen() {
 
   return (
     <Screen contentStyle={styles.screen}>
-      <HeaderBar title="نسيت كلمة المرور؟" subtitle="أدخل بريدك وسنرسل رابط إعادة التعيين" backTo="/auth/login" />
+      <HeaderBar
+        title="نسيت كلمة المرور؟"
+        subtitle="أدخل بريدك وسنرسل رابط إعادة التعيين"
+        backTo="/auth/login"
+      />
       <Card style={styles.cardGap}>
         {sent ? (
           <>
@@ -224,11 +246,18 @@ export function ForgotPasswordScreen() {
               أرسلنا رابط إعادة التعيين إلى {email || "بريدك"}. الرابط صالح لمدة ساعة.
             </AppText>
             <Button onPress={() => router.push("/reset-password")}>محاكاة فتح الرابط</Button>
-            <Button tone="ghost" onPress={() => setSent(false)}>تغيير البريد</Button>
+            <Button tone="ghost" onPress={() => setSent(false)}>
+              تغيير البريد
+            </Button>
           </>
         ) : (
           <>
-            <Field value={email} onChangeText={setEmail} placeholder="exemple@tissint.ma" keyboardType="email-address" />
+            <Field
+              value={email}
+              onChangeText={setEmail}
+              placeholder="exemple@tissint.ma"
+              keyboardType="email-address"
+            />
             <Button icon={Mail} onPress={() => setSent(true)} disabled={!email.trim()}>
               إرسال رابط الإعادة
             </Button>
@@ -243,7 +272,10 @@ export function ResetPasswordScreen() {
   const [password, setPassword] = useState("");
   const [confirm, setConfirm] = useState("");
   const [done, setDone] = useState(false);
-  const strength = useMemo(() => (password.length >= 12 ? 100 : password.length >= 8 ? 66 : password.length > 0 ? 30 : 0), [password]);
+  const strength = useMemo(
+    () => (password.length >= 12 ? 100 : password.length >= 8 ? 66 : password.length > 0 ? 30 : 0),
+    [password],
+  );
 
   if (done) {
     return (
@@ -261,13 +293,31 @@ export function ResetPasswordScreen() {
 
   return (
     <Screen contentStyle={styles.screen}>
-      <HeaderBar title="كلمة مرور جديدة" subtitle="اختر كلمة قوية لحماية حسابك" backTo="/auth/login" />
+      <HeaderBar
+        title="كلمة مرور جديدة"
+        subtitle="اختر كلمة قوية لحماية حسابك"
+        backTo="/auth/login"
+      />
       <Card style={styles.cardGap}>
-        <Field value={password} onChangeText={setPassword} placeholder="كلمة المرور الجديدة" secureTextEntry />
+        <Field
+          value={password}
+          onChangeText={setPassword}
+          placeholder="كلمة المرور الجديدة"
+          secureTextEntry
+        />
         <ProgressBar value={strength} color={strength >= 66 ? colors.success : colors.warning} />
-        <Field value={confirm} onChangeText={setConfirm} placeholder="تأكيد كلمة المرور" secureTextEntry />
+        <Field
+          value={confirm}
+          onChangeText={setConfirm}
+          placeholder="تأكيد كلمة المرور"
+          secureTextEntry
+        />
         <AppText variant="caption">8 أحرف على الأقل، مع رقم أو رمز خاص.</AppText>
-        <Button icon={Lock} disabled={password.length < 8 || password !== confirm} onPress={() => setDone(true)}>
+        <Button
+          icon={Lock}
+          disabled={password.length < 8 || password !== confirm}
+          onPress={() => setDone(true)}
+        >
           تحديث كلمة المرور
         </Button>
       </Card>
@@ -284,17 +334,23 @@ export function CameraPermissionsScreen() {
           الكاميرا مطلوبة
         </AppText>
         <AppText variant="body" color="rgba(255,255,255,0.76)" style={styles.center}>
-          لا يسمح التطبيق برفع الصور من المعرض. يجب التقاط الصور مباشرة لحماية جودة الفحص ومنع الاحتيال.
+          لا يسمح التطبيق برفع الصور من المعرض. يجب التقاط الصور مباشرة لحماية جودة الفحص ومنع
+          الاحتيال.
         </AppText>
         <View style={styles.qualityList}>
-          {["3 صور خارجية على الأقل", "صورة مقطع اختيارية", "فحص إضاءة وثبات ميداني", "حفظ معرف الجهاز بشكل آمن"].map((item) => (
+          {[
+            "3 صور خارجية على الأقل",
+            "صورة مقطع اختيارية",
+            "فحص إضاءة وثبات ميداني",
+            "حفظ معرف الجهاز بشكل آمن",
+          ].map((item) => (
             <View key={item} style={styles.qualityLine}>
               <Check color={colors.success} size={18} />
               <AppText color="#FFFFFF">{item}</AppText>
             </View>
           ))}
         </View>
-        <Button tone="secondary" icon={Camera} onPress={() => router.replace("/scanner")}>
+        <Button tone="secondary" icon={Camera} onPress={() => router.replace("/scan" as never)}>
           السماح وفتح الفاحص
         </Button>
       </Card>
@@ -305,7 +361,11 @@ export function CameraPermissionsScreen() {
 export function FirstScanGuideScreen() {
   return (
     <Screen contentStyle={styles.screen}>
-      <HeaderBar title="دليل أول فحص" subtitle="5 نصائح للحصول على أفضل نتيجة" backTo="/dashboard" />
+      <HeaderBar
+        title="دليل أول فحص"
+        subtitle="5 نصائح للحصول على أفضل نتيجة"
+        backTo="/dashboard"
+      />
       {[
         ["ضع الحجر على سطح ثابت", "تجنب حمل الحجر في اليد أثناء التصوير حتى لا تهتز الصورة."],
         ["استعمل ضوءا طبيعيا", "الصورة المظلمة تقلل جودة التحليل وتخفض درجة الثقة."],
@@ -327,7 +387,9 @@ export function FirstScanGuideScreen() {
           </View>
         </Card>
       ))}
-      <Button icon={ScanLine} onPress={() => router.push("/scanner")}>بدء فحص جديد</Button>
+      <Button icon={ScanLine} onPress={() => router.push("/scan" as never)}>
+        بدء فحص جديد
+      </Button>
     </Screen>
   );
 }

@@ -1,5 +1,12 @@
 import type { ReactNode } from "react";
-import { Pressable, StyleSheet, TextInput, View, type KeyboardTypeOptions, type ViewStyle } from "react-native";
+import {
+  Pressable,
+  StyleSheet,
+  TextInput,
+  View,
+  type KeyboardTypeOptions,
+  type ViewStyle,
+} from "react-native";
 import type { LucideIcon } from "lucide-react-native";
 import { ArrowRight, Check } from "lucide-react-native";
 import { router } from "expo-router";
@@ -156,7 +163,12 @@ export function ToggleLine({
   icon?: LucideIcon;
 }) {
   return (
-    <Pressable accessibilityRole="switch" accessibilityState={{ checked: value }} onPress={onPress} style={styles.toggleRow}>
+    <Pressable
+      accessibilityRole="switch"
+      accessibilityState={{ checked: value }}
+      onPress={onPress}
+      style={styles.toggleRow}
+    >
       {Icon ? <Icon color={colors.textMuted} size={18} /> : null}
       <AppText style={styles.toggleLabel}>{label}</AppText>
       <View style={[styles.switchTrack, value ? styles.switchOn : null]}>
@@ -200,7 +212,11 @@ export function LinkLine({
   badge?: string | number;
 }) {
   return (
-    <Pressable accessibilityRole="button" onPress={() => router.push(route as never)} style={styles.infoLine}>
+    <Pressable
+      accessibilityRole="button"
+      onPress={() => router.push(route as never)}
+      style={styles.infoLine}
+    >
       {Icon ? <Icon color={colors.navy} size={17} /> : null}
       <AppText variant="body" style={styles.linkLabel}>
         {label}
@@ -228,7 +244,14 @@ export function MetricTile({
   icon?: LucideIcon;
   tone?: "navy" | "orange" | "success" | "gold";
 }) {
-  const color = tone === "orange" ? colors.orange : tone === "success" ? colors.success : tone === "gold" ? colors.gold : colors.navy;
+  const color =
+    tone === "orange"
+      ? colors.orange
+      : tone === "success"
+        ? colors.success
+        : tone === "gold"
+          ? colors.gold
+          : colors.navy;
   return (
     <View style={styles.metricTile}>
       {Icon ? <Icon color={color} size={18} /> : null}
@@ -254,12 +277,17 @@ export function SelectCard({
   onPress: () => void;
 }) {
   return (
-    <Pressable onPress={onPress} style={[styles.selectCard, active ? styles.selectCardActive : null]}>
+    <Pressable
+      onPress={onPress}
+      style={[styles.selectCard, active ? styles.selectCardActive : null]}
+    >
       <View style={styles.selectTop}>
         <AppText variant="subtitle" color={active ? colors.navy : colors.text}>
           {title}
         </AppText>
-        <View style={[styles.radio, active ? styles.radioActive : null]}>{active ? <Check color="#FFFFFF" size={13} /> : null}</View>
+        <View style={[styles.radio, active ? styles.radioActive : null]}>
+          {active ? <Check color="#FFFFFF" size={13} /> : null}
+        </View>
       </View>
       {body ? <AppText variant="caption">{body}</AppText> : null}
     </Pressable>
@@ -269,7 +297,12 @@ export function SelectCard({
 export function ProgressBar({ value, color = colors.orange }: { value: number; color?: string }) {
   return (
     <View style={styles.progressTrack}>
-      <View style={[styles.progressFill, { width: `${Math.max(4, Math.min(value, 100))}%`, backgroundColor: color }]} />
+      <View
+        style={[
+          styles.progressFill,
+          { width: `${Math.max(4, Math.min(value, 100))}%`, backgroundColor: color },
+        ]}
+      />
     </View>
   );
 }

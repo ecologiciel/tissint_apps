@@ -5,7 +5,10 @@ export const Route = createFileRoute("/")({
   head: () => ({
     meta: [
       { title: "Tissint — تطبيق النيازك المغربية" },
-      { name: "description", content: "حدد النيازك بالذكاء الاصطناعي، احفظ مجموعتك، وانشر إعلاناتك في السوق." },
+      {
+        name: "description",
+        content: "حدد النيازك بالذكاء الاصطناعي، احفظ مجموعتك، وانشر إعلاناتك في السوق.",
+      },
     ],
   }),
   component: Index,

@@ -16,6 +16,7 @@ dist-ssr
 .nitro
 .expo
 apps/mobile/.expo
+apps/mobile/.expo-export*/
 *.local
 
 # Wrangler / Cloudflare

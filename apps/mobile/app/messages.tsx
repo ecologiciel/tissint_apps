@@ -1,3 +1,3 @@
-import { MessagesScreen } from "@/features/parity/AccountParityScreens";
+import { MvpMessagesScreen } from "@/features/mvp/MvpSupportScreens";
 
-export default MessagesScreen;
+export default MvpMessagesScreen;

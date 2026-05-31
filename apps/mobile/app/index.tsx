@@ -7,7 +7,14 @@ export default function Index() {
   const status = useSessionStore((state) => state.status);
   if (status === "booting") {
     return (
-      <View style={{ flex: 1, alignItems: "center", justifyContent: "center", backgroundColor: colors.warm }}>
+      <View
+        style={{
+          flex: 1,
+          alignItems: "center",
+          justifyContent: "center",
+          backgroundColor: colors.warm,
+        }}
+      >
         <ActivityIndicator color={colors.orange} />
       </View>
     );

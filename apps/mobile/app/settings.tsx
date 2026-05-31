@@ -1,3 +1,3 @@
-import { SettingsScreen } from "@/features/parity/AccountParityScreens";
+import { MvpSettingsScreen } from "@/features/mvp/MvpAccountScreens";
 
-export default SettingsScreen;
+export default MvpSettingsScreen;

@@ -1,287 +1,439 @@
-import { useQuery } from "@tanstack/react-query";
+import { LinearGradient } from "expo-linear-gradient";
 import { router } from "expo-router";
-import { Bell, BookOpen, Crown, Gauge, Heart, Library, LogOut, Search, ShieldCheck, Store, User } from "lucide-react-native";
-import { useEffect } from "react";
-import { Pressable, StyleSheet, View } from "react-native";
-import { TissintLogo } from "@/components/tissint/TissintLogo";
-import { Button } from "@/components/ui/Button";
-import { Card } from "@/components/ui/Card";
-import { AppText } from "@/components/ui/AppText";
-import { MetricCard } from "@/components/ui/MetricCard";
-import { Screen } from "@/components/ui/Screen";
-import { t } from "@/i18n";
-import { clearSavedSession } from "@/lib/session-storage";
-import { getQuota, listMarketplace, setApiAccessToken } from "@/lib/api";
-import { useSessionStore } from "@/store/session-store";
-import { colors, spacing } from "@/theme";
-import { Badge } from "@/components/ui/Badge";
-import { DEMO_COLLECTION } from "@/features/parity/parity-data";
-import { selectUnreadNotifications, useParityStore } from "@/features/parity/parity-store";
+import { Bell, BookOpen, Crown, Heart, ScanLine, Search } from "lucide-react-native";
+import { Pressable, ScrollView, StyleSheet, Text, View, useWindowDimensions } from "react-native";
+import { MeteoriteThumb } from "@/components/tissint/MeteoriteThumb";
+
+const DASH = {
+  navy: "#1B4C66",
+  cream: "#FBF4E6",
+  orange: "#FF7A2A",
+  gold: "#F7C75E",
+  text: "#1E242A",
+  muted: "#68717A",
+  cardBorder: "#DEDEDE",
+  stat: "#365F76",
+};
+
+const scanGradient = ["#FF8228", "#F4C457"] as const;
+
+function useDashMetrics() {
+  const { width, height } = useWindowDimensions();
+  const sx = width / 360;
+  const sy = height / 800;
+  const s = Math.min(sx, sy);
+  return {
+    width,
+    height,
+    x: (value: number) => value * sx,
+    y: (value: number) => value * sy,
+    z: (value: number) => value * s,
+  };
+}
 
 export function DashboardScreen() {
-  const { user, quota, setQuota, setRole, clearSession } = useSessionStore();
-  const unreadNotifications = useParityStore(selectUnreadNotifications);
-  const listings = useQuery({ queryKey: ["marketplace", "preview"], queryFn: listMarketplace });
-  const quotaQuery = useQuery({
-    queryKey: ["quota", user?.role],
-    enabled: Boolean(user),
-    queryFn: () => getQuota(user?.role ?? "guest"),
-  });
-  const latest = listings.data?.slice(0, 2) ?? [];
-
-  useEffect(() => {
-    if (quotaQuery.data) setQuota(quotaQuery.data);
-  }, [quotaQuery.data, setQuota]);
-
-  async function logout() {
-    await clearSavedSession();
-    setApiAccessToken(null);
-    clearSession();
-    router.replace("/auth/login");
-  }
+  const m = useDashMetrics();
 
   return (
-    <Screen contentStyle={styles.screen}>
-      <View style={styles.header}>
-        <Pressable style={styles.profileButton} onPress={() => router.push("/profile")}>
-          <View style={styles.avatar}>
-            <User color="#FFFFFF" size={19} />
-          </View>
-          <View>
-            <AppText variant="caption" color={colors.gold}>
-              مرحبا
-            </AppText>
-            <AppText color="#FFFFFF" style={styles.userName} numberOfLines={1}>
-              {user?.firstName ?? "Tissint"} {user?.lastName ?? "User"}
-            </AppText>
-          </View>
-        </Pressable>
-        <View style={styles.headerIcons}>
-          <Pressable style={styles.iconButton} onPress={() => router.push("/search")}>
-            <Search color="#FFFFFF" size={19} />
-          </Pressable>
-          <Pressable style={styles.iconButton} onPress={() => router.push("/favorites")}>
-            <Heart color="#FFFFFF" size={19} />
-          </Pressable>
-          <Pressable style={styles.iconButton} onPress={() => router.push("/notifications")}>
-            <Bell color="#FFFFFF" size={19} />
-            {unreadNotifications > 0 ? (
-              <View style={styles.notificationDot}>
-                <AppText variant="caption" color="#FFFFFF" style={styles.notificationText}>
-                  {unreadNotifications}
-                </AppText>
-              </View>
-            ) : null}
-          </Pressable>
-        </View>
-      </View>
-
-      <View style={styles.hero}>
-        <TissintLogo />
-        <Badge label={user?.role === "premium" ? "Premium" : user?.role === "admin" ? "Admin" : "Free"} tone="premium" />
-      </View>
-
-      <Button icon={Gauge} onPress={() => router.push("/scanner")}>
-        {t("dashboard.scanCta")}
-      </Button>
-
-      <View style={styles.metrics}>
-        <MetricCard icon={Gauge} label={t("dashboard.quota")} value={`${quota.remainingToday}/${quota.dailyLimit}`} />
-        <MetricCard icon={Library} label="مجموعتي" value={DEMO_COLLECTION.length} />
-        <MetricCard icon={Store} label={t("nav.market")} value={listings.data?.length ?? 0} />
-      </View>
-
-      <Pressable style={styles.guideCard} onPress={() => router.push("/first-scan")}>
-        <BookOpen color={colors.orange} size={22} />
-        <View style={styles.flex}>
-          <AppText variant="subtitle">دليل أول فحص</AppText>
-          <AppText variant="caption">5 نصائح للحصول على أفضل نتيجة ميدانية</AppText>
-        </View>
-      </Pressable>
-
-      <Card>
-        <View style={styles.rowBetween}>
-          <View>
-            <AppText variant="subtitle">{t("dashboard.latest")}</AppText>
-            <AppText variant="caption">Mode API et marketplace synchronises via client serveur</AppText>
-          </View>
-          <Store color={colors.orange} size={22} />
-        </View>
-
-        <View style={styles.list}>
-          {latest.map((item) => (
-            <View key={item.listingId} style={styles.listingLine}>
-              <View style={styles.dot} />
-              <View style={styles.listingText}>
-                <AppText variant="body" numberOfLines={1}>
-                  {item.title}
-                </AppText>
-                <AppText variant="caption">
-                  {Math.round(item.confidence * 100)}% - {item.region ?? "Region publique"}
-                </AppText>
-              </View>
-              {item.isRare ? <Badge label="Rare" tone="premium" /> : null}
+    <View style={styles.root}>
+      <ScrollView
+        showsVerticalScrollIndicator={false}
+        contentContainerStyle={{ paddingBottom: m.y(24) }}
+      >
+        <View
+          style={[
+            styles.header,
+            {
+              height: m.y(203),
+              paddingHorizontal: m.x(20),
+              borderBottomLeftRadius: m.z(26),
+              borderBottomRightRadius: m.z(26),
+            },
+          ]}
+        >
+          <View style={[styles.headerTop, { top: m.y(48) }]}>
+            <Pressable
+              onPress={() => router.push("/profile")}
+              style={[styles.avatar, { width: m.z(44), height: m.z(44), borderRadius: m.z(22) }]}
+            >
+              <Text style={[styles.avatarText, { fontSize: m.z(18) }]}>صا</Text>
+            </Pressable>
+            <View style={[styles.greeting, { right: m.x(82), top: m.y(3) }]}>
+              <Text style={[styles.hello, { fontSize: m.z(13), lineHeight: m.z(18) }]}>مرحباً</Text>
+              <Text style={[styles.friend, { fontSize: m.z(22), lineHeight: m.z(30) }]}>
+                صديق النيازك
+              </Text>
             </View>
-          ))}
-        </View>
-      </Card>
-
-      <Card style={styles.productionCard}>
-        <View style={styles.rowBetween}>
-          <View style={styles.flex}>
-            <AppText variant="subtitle" color="#FFFFFF">
-              Socle production actif
-            </AppText>
-            <AppText variant="caption" color="rgba(255,255,255,0.75)">
-              Secure Store, API client, RTL, quotas serveur et contrats partages sont prets a etre branches.
-            </AppText>
+            <View style={[styles.quickActions, { left: 0, gap: m.x(10) }]}>
+              <HeaderIcon icon={Bell} badge="2" />
+              <HeaderIcon icon={Heart} />
+              <HeaderIcon icon={Search} />
+            </View>
           </View>
-          <ShieldCheck color={colors.gold} size={28} />
+          <View style={[styles.statRow, { top: m.y(112), gap: m.x(8) }]}>
+            <StatCard value="3" label="في مجموعتي" />
+            <StatCard value="2/5" label="مسح اليوم" />
+            <StatCard value="6" label="في السوق" />
+          </View>
         </View>
-      </Card>
 
-      <View style={styles.quickLinks}>
-        <Button tone="ghost" icon={Heart} onPress={() => router.push("/favorites")}>
-          Favoris
-        </Button>
-        <Button tone="ghost" icon={Bell} onPress={() => router.push("/alerts")}>
-          Alertes
-        </Button>
-        {user?.role === "admin" ? (
-          <Button tone="ghost" icon={ShieldCheck} onPress={() => router.push("/admin")}>
-            Admin
-          </Button>
-        ) : null}
-      </View>
+        <View style={{ paddingHorizontal: m.x(20), paddingTop: m.y(20), gap: m.y(24) }}>
+          <Pressable onPress={() => router.push("/scan" as never)}>
+            <LinearGradient
+              colors={scanGradient}
+              start={{ x: 0, y: 0.5 }}
+              end={{ x: 1, y: 0.5 }}
+              style={[
+                styles.scanCard,
+                { height: m.y(104), borderRadius: m.z(19), paddingHorizontal: m.x(20) },
+              ]}
+            >
+              <View
+                style={[
+                  styles.scanIconBubble,
+                  { width: m.z(64), height: m.z(64), borderRadius: m.z(32) },
+                ]}
+              >
+                <ScanLine color="#FFFFFF" size={m.z(35)} strokeWidth={2.5} />
+              </View>
+              <View style={styles.scanTextWrap}>
+                <Text style={[styles.scanTitle, { fontSize: m.z(27), lineHeight: m.z(35) }]}>
+                  امسح حجراً
+                </Text>
+                <Text style={[styles.scanSubtitle, { fontSize: m.z(17), lineHeight: m.z(25) }]}>
+                  حلّل عينة جديدة في ثوانٍ
+                </Text>
+              </View>
+            </LinearGradient>
+          </Pressable>
 
-      <View style={styles.roleSwitch}>
-        <Button tone="ghost" icon={Crown} onPress={() => setRole(user?.role === "premium" ? "free" : "premium")}>
-          {user?.role === "premium" ? "Tester Free" : "Tester Premium"}
-        </Button>
-        <Button tone="ghost" icon={LogOut} onPress={logout}>
-          Deconnexion
-        </Button>
-      </View>
-    </Screen>
+          <Pressable
+            onPress={() => router.push("/first-scan" as never)}
+            style={[
+              styles.guideCard,
+              { height: m.y(63), borderRadius: m.z(19), paddingHorizontal: m.x(14) },
+            ]}
+          >
+            <Text style={[styles.leftArrow, { fontSize: m.z(24) }]}>‹</Text>
+            <View style={styles.guideCopy}>
+              <Text style={[styles.guideTitle, { fontSize: m.z(18), lineHeight: m.z(26) }]}>
+                دليل أول فحص
+              </Text>
+              <Text style={[styles.guideSubtitle, { fontSize: m.z(13.5), lineHeight: m.z(20) }]}>
+                5 نصائح للحصول على أفضل نتيجة
+              </Text>
+            </View>
+            <View
+              style={[styles.guideIcon, { width: m.z(48), height: m.z(48), borderRadius: m.z(24) }]}
+            >
+              <BookOpen color={DASH.orange} size={m.z(20)} strokeWidth={2.5} />
+            </View>
+          </Pressable>
+
+          <Pressable
+            onPress={() => router.push("/premium" as never)}
+            style={[
+              styles.premiumCard,
+              { height: m.y(72), borderRadius: m.z(20), paddingHorizontal: m.x(18) },
+            ]}
+          >
+            <Text style={[styles.premiumArrow, { fontSize: m.z(20) }]}>←</Text>
+            <View style={styles.premiumCopy}>
+              <Text style={[styles.premiumTitle, { fontSize: m.z(18), lineHeight: m.z(25) }]}>
+                ارفع الحد اليومي
+              </Text>
+              <Text style={[styles.premiumSubtitle, { fontSize: m.z(13.5), lineHeight: m.z(20) }]}>
+                Premium بـ 100 درهم/شهر
+              </Text>
+            </View>
+            <Crown color={DASH.gold} size={m.z(28)} strokeWidth={2.3} />
+          </Pressable>
+
+          <View style={styles.sectionHeader}>
+            <Text style={[styles.showAll, { fontSize: m.z(15), lineHeight: m.z(22) }]}>
+              عرض الكل
+            </Text>
+            <View style={styles.sectionTitleWrap}>
+              <Text style={[styles.sectionTitle, { fontSize: m.z(21), lineHeight: m.z(30) }]}>
+                آخر المسوحات
+              </Text>
+              <BookOpen color={DASH.orange} size={m.z(18)} strokeWidth={2.3} />
+            </View>
+          </View>
+
+          <View style={[styles.scanGrid, { gap: m.x(8) }]}>
+            {[
+              { id: "sample-1", label: "العينة #1", score: "87/100" },
+              { id: "sample-2", label: "العينة #2", score: "42/100" },
+              { id: "sample-3", label: "العينة #3", score: "12/100" },
+            ].map((item) => (
+              <Pressable
+                key={item.id}
+                onPress={() =>
+                  router.push({ pathname: "/collection/[scanId]", params: { scanId: item.id } })
+                }
+                style={styles.sampleItem}
+              >
+                <MeteoriteThumb
+                  seed={item.id}
+                  style={[styles.sampleThumb, { height: m.y(100), borderRadius: m.z(17) }]}
+                />
+                <Text style={[styles.sampleLabel, { fontSize: m.z(13.5), lineHeight: m.z(20) }]}>
+                  {item.label}
+                </Text>
+                <Text style={[styles.sampleScore, { fontSize: m.z(12.5), lineHeight: m.z(18) }]}>
+                  {item.score}
+                </Text>
+              </Pressable>
+            ))}
+          </View>
+        </View>
+      </ScrollView>
+    </View>
+  );
+}
+
+function HeaderIcon({ icon: Icon, badge }: { icon: typeof Bell; badge?: string }) {
+  const m = useDashMetrics();
+  return (
+    <Pressable
+      style={[styles.headerIcon, { width: m.z(40), height: m.z(40), borderRadius: m.z(20) }]}
+    >
+      <Icon color="#FFFFFF" size={m.z(22)} strokeWidth={2.2} />
+      {badge ? (
+        <View
+          style={[
+            styles.notificationBadge,
+            { minWidth: m.z(20), height: m.z(20), borderRadius: m.z(10) },
+          ]}
+        >
+          <Text style={[styles.notificationText, { fontSize: m.z(10.5) }]}>{badge}</Text>
+        </View>
+      ) : null}
+    </Pressable>
+  );
+}
+
+function StatCard({ value, label }: { value: string; label: string }) {
+  const m = useDashMetrics();
+  return (
+    <View style={[styles.statCard, { height: m.y(67), borderRadius: m.z(18) }]}>
+      <Text style={[styles.statValue, { fontSize: m.z(18), lineHeight: m.z(24) }]}>{value}</Text>
+      <Text style={[styles.statLabel, { fontSize: m.z(11.5), lineHeight: m.z(18) }]}>{label}</Text>
+    </View>
   );
 }
 
 const styles = StyleSheet.create({
-  screen: {
-    gap: spacing.lg,
+  root: {
+    flex: 1,
+    backgroundColor: DASH.cream,
   },
   header: {
-    flexDirection: "row-reverse",
-    alignItems: "center",
-    justifyContent: "space-between",
-    backgroundColor: colors.navy,
-    borderRadius: 24,
-    padding: spacing.md,
+    backgroundColor: DASH.navy,
+    overflow: "hidden",
   },
-  profileButton: {
-    flexDirection: "row-reverse",
-    alignItems: "center",
-    gap: spacing.sm,
-    flex: 1,
+  headerTop: {
+    position: "absolute",
+    left: 20,
+    right: 20,
+    height: 50,
   },
   avatar: {
-    width: 42,
-    height: 42,
-    borderRadius: 21,
-    backgroundColor: colors.orange,
-    alignItems: "center",
-    justifyContent: "center",
-  },
-  userName: {
-    fontWeight: "900",
-    maxWidth: 142,
-  },
-  headerIcons: {
-    flexDirection: "row-reverse",
-    gap: spacing.xs,
-  },
-  iconButton: {
-    width: 42,
-    height: 42,
-    borderRadius: 21,
-    alignItems: "center",
-    justifyContent: "center",
-    backgroundColor: "rgba(255,255,255,0.12)",
-  },
-  notificationDot: {
     position: "absolute",
-    top: -3,
-    right: -3,
-    minWidth: 18,
-    height: 18,
-    borderRadius: 9,
-    backgroundColor: colors.orange,
+    right: 0,
+    backgroundColor: "#FFA33A",
     alignItems: "center",
     justifyContent: "center",
-    paddingHorizontal: 4,
+  },
+  avatarText: {
+    color: "#FFFFFF",
+    fontWeight: "900",
+  },
+  greeting: {
+    position: "absolute",
+    alignItems: "flex-end",
+  },
+  hello: {
+    color: DASH.gold,
+    textAlign: "right",
+    writingDirection: "rtl",
+  },
+  friend: {
+    color: "#FFFFFF",
+    fontWeight: "900",
+    textAlign: "right",
+    writingDirection: "rtl",
+  },
+  quickActions: {
+    position: "absolute",
+    flexDirection: "row",
+  },
+  headerIcon: {
+    backgroundColor: "rgba(255,255,255,0.12)",
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  notificationBadge: {
+    position: "absolute",
+    top: -2,
+    right: -2,
+    backgroundColor: DASH.orange,
+    alignItems: "center",
+    justifyContent: "center",
+    paddingHorizontal: 5,
   },
   notificationText: {
-    fontSize: 9,
+    color: "#FFFFFF",
     fontWeight: "900",
   },
-  hero: {
-    backgroundColor: colors.navy,
-    borderRadius: 24,
-    padding: spacing.xl,
-    gap: spacing.lg,
+  statRow: {
+    position: "absolute",
+    left: 20,
+    right: 20,
+    flexDirection: "row-reverse",
+  },
+  statCard: {
+    flex: 1,
+    backgroundColor: DASH.stat,
     alignItems: "center",
+    justifyContent: "center",
   },
-  metrics: {
-    flexDirection: "row-reverse",
-    gap: spacing.md,
+  statValue: {
+    color: DASH.gold,
+    fontWeight: "900",
+    textAlign: "center",
   },
-  rowBetween: {
-    flexDirection: "row-reverse",
+  statLabel: {
+    color: "rgba(255,255,255,0.68)",
+    textAlign: "center",
+    writingDirection: "rtl",
+  },
+  scanCard: {
+    flexDirection: "row",
+    alignItems: "center",
     justifyContent: "space-between",
+  },
+  scanIconBubble: {
+    backgroundColor: "rgba(255,255,255,0.22)",
     alignItems: "center",
-    gap: spacing.md,
+    justifyContent: "center",
   },
-  list: {
-    marginTop: spacing.md,
-    gap: spacing.md,
+  scanTextWrap: {
+    alignItems: "flex-end",
   },
-  listingLine: {
-    flexDirection: "row-reverse",
-    alignItems: "center",
-    gap: spacing.md,
+  scanTitle: {
+    color: "#FFFFFF",
+    fontWeight: "900",
+    textAlign: "right",
+    writingDirection: "rtl",
   },
-  dot: {
-    width: 10,
-    height: 10,
-    borderRadius: 5,
-    backgroundColor: colors.orange,
-  },
-  listingText: {
-    flex: 1,
-  },
-  productionCard: {
-    backgroundColor: colors.stone,
-    borderColor: colors.stone,
-  },
-  flex: {
-    flex: 1,
+  scanSubtitle: {
+    color: "#FFFFFF",
+    textAlign: "right",
+    writingDirection: "rtl",
   },
   guideCard: {
-    flexDirection: "row-reverse",
-    alignItems: "center",
-    gap: spacing.md,
+    backgroundColor: "#FFFFFF",
     borderWidth: 1,
-    borderColor: colors.border,
-    backgroundColor: colors.card,
-    borderRadius: 16,
-    padding: spacing.md,
+    borderColor: DASH.cardBorder,
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
   },
-  roleSwitch: {
-    gap: spacing.sm,
-    paddingBottom: spacing.xl,
+  leftArrow: {
+    color: DASH.orange,
+    fontWeight: "900",
   },
-  quickLinks: {
+  guideCopy: {
+    flex: 1,
+    alignItems: "flex-end",
+    paddingRight: 14,
+  },
+  guideTitle: {
+    color: DASH.text,
+    fontWeight: "900",
+    textAlign: "right",
+    writingDirection: "rtl",
+  },
+  guideSubtitle: {
+    color: DASH.muted,
+    textAlign: "right",
+    writingDirection: "rtl",
+  },
+  guideIcon: {
+    backgroundColor: "#FFF1EA",
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  premiumCard: {
+    borderWidth: 1.6,
+    borderStyle: "dashed",
+    borderColor: "#F2D47B",
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+  },
+  premiumArrow: {
+    color: DASH.orange,
+    fontWeight: "900",
+  },
+  premiumCopy: {
+    flex: 1,
+    alignItems: "flex-end",
+    paddingRight: 18,
+  },
+  premiumTitle: {
+    color: DASH.text,
+    fontWeight: "900",
+    textAlign: "right",
+    writingDirection: "rtl",
+  },
+  premiumSubtitle: {
+    color: DASH.muted,
+    textAlign: "right",
+    writingDirection: "rtl",
+  },
+  sectionHeader: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+  },
+  showAll: {
+    color: DASH.orange,
+    fontWeight: "900",
+    writingDirection: "rtl",
+  },
+  sectionTitleWrap: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 8,
+  },
+  sectionTitle: {
+    color: DASH.text,
+    fontWeight: "900",
+    textAlign: "right",
+    writingDirection: "rtl",
+  },
+  scanGrid: {
     flexDirection: "row-reverse",
-    gap: spacing.sm,
+  },
+  sampleItem: {
+    flex: 1,
+    alignItems: "center",
+  },
+  sampleThumb: {
+    width: "100%",
+  },
+  sampleLabel: {
+    color: DASH.text,
+    fontWeight: "900",
+    textAlign: "center",
+    writingDirection: "rtl",
+    marginTop: 5,
+  },
+  sampleScore: {
+    color: DASH.muted,
+    textAlign: "center",
   },
 });

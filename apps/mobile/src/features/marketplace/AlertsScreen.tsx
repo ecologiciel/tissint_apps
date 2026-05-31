@@ -70,9 +70,22 @@ export function AlertsScreen() {
       </View>
 
       <Card style={styles.form}>
-        <TextInput value={className} onChangeText={setClassName} placeholder="Classe" style={styles.input} />
-        <TextInput value={region} onChangeText={setRegion} placeholder="Region" style={styles.input} />
-        <Pressable onPress={() => setRareOnly((value) => !value)} style={[styles.toggle, rareOnly ? styles.toggleActive : null]}>
+        <TextInput
+          value={className}
+          onChangeText={setClassName}
+          placeholder="Classe"
+          style={styles.input}
+        />
+        <TextInput
+          value={region}
+          onChangeText={setRegion}
+          placeholder="Region"
+          style={styles.input}
+        />
+        <Pressable
+          onPress={() => setRareOnly((value) => !value)}
+          style={[styles.toggle, rareOnly ? styles.toggleActive : null]}
+        >
           <Bell color={rareOnly ? colors.stone : colors.orange} size={18} />
           <AppText variant="body" color={rareOnly ? colors.stone : colors.text}>
             Rare uniquement
@@ -93,7 +106,8 @@ export function AlertsScreen() {
               <Badge label={alert.frequency} tone="premium" />
               <AppText variant="subtitle">{alert.className ?? "Toutes classes"}</AppText>
               <AppText variant="caption">
-                {alert.region ?? "Toutes regions"} - score min {Math.round((alert.minScore ?? 0.85) * 100)}%
+                {alert.region ?? "Toutes regions"} - score min{" "}
+                {Math.round((alert.minScore ?? 0.85) * 100)}%
               </AppText>
             </View>
           </View>

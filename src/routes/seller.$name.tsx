@@ -1,6 +1,17 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useState } from "react";
-import { ChevronRight, Star, BadgeCheck, Zap, Award, ShieldCheck, ThumbsUp, MessageCircle, Calendar, Clock } from "lucide-react";
+import {
+  ChevronRight,
+  Star,
+  BadgeCheck,
+  Zap,
+  Award,
+  ShieldCheck,
+  ThumbsUp,
+  MessageCircle,
+  Calendar,
+  Clock,
+} from "lucide-react";
 import { getReputation, getReviewsFor } from "@/lib/reviews";
 import { useApp } from "@/lib/store";
 import { toast } from "sonner";
@@ -9,7 +20,11 @@ export const Route = createFileRoute("/seller/$name")({ component: SellerPage })
 
 const BADGE_META: Record<string, { icon: any; label: string; color: string }> = {
   verified: { icon: BadgeCheck, label: "موثّق", color: "text-primary bg-primary/10" },
-  top_seller: { icon: Award, label: "بائع متميّز", color: "text-gold-foreground text-accent-foreground bg-gold/15" },
+  top_seller: {
+    icon: Award,
+    label: "بائع متميّز",
+    color: "text-gold-foreground text-accent-foreground bg-gold/15",
+  },
   fast_shipper: { icon: Zap, label: "شحن سريع", color: "text-orange bg-orange/15" },
   trusted: { icon: ShieldCheck, label: "موثوق", color: "text-success bg-success/15" },
 };
@@ -20,7 +35,9 @@ function SellerPage() {
   const { listings, startConversationForListing } = useApp();
   const rep = getReputation(sellerName);
   const reviews = getReviewsFor(sellerName);
-  const sellerListings = listings.filter((l) => l.sellerName === sellerName && l.status === "approved");
+  const sellerListings = listings.filter(
+    (l) => l.sellerName === sellerName && l.status === "approved",
+  );
   const [helpful, setHelpful] = useState<Record<string, boolean>>({});
 
   const distribution = [5, 4, 3, 2, 1].map((star) => ({
@@ -31,7 +48,10 @@ function SellerPage() {
 
   const contact = () => {
     const l = sellerListings[0];
-    if (!l) { toast.error("لا توجد إعلانات نشطة"); return; }
+    if (!l) {
+      toast.error("لا توجد إعلانات نشطة");
+      return;
+    }
     startConversationForListing(l);
     toast.success("تم فتح المحادثة");
   };
@@ -73,7 +93,10 @@ function SellerPage() {
               if (!m) return null;
               const Icon = m.icon;
               return (
-                <span key={b} className={`flex items-center gap-1 rounded-full px-3 py-1 text-xs font-bold ${m.color}`}>
+                <span
+                  key={b}
+                  className={`flex items-center gap-1 rounded-full px-3 py-1 text-xs font-bold ${m.color}`}
+                >
                   <Icon className="h-3 w-3" /> {m.label}
                 </span>
               );
@@ -89,7 +112,10 @@ function SellerPage() {
               <p className="text-4xl font-black text-primary">{rep.avgRating.toFixed(1)}</p>
               <div className="flex justify-center mt-1">
                 {Array.from({ length: 5 }).map((_, i) => (
-                  <Star key={i} className={`h-3 w-3 ${i < Math.round(rep.avgRating) ? "fill-gold text-gold" : "text-muted"}`} />
+                  <Star
+                    key={i}
+                    className={`h-3 w-3 ${i < Math.round(rep.avgRating) ? "fill-gold text-gold" : "text-muted"}`}
+                  />
                 ))}
               </div>
               <p className="text-[10px] text-muted-foreground mt-1">{rep.totalReviews} تقييم</p>
@@ -100,7 +126,10 @@ function SellerPage() {
                   <span className="w-3">{d.star}</span>
                   <Star className="h-3 w-3 fill-gold text-gold" />
                   <div className="flex-1 h-2 rounded-full bg-muted overflow-hidden">
-                    <div className="h-full bg-gold" style={{ width: `${(d.count / maxDist) * 100}%` }} />
+                    <div
+                      className="h-full bg-gold"
+                      style={{ width: `${(d.count / maxDist) * 100}%` }}
+                    />
                   </div>
                   <span className="w-6 text-muted-foreground">{d.count}</span>
                 </div>
@@ -121,12 +150,17 @@ function SellerPage() {
                   </div>
                   <div>
                     <p className="text-sm font-bold">{r.reviewerName}</p>
-                    <p className="text-[10px] text-muted-foreground">{new Date(r.createdAt).toLocaleDateString("ar-MA")}</p>
+                    <p className="text-[10px] text-muted-foreground">
+                      {new Date(r.createdAt).toLocaleDateString("ar-MA")}
+                    </p>
                   </div>
                 </div>
                 <div className="flex">
                   {Array.from({ length: 5 }).map((_, i) => (
-                    <Star key={i} className={`h-3 w-3 ${i < r.rating ? "fill-gold text-gold" : "text-muted"}`} />
+                    <Star
+                      key={i}
+                      className={`h-3 w-3 ${i < r.rating ? "fill-gold text-gold" : "text-muted"}`}
+                    />
                   ))}
                 </div>
               </div>
@@ -148,14 +182,22 @@ function SellerPage() {
         {/* Listings */}
         {sellerListings.length > 0 && (
           <section>
-            <h3 className="text-sm font-bold mb-2">إعلانات {sellerName} ({sellerListings.length})</h3>
+            <h3 className="text-sm font-bold mb-2">
+              إعلانات {sellerName} ({sellerListings.length})
+            </h3>
             <div className="space-y-2">
               {sellerListings.slice(0, 5).map((l) => (
-                <Link key={l.id} to="/market/$listingId" params={{ listingId: l.id }}
-                  className="flex justify-between items-center rounded-xl bg-card border p-3">
+                <Link
+                  key={l.id}
+                  to="/market/$listingId"
+                  params={{ listingId: l.id }}
+                  className="flex justify-between items-center rounded-xl bg-card border p-3"
+                >
                   <div>
                     <p className="text-sm font-bold">{l.title}</p>
-                    <p className="text-xs text-muted-foreground">{l.weightG}غ · {l.region}</p>
+                    <p className="text-xs text-muted-foreground">
+                      {l.weightG}غ · {l.region}
+                    </p>
                   </div>
                   <span className="font-bold text-orange">{l.priceDh} د.م</span>
                 </Link>
@@ -166,7 +208,10 @@ function SellerPage() {
       </main>
 
       <footer className="p-4 border-t bg-card">
-        <button onClick={contact} className="w-full rounded-full bg-orange text-white py-3 font-bold flex items-center justify-center gap-2">
+        <button
+          onClick={contact}
+          className="w-full rounded-full bg-orange text-white py-3 font-bold flex items-center justify-center gap-2"
+        >
           <MessageCircle className="h-4 w-4" /> راسل البائع
         </button>
       </footer>

@@ -43,14 +43,18 @@ class MockTissintAPI implements TissintAPI {
     await delay(500);
     return {
       id: "lst-" + Math.random().toString(36).slice(2, 8),
-      scanId, title: payload.title ?? "إعلان جديد",
+      scanId,
+      title: payload.title ?? "إعلان جديد",
       classification: payload.classification ?? "Chondrite",
-      weightG: payload.weightG ?? 100, priceDh: payload.priceDh ?? 1000,
+      weightG: payload.weightG ?? 100,
+      priceDh: payload.priceDh ?? 1000,
       priceMode: payload.priceMode ?? "fixed",
       region: payload.region ?? "طاطا",
       sellerName: payload.sellerName ?? "مستخدم",
-      sellerVerified: false, score: payload.score ?? 70,
-      status: "pending", imageSeed: scanId,
+      sellerVerified: false,
+      score: payload.score ?? 70,
+      status: "pending",
+      imageSeed: scanId,
       createdAt: new Date().toISOString(),
       description: payload.description ?? "",
     } as Listing;
@@ -63,13 +67,17 @@ class HttpTissintAPI implements TissintAPI {
   }
   async scanExterior({ scenario, clientUuid }: { scenario: ScenarioKey; clientUuid?: string }) {
     const r = await fetch(`${API_BASE}/api/v1/scan/exterior`, {
-      method: "POST", headers: this.headers(), body: JSON.stringify({ scenario, clientUuid }),
+      method: "POST",
+      headers: this.headers(),
+      body: JSON.stringify({ scenario, clientUuid }),
     });
     return r.json();
   }
   async scanInterior(scanId: string, scenario: ScenarioKey) {
     const r = await fetch(`${API_BASE}/api/v1/scan/${scanId}/interior`, {
-      method: "PATCH", headers: this.headers(), body: JSON.stringify({ scenario }),
+      method: "PATCH",
+      headers: this.headers(),
+      body: JSON.stringify({ scenario }),
     });
     return r.json();
   }
@@ -79,11 +87,14 @@ class HttpTissintAPI implements TissintAPI {
   }
   async publishListing(scanId: string, payload: Partial<Listing>) {
     const r = await fetch(`${API_BASE}/api/v1/marketplace/publish/${scanId}`, {
-      method: "POST", headers: this.headers(), body: JSON.stringify(payload),
+      method: "POST",
+      headers: this.headers(),
+      body: JSON.stringify(payload),
     });
     return r.json();
   }
 }
 
-export const tissintApi: TissintAPI = MODE === "http" && API_BASE ? new HttpTissintAPI() : new MockTissintAPI();
+export const tissintApi: TissintAPI =
+  MODE === "http" && API_BASE ? new HttpTissintAPI() : new MockTissintAPI();
 export const TISSINT_API_MODE = MODE;

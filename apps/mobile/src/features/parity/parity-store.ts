@@ -82,11 +82,16 @@ export const useParityStore = create<ParityState>((set, get) => ({
     })),
   setDefaultPaymentMethod: (id) =>
     set((state) => ({
-      paymentMethods: state.paymentMethods.map((method) => ({ ...method, isDefault: method.id === id })),
+      paymentMethods: state.paymentMethods.map((method) => ({
+        ...method,
+        isDefault: method.id === id,
+      })),
     })),
   removePaymentMethod: (id) =>
     set((state) => ({
-      paymentMethods: state.paymentMethods.filter((method) => method.id !== id || method.kind === "wallet"),
+      paymentMethods: state.paymentMethods.filter(
+        (method) => method.id !== id || method.kind === "wallet",
+      ),
     })),
   topUpWallet: (amountDh, methodId) => {
     const method = get().paymentMethods.find((item) => item.id === methodId);
@@ -144,7 +149,8 @@ export const useParityStore = create<ParityState>((set, get) => ({
   toggleSms: () => set((state) => ({ smsEnabled: !state.smsEnabled })),
   toggleBiometric: () => set((state) => ({ biometricEnabled: !state.biometricEnabled })),
   toggleAnalytics: () => set((state) => ({ analyticsEnabled: !state.analyticsEnabled })),
-  toggleLocationSharing: () => set((state) => ({ locationSharingEnabled: !state.locationSharingEnabled })),
+  toggleLocationSharing: () =>
+    set((state) => ({ locationSharingEnabled: !state.locationSharingEnabled })),
   sendMessage: (threadId, text) => {
     if (!text.trim()) return;
     const message: DemoChatMessage = {

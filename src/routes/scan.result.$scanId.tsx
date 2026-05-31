@@ -4,8 +4,19 @@ import { useApp } from "@/lib/store";
 import { tissintApi } from "@/lib/tissint-api";
 import { MeteoriteThumb } from "@/components/tissint/meteorite-thumb";
 import {
-  Check, X, ChevronRight, Store, BookmarkPlus, Camera, Sparkles,
-  ShieldCheck, ShieldAlert, ShieldX, RefreshCw, Share2, ListChecks,
+  Check,
+  X,
+  ChevronRight,
+  Store,
+  BookmarkPlus,
+  Camera,
+  Sparkles,
+  ShieldCheck,
+  ShieldAlert,
+  ShieldX,
+  RefreshCw,
+  Share2,
+  ListChecks,
 } from "lucide-react";
 import { toast } from "sonner";
 import type { EligibilityState } from "@/lib/tissint-types";
@@ -18,10 +29,19 @@ function getEligibilityState(score: number): EligibilityState {
   return "ready";
 }
 
-const stateTheme: Record<EligibilityState, {
-  ring: string; text: string; bg: string; border: string; chip: string;
-  label: string; sublabel: string; Icon: typeof ShieldCheck;
-}> = {
+const stateTheme: Record<
+  EligibilityState,
+  {
+    ring: string;
+    text: string;
+    bg: string;
+    border: string;
+    chip: string;
+    label: string;
+    sublabel: string;
+    Icon: typeof ShieldCheck;
+  }
+> = {
   rejected: {
     ring: "stroke-destructive",
     text: "text-destructive",
@@ -68,9 +88,15 @@ function ScoreRing({ score, colorClass }: { score: number; colorClass: string })
       <svg viewBox="0 0 120 120" className="h-full w-full -rotate-90">
         <circle cx="60" cy="60" r={R} strokeWidth="10" className="stroke-muted/40" fill="none" />
         <circle
-          cx="60" cy="60" r={R} strokeWidth="10" fill="none" strokeLinecap="round"
+          cx="60"
+          cy="60"
+          r={R}
+          strokeWidth="10"
+          fill="none"
+          strokeLinecap="round"
           className={`${colorClass} transition-[stroke-dashoffset] duration-[1200ms] ease-out`}
-          strokeDasharray={C} strokeDashoffset={offset}
+          strokeDasharray={C}
+          strokeDashoffset={offset}
         />
       </svg>
       <div className="absolute inset-0 grid place-items-center">
@@ -97,9 +123,14 @@ function ResultPage() {
 
   if (!lastScan || lastScan.scanId !== scanId) {
     return (
-      <div className="flex h-full flex-col items-center justify-center gap-4 p-6 text-center" dir="rtl">
+      <div
+        className="flex h-full flex-col items-center justify-center gap-4 p-6 text-center"
+        dir="rtl"
+      >
         <p className="text-sm text-muted-foreground">لا توجد نتيجة محفوظة</p>
-        <Link to="/scan" className="rounded-full bg-orange px-5 py-2 text-white text-sm">العودة للمسح</Link>
+        <Link to="/scan" className="rounded-full bg-orange px-5 py-2 text-white text-sm">
+          العودة للمسح
+        </Link>
       </div>
     );
   }
@@ -123,10 +154,14 @@ function ResultPage() {
 
   const saveToCollection = () => {
     addToCollection({
-      id: "col-" + r.scanId, scanId: r.scanId,
+      id: "col-" + r.scanId,
+      scanId: r.scanId,
       name: "العينة #" + r.scanId.slice(-3),
-      classification: r.classification, score: r.score, verdict: r.verdict,
-      imageSeed: r.imageSeed, createdAt: r.createdAt,
+      classification: r.classification,
+      score: r.score,
+      verdict: r.verdict,
+      imageSeed: r.imageSeed,
+      createdAt: r.createdAt,
     });
     setSaved(true);
     toast.success("تم الحفظ في مجموعتك");
@@ -168,7 +203,9 @@ function ResultPage() {
           <div className="flex items-center gap-4">
             <ScoreRing score={r.score} colorClass={theme.ring} />
             <div className="flex-1">
-              <div className={`inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-[11px] font-bold ${theme.chip}`}>
+              <div
+                className={`inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-[11px] font-bold ${theme.chip}`}
+              >
                 <Icon className="h-3 w-3" />
                 {theme.label}
               </div>
@@ -204,7 +241,9 @@ function ResultPage() {
           <ul className="space-y-2">
             {r.features.map((f) => (
               <li key={f.label} className="flex items-center gap-3">
-                <span className={`grid h-7 w-7 place-items-center rounded-full ${f.detected ? "bg-success/15 text-success" : "bg-destructive/15 text-destructive"}`}>
+                <span
+                  className={`grid h-7 w-7 place-items-center rounded-full ${f.detected ? "bg-success/15 text-success" : "bg-destructive/15 text-destructive"}`}
+                >
                   {f.detected ? <Check className="h-4 w-4" /> : <X className="h-4 w-4" />}
                 </span>
                 <span className="flex-1 text-sm">{f.label}</span>
@@ -216,12 +255,15 @@ function ResultPage() {
 
         {/* Scenario 2: progressive checklist */}
         {state === "needs_completion" && (
-          <div className={`rounded-2xl border-2 border-dashed ${theme.border} ${theme.bg} p-4 animate-fade-in`}>
+          <div
+            className={`rounded-2xl border-2 border-dashed ${theme.border} ${theme.bg} p-4 animate-fade-in`}
+          >
             <h3 className="text-sm font-bold mb-1 flex items-center gap-2">
               <ListChecks className={`h-4 w-4 ${theme.text}`} /> أكمل لرفع الشهادة
             </h3>
             <p className="text-xs text-muted-foreground mb-3">
-              {Object.values(checklist).filter(Boolean).length} / {Object.keys(checklist).length} مكتمل
+              {Object.values(checklist).filter(Boolean).length} / {Object.keys(checklist).length}{" "}
+              مكتمل
             </p>
             <div className="h-1.5 w-full rounded-full bg-muted/50 mb-3 overflow-hidden">
               <div
@@ -231,7 +273,11 @@ function ResultPage() {
             </div>
             <div className="space-y-2">
               {[
-                { key: "interior", label: "صورة السطح الداخلي", action: r.needsInterior ? analyzeInterior : undefined },
+                {
+                  key: "interior",
+                  label: "صورة السطح الداخلي",
+                  action: r.needsInterior ? analyzeInterior : undefined,
+                },
                 { key: "weight", label: "تأكيد الوزن بالغرام" },
                 { key: "origin", label: "تحديد موقع الاكتشاف" },
               ].map((step) => {
@@ -240,16 +286,29 @@ function ResultPage() {
                   <button
                     key={step.key}
                     onClick={() => {
-                      if (step.action) { step.action(); return; }
+                      if (step.action) {
+                        step.action();
+                        return;
+                      }
                       setChecklist((c) => ({ ...c, [step.key]: !c[step.key] }));
                     }}
                     disabled={analyzing && step.key === "interior"}
                     className={`w-full flex items-center gap-3 rounded-xl border p-3 text-right transition ${
-                      done ? "bg-success/10 border-success/40" : "bg-card border-border hover:border-warning"
+                      done
+                        ? "bg-success/10 border-success/40"
+                        : "bg-card border-border hover:border-warning"
                     }`}
                   >
-                    <span className={`grid h-6 w-6 place-items-center rounded-full ${done ? "bg-success text-success-foreground" : "bg-muted text-muted-foreground"}`}>
-                      {done ? <Check className="h-3.5 w-3.5" /> : step.key === "interior" ? <Camera className="h-3.5 w-3.5" /> : <span className="text-[10px]">+</span>}
+                    <span
+                      className={`grid h-6 w-6 place-items-center rounded-full ${done ? "bg-success text-success-foreground" : "bg-muted text-muted-foreground"}`}
+                    >
+                      {done ? (
+                        <Check className="h-3.5 w-3.5" />
+                      ) : step.key === "interior" ? (
+                        <Camera className="h-3.5 w-3.5" />
+                      ) : (
+                        <span className="text-[10px]">+</span>
+                      )}
                     </span>
                     <span className="flex-1 text-sm font-medium">{step.label}</span>
                     {step.key === "interior" && analyzing && (
@@ -275,8 +334,11 @@ function ResultPage() {
         {/* Actions */}
         {state !== "rejected" && (
           <div className="grid grid-cols-2 gap-3 pt-2">
-            <button onClick={saveToCollection} disabled={saved}
-              className="rounded-xl border-2 border-primary text-primary py-3 font-bold flex items-center justify-center gap-2 disabled:opacity-50">
+            <button
+              onClick={saveToCollection}
+              disabled={saved}
+              className="rounded-xl border-2 border-primary text-primary py-3 font-bold flex items-center justify-center gap-2 disabled:opacity-50"
+            >
               <BookmarkPlus className="h-4 w-4" />
               {saved ? "محفوظ" : "حفظ"}
             </button>
@@ -285,7 +347,8 @@ function ResultPage() {
               disabled={!canPublish}
               className={`rounded-xl py-3 font-bold flex items-center justify-center gap-2 transition ${
                 canPublish ? "bg-orange text-white shadow-lg" : "bg-muted text-muted-foreground"
-              }`}>
+              }`}
+            >
               <Store className="h-4 w-4" /> نشر في السوق
             </button>
           </div>

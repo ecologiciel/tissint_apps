@@ -1,3 +1,3 @@
-import { OnboardingScreen } from "@/features/parity/AuthParityScreens";
+import { LanguageChoiceScreen } from "@/features/mvp/MvpAuthScreens";
 
-export default OnboardingScreen;
+export default LanguageChoiceScreen;

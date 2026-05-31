@@ -1,7 +1,15 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useState } from "react";
 import {
-  ChevronLeft, ChevronRight, Camera, Sun, Ruler, Magnet, ShieldCheck, Sparkles, Check,
+  ChevronLeft,
+  ChevronRight,
+  Camera,
+  Sun,
+  Ruler,
+  Magnet,
+  ShieldCheck,
+  Sparkles,
+  Check,
 } from "lucide-react";
 
 export const Route = createFileRoute("/first-scan")({ component: FirstScanPage });
@@ -55,15 +63,23 @@ function FirstScanPage() {
     <div className="flex h-full flex-col bg-warm" dir="rtl">
       <header className="bg-navy text-warm px-5 pt-12 pb-5 rounded-b-3xl">
         <div className="flex items-center justify-between">
-          <Link to="/dashboard" className="grid h-9 w-9 place-items-center rounded-full bg-white/10">
+          <Link
+            to="/dashboard"
+            className="grid h-9 w-9 place-items-center rounded-full bg-white/10"
+          >
             <ChevronLeft className="h-5 w-5 rotate-180" />
           </Link>
           <h1 className="text-base font-bold">دليل أول فحص</h1>
-          <span className="text-xs text-warm/60">{i + 1}/{TIPS.length}</span>
+          <span className="text-xs text-warm/60">
+            {i + 1}/{TIPS.length}
+          </span>
         </div>
         <div className="mt-4 flex gap-1">
           {TIPS.map((_, idx) => (
-            <span key={idx} className={`h-1 flex-1 rounded-full ${idx <= i ? "bg-orange" : "bg-white/20"}`} />
+            <span
+              key={idx}
+              className={`h-1 flex-1 rounded-full ${idx <= i ? "bg-orange" : "bg-white/20"}`}
+            />
           ))}
         </div>
       </header>
@@ -93,13 +109,19 @@ function FirstScanPage() {
             <Sparkles className="h-5 w-5 text-gold shrink-0 mt-0.5" />
             <div>
               <p className="text-sm font-bold">جاهز للفحص الأول!</p>
-              <p className="text-[11px] text-muted-foreground mt-0.5">ستحصل على نتيجة خلال 3 ثوانٍ.</p>
+              <p className="text-[11px] text-muted-foreground mt-0.5">
+                ستحصل على نتيجة خلال 3 ثوانٍ.
+              </p>
             </div>
           </div>
         )}
 
         <ul className="rounded-2xl bg-card border border-border p-3 space-y-2">
-          {["دقة 92% في الظروف الجيدة", "الصور لا تُحفظ بدون موافقتك", "يمكنك إعادة الفحص بدون تكلفة"].map((t) => (
+          {[
+            "دقة 92% في الظروف الجيدة",
+            "الصور لا تُحفظ بدون موافقتك",
+            "يمكنك إعادة الفحص بدون تكلفة",
+          ].map((t) => (
             <li key={t} className="flex items-center gap-2 text-xs">
               <Check className="h-3.5 w-3.5 text-success shrink-0" />
               <span>{t}</span>
@@ -110,12 +132,17 @@ function FirstScanPage() {
 
       <div className="p-5 border-t border-border bg-card flex gap-2">
         {i > 0 && (
-          <button onClick={() => setI(i - 1)} className="grid h-12 w-12 place-items-center rounded-full bg-muted">
+          <button
+            onClick={() => setI(i - 1)}
+            className="grid h-12 w-12 place-items-center rounded-full bg-muted"
+          >
             <ChevronRight className="h-5 w-5" />
           </button>
         )}
-        <button onClick={() => last ? nav({ to: "/scan" }) : setI(i + 1)}
-          className="flex-1 rounded-full bg-gradient-to-r from-orange to-gold py-3.5 font-bold text-white">
+        <button
+          onClick={() => (last ? nav({ to: "/scan" }) : setI(i + 1))}
+          className="flex-1 rounded-full bg-gradient-to-r from-orange to-gold py-3.5 font-bold text-white"
+        >
           {last ? "ابدأ الفحص" : "التالي"}
         </button>
       </div>

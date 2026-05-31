@@ -15,7 +15,9 @@ function Thread() {
   const [text, setText] = useState("");
   const scrollerRef = useRef<HTMLDivElement>(null);
 
-  useEffect(() => { markThreadRead(threadId); }, [threadId, markThreadRead]);
+  useEffect(() => {
+    markThreadRead(threadId);
+  }, [threadId, markThreadRead]);
   useEffect(() => {
     scrollerRef.current?.scrollTo({ top: scrollerRef.current.scrollHeight, behavior: "smooth" });
   }, [thread.length]);
@@ -24,7 +26,9 @@ function Thread() {
     return (
       <div className="p-6" dir="rtl">
         <p>محادثة غير موجودة</p>
-        <Link to="/messages" className="text-orange">العودة</Link>
+        <Link to="/messages" className="text-orange">
+          العودة
+        </Link>
       </div>
     );
   }
@@ -39,10 +43,16 @@ function Thread() {
   return (
     <div className="flex h-full flex-col bg-warm" dir="rtl">
       <header className="bg-navy text-warm px-4 pt-12 pb-3 rounded-b-2xl shadow-lg flex items-center gap-3">
-        <button onClick={() => nav({ to: "/messages" })} className="grid h-9 w-9 place-items-center rounded-full bg-white/10">
+        <button
+          onClick={() => nav({ to: "/messages" })}
+          className="grid h-9 w-9 place-items-center rounded-full bg-white/10"
+        >
           <ChevronRight className="h-5 w-5" />
         </button>
-        <MeteoriteThumb seed={conv.listingImageSeed || conv.peerName} className="h-10 w-10 rounded-xl" />
+        <MeteoriteThumb
+          seed={conv.listingImageSeed || conv.peerName}
+          className="h-10 w-10 rounded-xl"
+        />
         <div className="flex-1 min-w-0">
           <p className="text-sm font-bold flex items-center gap-1 truncate">
             {conv.peerName}
@@ -77,8 +87,13 @@ function Thread() {
               }`}
             >
               <p className="leading-snug">{m.text}</p>
-              <p className={`text-[10px] mt-0.5 ${m.fromMe ? "text-primary-foreground/70" : "text-muted-foreground"}`}>
-                {new Date(m.createdAt).toLocaleTimeString("ar", { hour: "2-digit", minute: "2-digit" })}
+              <p
+                className={`text-[10px] mt-0.5 ${m.fromMe ? "text-primary-foreground/70" : "text-muted-foreground"}`}
+              >
+                {new Date(m.createdAt).toLocaleTimeString("ar", {
+                  hour: "2-digit",
+                  minute: "2-digit",
+                })}
               </p>
             </div>
           </div>
@@ -86,7 +101,10 @@ function Thread() {
       </main>
 
       <form
-        onSubmit={(e) => { e.preventDefault(); handleSend(); }}
+        onSubmit={(e) => {
+          e.preventDefault();
+          handleSend();
+        }}
         className="border-t bg-card p-2 flex items-center gap-2"
       >
         <input
