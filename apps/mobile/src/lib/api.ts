@@ -3,6 +3,10 @@ import {
   buildMockScanResult,
   containsContactLeak,
   type AlertRule,
+  type AdminListingActionInput,
+  type AdminRadarActionResult,
+  type AdminRadarListing,
+  type AuditLogEntry,
   type CollectionItem,
   type CreateAlertRuleInput,
   type CreateListingInput,
@@ -244,4 +248,79 @@ export async function createAlert(input: CreateAlertRuleInput): Promise<AlertRul
     };
   }
   return tissintClient.createAlert(input);
+}
+
+export async function listAdminRadar(): Promise<AdminRadarListing[]> {
+  if (!isHttpApiEnabled()) {
+    return DEMO_MARKETPLACE_LISTINGS.filter((listing) => listing.isRare).map((listing) => ({
+      ...listing,
+      meteoriteProbability: listing.confidence,
+      holdUntil: listing.contactLockedUntil,
+      sellerUserId: "mock-seller",
+      sellerEmail: "seller@example.com",
+      latitude: listing.blurredLatitude,
+      longitude: listing.blurredLongitude,
+    }));
+  }
+  return tissintClient.listAdminRadar();
+}
+
+function mockAdminAction(
+  listingId: string,
+  status: AdminRadarListing["status"],
+  message: string,
+): AdminRadarActionResult {
+  const listing =
+    DEMO_MARKETPLACE_LISTINGS.find((item) => item.listingId === listingId) ??
+    DEMO_MARKETPLACE_LISTINGS.find((item) => item.isRare) ??
+    DEMO_MARKETPLACE_LISTINGS[0];
+  return {
+    status,
+    message,
+    listing: {
+      ...listing,
+      status,
+      meteoriteProbability: listing.confidence,
+      holdUntil: listing.contactLockedUntil,
+      sellerUserId: "mock-seller",
+      sellerEmail: "seller@example.com",
+      latitude: listing.blurredLatitude,
+      longitude: listing.blurredLongitude,
+    },
+  };
+}
+
+export async function reserveAdminListing(
+  listingId: string,
+  input: AdminListingActionInput = {},
+): Promise<AdminRadarActionResult> {
+  if (!isHttpApiEnabled()) {
+    return mockAdminAction(listingId, "admin_reserved", input.reason ?? "Reserve admin");
+  }
+  return tissintClient.reserveAdminListing(listingId, input);
+}
+
+export async function releaseAdminListing(
+  listingId: string,
+  input: AdminListingActionInput = {},
+): Promise<AdminRadarActionResult> {
+  if (!isHttpApiEnabled()) {
+    return mockAdminAction(listingId, "published", input.reason ?? "Publication admin");
+  }
+  return tissintClient.releaseAdminListing(listingId, input);
+}
+
+export async function rejectAdminListing(
+  listingId: string,
+  input: AdminListingActionInput = {},
+): Promise<AdminRadarActionResult> {
+  if (!isHttpApiEnabled()) {
+    return mockAdminAction(listingId, "rejected", input.reason ?? "Rejet admin");
+  }
+  return tissintClient.rejectAdminListing(listingId, input);
+}
+
+export async function listAuditLogs(): Promise<AuditLogEntry[]> {
+  if (!isHttpApiEnabled()) return [];
+  return tissintClient.listAuditLogs(50);
 }

@@ -106,6 +106,37 @@ export interface MarketplaceListingDetail extends MarketplaceListing {
   contactLockReason?: string;
 }
 
+export interface AdminRadarListing extends MarketplaceListing {
+  meteoriteProbability: number;
+  latitude?: number;
+  longitude?: number;
+  holdUntil?: string;
+  sellerUserId?: string;
+  sellerEmail?: string;
+}
+
+export type AdminRadarAction = "reserve" | "release" | "reject";
+
+export interface AdminRadarActionResult {
+  status: MarketplaceStatus;
+  message: string;
+  listing: AdminRadarListing;
+}
+
+export interface AdminListingActionInput {
+  reason?: string;
+}
+
+export interface AuditLogEntry {
+  id: string;
+  actorUserId: string;
+  action: string;
+  entityType: string;
+  entityId: string;
+  metadata?: unknown;
+  createdAt: string;
+}
+
 export interface QuotaSnapshot {
   role: UserRole;
   dailyLimit: number;
@@ -201,6 +232,7 @@ export interface CreateAlertRuleInput {
 
 export type ApiErrorCode =
   | "UNAUTHORIZED"
+  | "FORBIDDEN"
   | "PREMIUM_REQUIRED"
   | "QUOTA_EXCEEDED"
   | "NOT_FOUND"

@@ -1,5 +1,9 @@
 import type {
   AlertRule,
+  AdminListingActionInput,
+  AdminRadarActionResult,
+  AdminRadarListing,
+  AuditLogEntry,
   AuthSession,
   CheckoutSession,
   CollectionItem,
@@ -22,6 +26,9 @@ import type { HealthResponse, PublishListingInput } from "./generated/server-typ
 import { HttpTransport } from "./http";
 import {
   normalizeAlertRule,
+  normalizeAdminActionResult,
+  normalizeAdminRadarListing,
+  normalizeAuditLog,
   normalizeAuthSession,
   normalizeCollectionItem,
   normalizeFavorite,
@@ -31,6 +38,9 @@ import {
   normalizeQuota,
   normalizeScanResponse,
   type ServerAlertRule,
+  type ServerAdminActionResponse,
+  type ServerAdminRadarListing,
+  type ServerAuditLogResponse,
   type ServerAuthPayload,
   type ServerCollectionItem,
   type ServerFavoriteItem,
@@ -68,6 +78,14 @@ function appendImage(form: FormData, field: string, image: MobileImageFile) {
 }
 
 function publishListingInit(payload: PublishListingInput = {}): RequestInit {
+  return {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(payload),
+  };
+}
+
+function adminActionInit(payload: AdminListingActionInput = {}): RequestInit {
   return {
     method: "POST",
     headers: { "Content-Type": "application/json" },
@@ -283,6 +301,51 @@ export class TissintClient {
       }),
     });
     return normalizeAlertRule(payload);
+  }
+
+  async listAdminRadar(): Promise<AdminRadarListing[]> {
+    const payload = await this.http.request<ServerAdminRadarListing[]>("/api/v1/admin/radar");
+    return payload.map(normalizeAdminRadarListing);
+  }
+
+  async reserveAdminListing(
+    listingId: string,
+    input: AdminListingActionInput = {},
+  ): Promise<AdminRadarActionResult> {
+    const payload = await this.http.request<ServerAdminActionResponse>(
+      `/api/v1/admin/radar/${encodeURIComponent(listingId)}/reserve`,
+      adminActionInit(input),
+    );
+    return normalizeAdminActionResult(payload);
+  }
+
+  async releaseAdminListing(
+    listingId: string,
+    input: AdminListingActionInput = {},
+  ): Promise<AdminRadarActionResult> {
+    const payload = await this.http.request<ServerAdminActionResponse>(
+      `/api/v1/admin/radar/${encodeURIComponent(listingId)}/release`,
+      adminActionInit(input),
+    );
+    return normalizeAdminActionResult(payload);
+  }
+
+  async rejectAdminListing(
+    listingId: string,
+    input: AdminListingActionInput = {},
+  ): Promise<AdminRadarActionResult> {
+    const payload = await this.http.request<ServerAdminActionResponse>(
+      `/api/v1/admin/radar/${encodeURIComponent(listingId)}/reject`,
+      adminActionInit(input),
+    );
+    return normalizeAdminActionResult(payload);
+  }
+
+  async listAuditLogs(limit = 50): Promise<AuditLogEntry[]> {
+    const payload = await this.http.request<ServerAuditLogResponse[]>(
+      `/api/v1/admin/audit?limit=${encodeURIComponent(String(limit))}`,
+    );
+    return payload.map(normalizeAuditLog);
   }
 
   async createCheckout(input: CheckoutInput): Promise<CheckoutSession> {

@@ -4,6 +4,9 @@ import {
   quotaLimitForRole,
   type AlertFrequency,
   type AlertRule,
+  type AdminRadarActionResult,
+  type AdminRadarListing,
+  type AuditLogEntry,
   type AuthSession,
   type CollectionItem,
   type FavoriteListing,
@@ -17,7 +20,10 @@ import {
   type UserRole,
 } from "@tissint/shared";
 import type {
+  AdminActionResponse as ServerAdminActionContract,
+  AdminRadarListingResponse as ServerAdminRadarListingContract,
   ApiErrorResponse as ServerApiErrorResponse,
+  AuditLogResponse as ServerAuditLogContract,
   AuthResponse as ServerAuthContract,
   CollectionItemResponse as ServerCollectionContract,
   MarketplaceListingResponse as ServerPublishContract,
@@ -28,6 +34,9 @@ import type {
 export type { ServerApiErrorResponse };
 
 export type ServerScanResponse = ServerScanContract;
+export type ServerAdminRadarListing = ServerAdminRadarListingContract;
+export type ServerAdminActionResponse = ServerAdminActionContract;
+export type ServerAuditLogResponse = ServerAuditLogContract;
 
 export interface ServerListingItem extends ServerListingContract {
   title?: string;
@@ -202,6 +211,60 @@ export function normalizeListing(payload: ServerListingItem): MarketplaceListing
     contactLockedUntil: payload.contact_locked_until,
     blurredLatitude: payload.blurred_latitude ?? undefined,
     blurredLongitude: payload.blurred_longitude ?? undefined,
+    createdAt: payload.created_at,
+  };
+}
+
+export function normalizeAdminRadarListing(
+  payload: ServerAdminRadarListing,
+): AdminRadarListing {
+  return {
+    listingId: payload.listing_id,
+    scanId: payload.scan_id,
+    title: payload.title ?? payload.dominant_class,
+    dominantClass: payload.dominant_class,
+    confidence: payload.confidence,
+    fusionScore: payload.confidence,
+    meteoriteProbability: payload.meteorite_probability,
+    weightGram: payload.weight ?? undefined,
+    priceValue: payload.price,
+    priceMode: normalizePriceMode(payload.price_mode),
+    region: payload.region ?? undefined,
+    status: normalizeMarketplaceStatus(payload.status),
+    isRare: Boolean(payload.is_rare),
+    sellerUserId: payload.seller_user_id ?? undefined,
+    sellerName: payload.seller_name ?? undefined,
+    sellerPhone: payload.seller_phone ?? undefined,
+    sellerWhatsapp: payload.seller_phone ?? undefined,
+    sellerEmail: payload.seller_email ?? undefined,
+    sellerVerified: payload.seller_verified,
+    latitude: payload.latitude ?? undefined,
+    longitude: payload.longitude ?? undefined,
+    createdAt: payload.created_at ?? undefined,
+    description: payload.description ?? undefined,
+    holdUntil: payload.hold_until ?? undefined,
+    contactLockedUntil: payload.hold_until ?? undefined,
+  };
+}
+
+export function normalizeAdminActionResult(
+  payload: ServerAdminActionResponse,
+): AdminRadarActionResult {
+  return {
+    status: normalizeMarketplaceStatus(payload.status),
+    message: payload.message,
+    listing: normalizeAdminRadarListing(payload.listing),
+  };
+}
+
+export function normalizeAuditLog(payload: ServerAuditLogResponse): AuditLogEntry {
+  return {
+    id: payload.id,
+    actorUserId: payload.actor_user_id,
+    action: payload.action,
+    entityType: payload.entity_type,
+    entityId: payload.entity_id,
+    metadata: payload.metadata ?? undefined,
     createdAt: payload.created_at,
   };
 }

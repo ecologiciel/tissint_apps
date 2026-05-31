@@ -26,6 +26,9 @@ The mobile API client is now aligned with the current Tinssit server contract.
 | Marketplace publish | `POST /api/v1/marketplace/publish/{scan_id}` with `{ price?, title?, description?, price_mode?, region? }` | `tissintClient.createListing()` / `publishListing()` |
 | Marketplace list | `GET /api/v1/marketplace/listings` | `tissintClient.listMarketplace()` |
 | Marketplace detail | `GET /api/v1/marketplace/listings/{listing_id}` | `tissintClient.getListing()` |
+| Admin radar | `GET /api/v1/admin/radar` | `tissintClient.listAdminRadar()` |
+| Admin radar actions | `POST /api/v1/admin/radar/{listing_id}/reserve|release|reject` | `reserveAdminListing()` / `releaseAdminListing()` / `rejectAdminListing()` |
+| Admin audit | `GET /api/v1/admin/audit` | `tissintClient.listAuditLogs()` |
 
 ## Still Mocked Or Future Server Work
 
