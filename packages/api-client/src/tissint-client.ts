@@ -30,24 +30,30 @@ import {
   normalizeAdminRadarListing,
   normalizeAuditLog,
   normalizeAuthSession,
+  normalizeCheckoutSession,
   normalizeCollectionItem,
   normalizeFavorite,
+  normalizeInvoice,
   normalizeListing,
   normalizeListingDetail,
   normalizePublishResult,
   normalizeQuota,
   normalizeScanResponse,
+  normalizeSubscription,
   type ServerAlertRule,
   type ServerAdminActionResponse,
   type ServerAdminRadarListing,
   type ServerAuditLogResponse,
   type ServerAuthPayload,
+  type ServerCheckoutSession,
   type ServerCollectionItem,
   type ServerFavoriteItem,
+  type ServerInvoiceResponse,
   type ServerListingItem,
   type ServerPublishResponse,
   type ServerQuotaResponse,
   type ServerScanResponse,
+  type ServerSubscriptionResponse,
 } from "./normalizers";
 import type { TissintClientConfig } from "./config";
 
@@ -349,7 +355,7 @@ export class TissintClient {
   }
 
   async createCheckout(input: CheckoutInput): Promise<CheckoutSession> {
-    return this.http.request<CheckoutSession>("/api/v1/billing/checkout", {
+    const payload = await this.http.request<ServerCheckoutSession>("/api/v1/billing/checkout", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
@@ -358,19 +364,25 @@ export class TissintClient {
         return_url: input.returnUrl,
       }),
     });
+    return normalizeCheckoutSession(payload);
   }
 
   async getSubscription(): Promise<Subscription> {
-    return this.http.request<Subscription>("/api/v1/billing/subscription");
+    const payload = await this.http.request<ServerSubscriptionResponse>(
+      "/api/v1/billing/subscription",
+    );
+    return normalizeSubscription(payload);
   }
 
   async cancelSubscription(): Promise<Subscription> {
-    return this.http.request<Subscription>("/api/v1/billing/cancel", {
+    const payload = await this.http.request<ServerSubscriptionResponse>("/api/v1/billing/cancel", {
       method: "POST",
     });
+    return normalizeSubscription(payload);
   }
 
   async listInvoices(): Promise<Invoice[]> {
-    return this.http.request<Invoice[]>("/api/v1/billing/invoices");
+    const payload = await this.http.request<ServerInvoiceResponse[]>("/api/v1/billing/invoices");
+    return payload.map(normalizeInvoice);
   }
 }

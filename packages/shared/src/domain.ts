@@ -254,8 +254,9 @@ export interface ApiErrorPayload {
   status?: number;
 }
 
-export type PaymentProvider = "cmi" | "stripe" | "paypal" | "wallet";
+export type PaymentProvider = "mock" | "cmi" | "stripe" | "paypal" | "wallet";
 export type SubscriptionStatus = "none" | "active" | "past_due" | "cancelled" | "expired";
+export type CheckoutSessionStatus = "pending" | "paid" | "expired" | "cancelled";
 export type InvoiceStatus = "paid" | "pending" | "failed" | "refunded";
 
 export interface Subscription {
@@ -274,6 +275,7 @@ export interface CheckoutSession {
   amountDh: number;
   currency: "MAD";
   expiresAt?: string;
+  status: CheckoutSessionStatus;
 }
 
 export interface Invoice {

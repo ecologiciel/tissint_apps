@@ -1,4 +1,9 @@
-import { TissintClient, type MobileImageFile, type ScanExteriorInput } from "@tissint/api-client";
+import {
+  TissintClient,
+  type CheckoutInput,
+  type MobileImageFile,
+  type ScanExteriorInput,
+} from "@tissint/api-client";
 import {
   buildMockScanResult,
   containsContactLeak,
@@ -7,15 +12,18 @@ import {
   type AdminRadarActionResult,
   type AdminRadarListing,
   type AuditLogEntry,
+  type CheckoutSession,
   type CollectionItem,
   type CreateAlertRuleInput,
   type CreateListingInput,
   type FavoriteListing,
+  type Invoice,
   type MarketplaceListing,
   type MarketplaceListingDetail,
   type PublishListingResult,
   type QuotaSnapshot,
   type ScanScenarioKey,
+  type Subscription,
   type UserRole,
 } from "@tissint/shared";
 import { DEMO_COLLECTION, DEMO_MARKETPLACE_LISTINGS } from "@/features/parity/parity-data";
@@ -323,4 +331,66 @@ export async function rejectAdminListing(
 export async function listAuditLogs(): Promise<AuditLogEntry[]> {
   if (!isHttpApiEnabled()) return [];
   return tissintClient.listAuditLogs(50);
+}
+
+export async function createCheckout(input: CheckoutInput): Promise<CheckoutSession> {
+  if (!isHttpApiEnabled()) {
+    const totalDh = input.plan === "yearly" ? 960 : 100;
+    return {
+      id: `mock-checkout-${Date.now()}`,
+      provider: input.provider,
+      checkoutUrl: input.returnUrl,
+      amountDh: totalDh,
+      currency: "MAD",
+      expiresAt: new Date(Date.now() + 1000 * 60 * 30).toISOString(),
+      status: input.provider === "mock" ? "paid" : "pending",
+    };
+  }
+  return tissintClient.createCheckout(input);
+}
+
+export async function getSubscription(role: UserRole): Promise<Subscription> {
+  if (!isHttpApiEnabled()) {
+    const isPremium = role === "premium" || role === "admin";
+    return {
+      status: isPremium ? "active" : "none",
+      role,
+      provider: isPremium && role !== "admin" ? "mock" : undefined,
+      plan: isPremium && role !== "admin" ? "monthly" : undefined,
+      renewsAt: isPremium
+        ? new Date(Date.now() + 1000 * 60 * 60 * 24 * 30).toISOString()
+        : undefined,
+    };
+  }
+  return tissintClient.getSubscription();
+}
+
+export async function cancelSubscription(): Promise<Subscription> {
+  if (!isHttpApiEnabled()) {
+    return {
+      status: "cancelled",
+      role: "premium",
+      provider: "mock",
+      plan: "monthly",
+      cancelsAt: new Date(Date.now() + 1000 * 60 * 60 * 24 * 30).toISOString(),
+    };
+  }
+  return tissintClient.cancelSubscription();
+}
+
+export async function listInvoices(): Promise<Invoice[]> {
+  if (!isHttpApiEnabled()) {
+    return [
+      {
+        id: "mock-invoice-current",
+        number: "INV-MOCK-CURRENT",
+        amountDh: 83.33,
+        vatDh: 16.67,
+        totalDh: 100,
+        status: "paid",
+        createdAt: new Date().toISOString(),
+      },
+    ];
+  }
+  return tissintClient.listInvoices();
 }

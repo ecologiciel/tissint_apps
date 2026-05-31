@@ -20,7 +20,8 @@ export function isTissintApiError(error: unknown): error is TissintApiError {
 
 export function errorCodeForStatus(status: number): ApiErrorCode {
   if (status === 401) return "UNAUTHORIZED";
-  if (status === 402 || status === 403) return "PREMIUM_REQUIRED";
+  if (status === 402) return "PREMIUM_REQUIRED";
+  if (status === 403) return "FORBIDDEN";
   if (status === 404) return "NOT_FOUND";
   if (status === 409) return "CONFLICT";
   if (status === 413) return "FILE_TOO_LARGE";

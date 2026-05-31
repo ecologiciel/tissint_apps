@@ -29,6 +29,10 @@ The mobile API client is now aligned with the current Tinssit server contract.
 | Admin radar | `GET /api/v1/admin/radar` | `tissintClient.listAdminRadar()` |
 | Admin radar actions | `POST /api/v1/admin/radar/{listing_id}/reserve|release|reject` | `reserveAdminListing()` / `releaseAdminListing()` / `rejectAdminListing()` |
 | Admin audit | `GET /api/v1/admin/audit` | `tissintClient.listAuditLogs()` |
+| Billing checkout | `POST /api/v1/billing/checkout` | `tissintClient.createCheckout()` |
+| Billing subscription | `GET /api/v1/billing/subscription` | `tissintClient.getSubscription()` |
+| Billing cancel | `POST /api/v1/billing/cancel` | `tissintClient.cancelSubscription()` |
+| Billing invoices | `GET /api/v1/billing/invoices` | `tissintClient.listInvoices()` |
 
 ## Still Mocked Or Future Server Work
 
@@ -36,8 +40,8 @@ These client methods still reference routes not implemented by the current FastA
 
 - Favorites: `/api/v1/marketplace/favorites*`
 - Alerts: `/api/v1/marketplace/alerts*`
-- Billing: `/api/v1/billing/*`
 
 Keep `EXPO_PUBLIC_TISSINT_API_MODE=mock` for flows above until the server exposes those endpoints.
 
 Marketplace publish now relies on the server to reject direct contact leakage with `CONTACT_LEAK_DETECTED`, while the mobile app keeps its local pre-check for faster feedback.
+Billing is now server-authored: the mobile app reads role, subscription status, checkout status, and invoices from the backend contract instead of trusting local premium elevation.

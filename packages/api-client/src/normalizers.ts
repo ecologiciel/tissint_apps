@@ -8,8 +8,12 @@ import {
   type AdminRadarListing,
   type AuditLogEntry,
   type AuthSession,
+  type CheckoutSession,
+  type CheckoutSessionStatus,
   type CollectionItem,
   type FavoriteListing,
+  type Invoice,
+  type InvoiceStatus,
   type MarketplaceListing,
   type MarketplaceListingDetail,
   type MarketplaceStatus,
@@ -17,6 +21,8 @@ import {
   type PublishListingResult,
   type QuotaSnapshot,
   type SessionUser,
+  type Subscription,
+  type SubscriptionStatus,
   type UserRole,
 } from "@tissint/shared";
 import type {
@@ -25,10 +31,13 @@ import type {
   ApiErrorResponse as ServerApiErrorResponse,
   AuditLogResponse as ServerAuditLogContract,
   AuthResponse as ServerAuthContract,
+  CheckoutSessionResponse as ServerCheckoutSessionContract,
   CollectionItemResponse as ServerCollectionContract,
+  InvoiceResponse as ServerInvoiceContract,
   MarketplaceListingResponse as ServerPublishContract,
   PublicListingItem as ServerListingContract,
   ScanDecisionResponse as ServerScanContract,
+  SubscriptionResponse as ServerSubscriptionContract,
 } from "./generated/server-types";
 
 export type { ServerApiErrorResponse };
@@ -37,6 +46,9 @@ export type ServerScanResponse = ServerScanContract;
 export type ServerAdminRadarListing = ServerAdminRadarListingContract;
 export type ServerAdminActionResponse = ServerAdminActionContract;
 export type ServerAuditLogResponse = ServerAuditLogContract;
+export type ServerCheckoutSession = ServerCheckoutSessionContract;
+export type ServerSubscriptionResponse = ServerSubscriptionContract;
+export type ServerInvoiceResponse = ServerInvoiceContract;
 
 export interface ServerListingItem extends ServerListingContract {
   title?: string;
@@ -138,6 +150,23 @@ const PRICE_MODES = new Set<MarketplaceListing["priceMode"]>([
   "on_request",
 ]);
 
+const SUBSCRIPTION_STATUSES = new Set<SubscriptionStatus>([
+  "none",
+  "active",
+  "past_due",
+  "cancelled",
+  "expired",
+]);
+
+const INVOICE_STATUSES = new Set<InvoiceStatus>(["paid", "pending", "failed", "refunded"]);
+
+const CHECKOUT_STATUSES = new Set<CheckoutSessionStatus>([
+  "pending",
+  "paid",
+  "expired",
+  "cancelled",
+]);
+
 function normalizeMarketplaceStatus(status?: string): MarketplaceStatus {
   if (!status) return "draft";
   if (status === "available") return "published";
@@ -146,6 +175,26 @@ function normalizeMarketplaceStatus(status?: string): MarketplaceStatus {
   return MARKETPLACE_STATUSES.has(status as MarketplaceStatus)
     ? (status as MarketplaceStatus)
     : "draft";
+}
+
+function normalizeUserRole(role?: string): UserRole {
+  return role === "premium" || role === "admin" || role === "free" ? role : "free";
+}
+
+function normalizeSubscriptionStatus(status?: string): SubscriptionStatus {
+  return SUBSCRIPTION_STATUSES.has(status as SubscriptionStatus)
+    ? (status as SubscriptionStatus)
+    : "none";
+}
+
+function normalizeInvoiceStatus(status?: string): InvoiceStatus {
+  return INVOICE_STATUSES.has(status as InvoiceStatus) ? (status as InvoiceStatus) : "pending";
+}
+
+function normalizeCheckoutStatus(status?: string): CheckoutSessionStatus {
+  return CHECKOUT_STATUSES.has(status as CheckoutSessionStatus)
+    ? (status as CheckoutSessionStatus)
+    : "pending";
 }
 
 function normalizePriceMode(
@@ -266,6 +315,43 @@ export function normalizeAuditLog(payload: ServerAuditLogResponse): AuditLogEntr
     entityId: payload.entity_id,
     metadata: payload.metadata ?? undefined,
     createdAt: payload.created_at,
+  };
+}
+
+export function normalizeCheckoutSession(payload: ServerCheckoutSession): CheckoutSession {
+  return {
+    id: payload.id,
+    provider: payload.provider as CheckoutSession["provider"],
+    checkoutUrl: payload.checkout_url ?? undefined,
+    amountDh: payload.amount_dh,
+    currency: "MAD",
+    expiresAt: payload.expires_at ?? undefined,
+    status: normalizeCheckoutStatus(payload.status),
+  };
+}
+
+export function normalizeSubscription(payload: ServerSubscriptionResponse): Subscription {
+  return {
+    status: normalizeSubscriptionStatus(payload.status),
+    role: normalizeUserRole(payload.role),
+    provider: payload.provider ? (payload.provider as Subscription["provider"]) : undefined,
+    plan:
+      payload.plan === "monthly" || payload.plan === "yearly" ? payload.plan : undefined,
+    renewsAt: payload.renews_at ?? undefined,
+    cancelsAt: payload.cancels_at ?? undefined,
+  };
+}
+
+export function normalizeInvoice(payload: ServerInvoiceResponse): Invoice {
+  return {
+    id: payload.id,
+    number: payload.number,
+    amountDh: payload.amount_dh,
+    vatDh: payload.vat_dh ?? undefined,
+    totalDh: payload.total_dh,
+    status: normalizeInvoiceStatus(payload.status),
+    createdAt: payload.created_at,
+    downloadUrl: payload.download_url ?? undefined,
   };
 }
 
