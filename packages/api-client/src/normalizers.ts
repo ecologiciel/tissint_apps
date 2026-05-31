@@ -105,9 +105,7 @@ export interface ServerCollectionItem {
   main_image_uri?: string;
 }
 
-export interface ServerPublishResponse extends ServerPublishContract {
-  listing_id?: string;
-}
+export type ServerPublishResponse = ServerPublishContract;
 
 const MARKETPLACE_STATUSES = new Set<MarketplaceStatus>([
   "draft",
@@ -278,7 +276,8 @@ export function normalizePublishResult(payload: ServerPublishResponse): PublishL
       confidence: payload.confidence ?? 0,
       fusionScore: payload.confidence,
       weightGram: payload.weight ?? undefined,
-      priceMode: "on_request",
+      priceValue: payload.price,
+      priceMode: payload.price > 0 ? "fixed_total" : "on_request",
       status,
       isRare: rare,
       blurredLatitude: payload.blurred_latitude ?? undefined,

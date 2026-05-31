@@ -18,7 +18,7 @@ import type {
   ScanMetadata,
   Subscription,
 } from "@tissint/shared";
-import type { HealthResponse } from "./generated/server-types";
+import type { HealthResponse, PublishListingInput } from "./generated/server-types";
 import { HttpTransport } from "./http";
 import {
   normalizeAlertRule,
@@ -53,11 +53,6 @@ export interface ScanExteriorInput {
   interiorFile?: MobileImageFile;
 }
 
-export interface PublishListingInput {
-  price: number;
-  description?: string;
-}
-
 export interface CheckoutInput {
   plan: "monthly" | "yearly";
   provider: PaymentProvider;
@@ -70,6 +65,14 @@ function appendImage(form: FormData, field: string, image: MobileImageFile) {
     name: image.name,
     type: image.type,
   } as unknown as Blob);
+}
+
+function publishListingInit(price?: number | null): RequestInit {
+  return {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ price: price ?? 0 }),
+  };
 }
 
 export class TissintClient {
@@ -170,12 +173,10 @@ export class TissintClient {
     return normalizeScanResponse(payload);
   }
 
-  async publishListing(scanId: string, _input?: PublishListingInput): Promise<PublishListingResult> {
+  async publishListing(scanId: string, input?: PublishListingInput): Promise<PublishListingResult> {
     const payload = await this.http.request<ServerPublishResponse>(
       `/api/v1/marketplace/publish/${encodeURIComponent(scanId)}`,
-      {
-        method: "POST",
-      },
+      publishListingInit(input?.price),
     );
     return normalizePublishResult(payload);
   }
@@ -183,9 +184,7 @@ export class TissintClient {
   async createListing(input: CreateListingInput): Promise<PublishListingResult> {
     const payload = await this.http.request<ServerPublishResponse>(
       `/api/v1/marketplace/publish/${encodeURIComponent(input.scanId)}`,
-      {
-        method: "POST",
-      },
+      publishListingInit(input.priceValue),
     );
     return normalizePublishResult(payload);
   }

@@ -15,8 +15,9 @@ The mobile API client is now aligned with the current Tinssit server contract.
 | Health check | `GET /health` | `tissintClient.health()` |
 | Exterior scan | `POST /api/v1/scan/exterior` | `tissintClient.scanExterior()` |
 | Interior cut | `PATCH /api/v1/scan/{scan_id}/interior` | `tissintClient.addInterior()` |
-| Marketplace publish | `POST /api/v1/marketplace/publish/{scan_id}` | `tissintClient.createListing()` / `publishListing()` |
+| Marketplace publish | `POST /api/v1/marketplace/publish/{scan_id}` with optional `{ price }` | `tissintClient.createListing()` / `publishListing()` |
 | Marketplace list | `GET /api/v1/marketplace/listings` | `tissintClient.listMarketplace()` |
+| Marketplace detail | `GET /api/v1/marketplace/listings/{listing_id}` | `tissintClient.getListing()` |
 
 ## Still Mocked Or Future Server Work
 
@@ -25,7 +26,6 @@ These client methods still reference routes not implemented by the current FastA
 - Auth: `/api/v1/auth/*`
 - Quota: `/api/v1/quota/me`
 - Collection: `/api/v1/collection*`
-- Listing detail: `/api/v1/marketplace/listings/{listing_id}`
 - Favorites: `/api/v1/marketplace/favorites*`
 - Alerts: `/api/v1/marketplace/alerts*`
 - Billing: `/api/v1/billing/*`
