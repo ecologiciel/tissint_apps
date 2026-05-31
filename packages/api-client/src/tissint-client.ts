@@ -67,11 +67,11 @@ function appendImage(form: FormData, field: string, image: MobileImageFile) {
   } as unknown as Blob);
 }
 
-function publishListingInit(price?: number | null): RequestInit {
+function publishListingInit(payload: PublishListingInput = {}): RequestInit {
   return {
     method: "POST",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ price: price ?? 0 }),
+    body: JSON.stringify(payload),
   };
 }
 
@@ -176,7 +176,7 @@ export class TissintClient {
   async publishListing(scanId: string, input?: PublishListingInput): Promise<PublishListingResult> {
     const payload = await this.http.request<ServerPublishResponse>(
       `/api/v1/marketplace/publish/${encodeURIComponent(scanId)}`,
-      publishListingInit(input?.price),
+      publishListingInit(input),
     );
     return normalizePublishResult(payload);
   }
@@ -184,7 +184,13 @@ export class TissintClient {
   async createListing(input: CreateListingInput): Promise<PublishListingResult> {
     const payload = await this.http.request<ServerPublishResponse>(
       `/api/v1/marketplace/publish/${encodeURIComponent(input.scanId)}`,
-      publishListingInit(input.priceValue),
+      publishListingInit({
+        price: input.priceValue ?? 0,
+        title: input.title,
+        description: input.description,
+        price_mode: input.priceMode,
+        region: input.region,
+      }),
     );
     return normalizePublishResult(payload);
   }

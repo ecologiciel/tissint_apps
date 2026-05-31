@@ -122,6 +122,13 @@ const MARKETPLACE_STATUSES = new Set<MarketplaceStatus>([
   "archived",
 ]);
 
+const PRICE_MODES = new Set<MarketplaceListing["priceMode"]>([
+  "fixed_total",
+  "price_per_gram",
+  "negotiable",
+  "on_request",
+]);
+
 function normalizeMarketplaceStatus(status?: string): MarketplaceStatus {
   if (!status) return "draft";
   if (status === "available") return "published";
@@ -130,6 +137,15 @@ function normalizeMarketplaceStatus(status?: string): MarketplaceStatus {
   return MARKETPLACE_STATUSES.has(status as MarketplaceStatus)
     ? (status as MarketplaceStatus)
     : "draft";
+}
+
+function normalizePriceMode(
+  priceMode?: string | null,
+  fallback: MarketplaceListing["priceMode"] = "fixed_total",
+): MarketplaceListing["priceMode"] {
+  return PRICE_MODES.has(priceMode as MarketplaceListing["priceMode"])
+    ? (priceMode as MarketplaceListing["priceMode"])
+    : fallback;
 }
 
 export function normalizeScanResponse(payload: ServerScanResponse): NormalizedScanResult {
@@ -173,7 +189,7 @@ export function normalizeListing(payload: ServerListingItem): MarketplaceListing
     fusionScore: payload.confidence,
     weightGram: payload.weight ?? undefined,
     priceValue: payload.price,
-    priceMode: payload.price_mode ?? "fixed_total",
+    priceMode: normalizePriceMode(payload.price_mode),
     status: normalizeMarketplaceStatus(payload.status),
     isRare: Boolean(payload.is_rare),
     region: payload.region,
@@ -275,15 +291,21 @@ export function normalizePublishResult(payload: ServerPublishResponse): PublishL
     listing: {
       listingId: payload.listing_id ?? payload.scan_id,
       scanId: payload.scan_id,
-      title: payload.dominant_class ?? "Meteorite",
+      title: payload.title ?? payload.dominant_class ?? "Meteorite",
       dominantClass: payload.dominant_class ?? "Unknown",
       confidence: payload.confidence ?? 0,
       fusionScore: payload.confidence,
       weightGram: payload.weight ?? undefined,
       priceValue: payload.price,
-      priceMode: payload.price > 0 ? "fixed_total" : "on_request",
+      priceMode: normalizePriceMode(
+        payload.price_mode,
+        payload.price > 0 ? "fixed_total" : "on_request",
+      ),
       status,
       isRare: rare,
+      region: payload.region ?? undefined,
+      description: payload.description ?? undefined,
+      contactLockedUntil: payload.contact_locked_until ?? undefined,
       blurredLatitude: payload.blurred_latitude ?? undefined,
       blurredLongitude: payload.blurred_longitude ?? undefined,
     },

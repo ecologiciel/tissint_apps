@@ -23,7 +23,7 @@ The mobile API client is now aligned with the current Tinssit server contract.
 | Interior cut | `PATCH /api/v1/scan/{scan_id}/interior` | `tissintClient.addInterior()` |
 | Collection list | `GET /api/v1/collection` with `X-User-Id` | `tissintClient.listCollection()` |
 | Collection add/detail | `POST/GET /api/v1/collection/{scan_id}` with `X-User-Id` | `tissintClient.addToCollection()` / `getCollectionItem()` |
-| Marketplace publish | `POST /api/v1/marketplace/publish/{scan_id}` with optional `{ price }` | `tissintClient.createListing()` / `publishListing()` |
+| Marketplace publish | `POST /api/v1/marketplace/publish/{scan_id}` with `{ price?, title?, description?, price_mode?, region? }` | `tissintClient.createListing()` / `publishListing()` |
 | Marketplace list | `GET /api/v1/marketplace/listings` | `tissintClient.listMarketplace()` |
 | Marketplace detail | `GET /api/v1/marketplace/listings/{listing_id}` | `tissintClient.getListing()` |
 
@@ -36,3 +36,5 @@ These client methods still reference routes not implemented by the current FastA
 - Billing: `/api/v1/billing/*`
 
 Keep `EXPO_PUBLIC_TISSINT_API_MODE=mock` for flows above until the server exposes those endpoints.
+
+Marketplace publish now relies on the server to reject direct contact leakage with `CONTACT_LEAK_DETECTED`, while the mobile app keeps its local pre-check for faster feedback.
