@@ -31,7 +31,7 @@ import {
   normalizeQuota,
   normalizeScanResponse,
   type ServerAlertRule,
-  type ServerAuthResponse,
+  type ServerAuthPayload,
   type ServerCollectionItem,
   type ServerFavoriteItem,
   type ServerListingItem,
@@ -87,7 +87,7 @@ export class TissintClient {
   }
 
   async login(input: LoginInput): Promise<AuthSession> {
-    const payload = await this.http.request<ServerAuthResponse>("/api/v1/auth/login", {
+    const payload = await this.http.request<ServerAuthPayload>("/api/v1/auth/login", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
@@ -100,7 +100,7 @@ export class TissintClient {
   }
 
   async register(input: RegisterInput): Promise<AuthSession> {
-    const payload = await this.http.request<ServerAuthResponse>("/api/v1/auth/register", {
+    const payload = await this.http.request<ServerAuthPayload>("/api/v1/auth/register", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
@@ -117,12 +117,12 @@ export class TissintClient {
   }
 
   async me(): Promise<AuthSession> {
-    const payload = await this.http.request<ServerAuthResponse>("/api/v1/auth/me");
+    const payload = await this.http.request<ServerAuthPayload>("/api/v1/auth/me");
     return normalizeAuthSession(payload);
   }
 
   async refresh(refreshToken: string): Promise<AuthSession> {
-    const payload = await this.http.request<ServerAuthResponse>("/api/v1/auth/refresh", {
+    const payload = await this.http.request<ServerAuthPayload>("/api/v1/auth/refresh", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ refresh_token: refreshToken }),

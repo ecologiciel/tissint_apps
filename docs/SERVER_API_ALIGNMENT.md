@@ -13,6 +13,11 @@ The mobile API client is now aligned with the current Tinssit server contract.
 | Flow | Endpoint | Mobile client method |
 | --- | --- | --- |
 | Health check | `GET /health` | `tissintClient.health()` |
+| Register | `POST /api/v1/auth/register` | `tissintClient.register()` |
+| Login | `POST /api/v1/auth/login` | `tissintClient.login()` |
+| Current user | `GET /api/v1/auth/me` | `tissintClient.me()` |
+| Refresh session | `POST /api/v1/auth/refresh` | `tissintClient.refresh()` |
+| Logout | `POST /api/v1/auth/logout` | `tissintClient.logout()` |
 | Quota snapshot | `GET /api/v1/quota/me` with `X-User-Id` | `tissintClient.quota()` |
 | Exterior scan | `POST /api/v1/scan/exterior` | `tissintClient.scanExterior()` |
 | Interior cut | `PATCH /api/v1/scan/{scan_id}/interior` | `tissintClient.addInterior()` |
@@ -26,7 +31,6 @@ The mobile API client is now aligned with the current Tinssit server contract.
 
 These client methods still reference routes not implemented by the current FastAPI server:
 
-- Auth: `/api/v1/auth/*`
 - Favorites: `/api/v1/marketplace/favorites*`
 - Alerts: `/api/v1/marketplace/alerts*`
 - Billing: `/api/v1/billing/*`

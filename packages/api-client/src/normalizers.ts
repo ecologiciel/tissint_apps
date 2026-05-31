@@ -18,6 +18,7 @@ import {
 } from "@tissint/shared";
 import type {
   ApiErrorResponse as ServerApiErrorResponse,
+  AuthResponse as ServerAuthContract,
   CollectionItemResponse as ServerCollectionContract,
   MarketplaceListingResponse as ServerPublishContract,
   PublicListingItem as ServerListingContract,
@@ -86,6 +87,8 @@ export interface ServerAuthResponse {
     resets_at?: string;
   };
 }
+
+export type ServerAuthPayload = ServerAuthContract & ServerAuthResponse;
 
 export interface ServerQuotaResponse {
   role?: UserRole;
@@ -219,7 +222,7 @@ export function normalizeQuota(
 }
 
 export function normalizeAuthSession(
-  payload: ServerAuthResponse,
+  payload: ServerAuthPayload,
   fallback: { phoneOrEmail?: string } = {},
 ): AuthSession {
   const role = payload.user?.role ?? payload.quota?.role ?? "free";
