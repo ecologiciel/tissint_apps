@@ -45,7 +45,7 @@ import { Button } from "@/components/ui/Button";
 import { Card } from "@/components/ui/Card";
 import { AppText } from "@/components/ui/AppText";
 import { Screen } from "@/components/ui/Screen";
-import { setApiAccessToken } from "@/lib/api";
+import { setApiAccessToken, setApiUserId } from "@/lib/api";
 import { clearSavedSession } from "@/lib/session-storage";
 import { useEngagementStore } from "@/store/engagement-store";
 import { useScanStore } from "@/store/scan-store";
@@ -80,6 +80,7 @@ export function ProfileScreen() {
   async function logout() {
     await clearSavedSession();
     setApiAccessToken(null);
+    setApiUserId(null);
     clearSession();
     router.replace("/onboarding");
   }

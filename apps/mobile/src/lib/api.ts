@@ -18,15 +18,21 @@ import { DEMO_COLLECTION, DEMO_MARKETPLACE_LISTINGS } from "@/features/parity/pa
 import { env, isHttpApiEnabled } from "./env";
 
 let accessToken: string | null = null;
+let apiUserId: string | null = null;
 
 export function setApiAccessToken(token: string | null) {
   accessToken = token;
+}
+
+export function setApiUserId(userId: string | null) {
+  apiUserId = userId;
 }
 
 export const tissintClient = new TissintClient({
   baseUrl: env.apiBaseUrl || "http://127.0.0.1:8000",
   apiKey: env.apiKey || undefined,
   getAccessToken: () => accessToken,
+  getUserId: () => apiUserId,
 });
 
 export async function checkApiHealth() {

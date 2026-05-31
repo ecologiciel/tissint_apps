@@ -9,12 +9,14 @@ export class HttpTransport {
   private readonly baseUrl: string;
   private readonly apiKey?: string;
   private readonly getAccessToken?: TissintClientConfig["getAccessToken"];
+  private readonly getUserId?: TissintClientConfig["getUserId"];
   private readonly timeoutMs: number;
 
   constructor(config: TissintClientConfig) {
     this.baseUrl = normalizeBaseUrl(config.baseUrl);
     this.apiKey = config.apiKey;
     this.getAccessToken = config.getAccessToken;
+    this.getUserId = config.getUserId;
     this.timeoutMs = config.timeoutMs ?? 30000;
   }
 
@@ -25,6 +27,8 @@ export class HttpTransport {
 
     const token = skipAuth ? null : await this.getAccessToken?.();
     if (token) headers.set("Authorization", `Bearer ${token}`);
+    const userId = skipAuth ? null : await this.getUserId?.();
+    if (userId) headers.set("X-User-Id", userId);
 
     const controller = new AbortController();
     const timer = setTimeout(() => controller.abort(), this.timeoutMs);

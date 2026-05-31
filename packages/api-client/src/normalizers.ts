@@ -18,6 +18,7 @@ import {
 } from "@tissint/shared";
 import type {
   ApiErrorResponse as ServerApiErrorResponse,
+  CollectionItemResponse as ServerCollectionContract,
   MarketplaceListingResponse as ServerPublishContract,
   PublicListingItem as ServerListingContract,
   ScanDecisionResponse as ServerScanContract,
@@ -90,10 +91,10 @@ export interface ServerQuotaResponse {
   role?: UserRole;
   daily_limit?: number;
   remaining_today?: number;
-  resets_at?: string;
+  resets_at?: string | null;
 }
 
-export interface ServerCollectionItem {
+export interface ServerCollectionItem extends Partial<ServerCollectionContract> {
   id?: string;
   scan_id: string;
   class_name?: string;
@@ -213,7 +214,7 @@ export function normalizeQuota(
     role,
     dailyLimit,
     remainingToday: payload.remaining_today ?? dailyLimit,
-    resetsAt: payload.resets_at,
+    resetsAt: payload.resets_at ?? undefined,
   };
 }
 

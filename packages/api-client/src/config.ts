@@ -2,6 +2,7 @@ export interface TissintClientConfig {
   baseUrl: string;
   apiKey?: string;
   getAccessToken?: () => string | Promise<string | null> | null;
+  getUserId?: () => string | Promise<string | null> | null;
   timeoutMs?: number;
 }
 

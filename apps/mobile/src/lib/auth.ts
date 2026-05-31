@@ -3,7 +3,7 @@ import { quotaLimitForRole } from "@tissint/shared";
 import { isTissintApiError } from "@tissint/api-client";
 import { getOrCreateDeviceId } from "./device-id";
 import { env, isHttpApiEnabled } from "./env";
-import { setApiAccessToken, tissintClient } from "./api";
+import { setApiAccessToken, setApiUserId, tissintClient } from "./api";
 import { clearSavedSession, loadSession, saveSession } from "./session-storage";
 
 function mockSession(input: {
@@ -44,10 +44,13 @@ export async function loginWithCredentials(
 ): Promise<AuthSession> {
   const deviceId = await getOrCreateDeviceId();
   if (isHttpApiEnabled()) {
-    return tissintClient.login({ ...input, deviceId });
+    const session = await tissintClient.login({ ...input, deviceId });
+    setApiAccessToken(session.tokens.accessToken);
+    setApiUserId(session.user.id);
+    return session;
   }
   await new Promise((resolve) => setTimeout(resolve, 550));
-  return mockSession({
+  const session = mockSession({
     id: input.phoneOrEmail.replace(/[^a-zA-Z0-9_-]/g, "_") || "demo_user",
     phone: input.phoneOrEmail.includes("@") ? undefined : input.phoneOrEmail,
     email: input.phoneOrEmail.includes("@") ? input.phoneOrEmail : undefined,
@@ -55,6 +58,9 @@ export async function loginWithCredentials(
     lastName: env.apiMode === "mock" ? "Demo" : "User",
     role: "free",
   });
+  setApiAccessToken(session.tokens.accessToken);
+  setApiUserId(session.user.id);
+  return session;
 }
 
 export async function registerAccount(
@@ -62,10 +68,13 @@ export async function registerAccount(
 ): Promise<AuthSession> {
   const deviceId = await getOrCreateDeviceId();
   if (isHttpApiEnabled()) {
-    return tissintClient.register({ ...input, deviceId });
+    const session = await tissintClient.register({ ...input, deviceId });
+    setApiAccessToken(session.tokens.accessToken);
+    setApiUserId(session.user.id);
+    return session;
   }
   await new Promise((resolve) => setTimeout(resolve, 700));
-  return mockSession({
+  const session = mockSession({
     id: input.phone.replace(/[^a-zA-Z0-9_-]/g, "_") || "new_user",
     phone: input.phone,
     email: input.email,
@@ -73,6 +82,9 @@ export async function registerAccount(
     lastName: input.lastName,
     role: input.desiredRole,
   });
+  setApiAccessToken(session.tokens.accessToken);
+  setApiUserId(session.user.id);
+  return session;
 }
 
 function mergeAuthoritativeSession(
@@ -94,12 +106,17 @@ export async function restoreAuthenticatedSession(): Promise<AuthSession | null>
   const saved = await loadSession();
   if (!saved) return null;
 
-  if (!isHttpApiEnabled()) return saved;
+  if (!isHttpApiEnabled()) {
+    setApiAccessToken(saved.tokens.accessToken || null);
+    setApiUserId(saved.user.id);
+    return saved;
+  }
 
   const refreshToken = saved.tokens.refreshToken;
   if (!refreshToken) {
     await clearSavedSession();
     setApiAccessToken(null);
+    setApiUserId(null);
     return null;
   }
 
@@ -112,11 +129,13 @@ export async function restoreAuthenticatedSession(): Promise<AuthSession | null>
     setApiAccessToken(refreshed.tokens.accessToken);
     const identity = await tissintClient.me();
     const session = mergeAuthoritativeSession(refreshed.tokens, identity, refreshToken);
+    setApiUserId(session.user.id);
     await saveSession(session);
     return session;
   } catch {
     await clearSavedSession();
     setApiAccessToken(null);
+    setApiUserId(null);
     return null;
   }
 }
@@ -132,6 +151,7 @@ export async function logoutCurrentSession(refreshToken?: string | null): Promis
 
   await clearSavedSession();
   setApiAccessToken(null);
+  setApiUserId(null);
 }
 
 export function authErrorMessage(error: unknown, fallback: string): string {
