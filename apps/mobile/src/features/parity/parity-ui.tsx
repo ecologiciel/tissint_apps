@@ -2,7 +2,6 @@ import type { ReactNode } from "react";
 import {
   Pressable,
   StyleSheet,
-  TextInput,
   View,
   type KeyboardTypeOptions,
   type ViewStyle,
@@ -12,6 +11,7 @@ import { ArrowRight, Check } from "lucide-react-native";
 import { router } from "expo-router";
 import { AppText } from "@/components/ui/AppText";
 import { Card } from "@/components/ui/Card";
+import { ResponsiveTextInput as TextInput } from "@/components/ui/ResponsiveText";
 import { colors, radius, spacing } from "@/theme";
 
 export function HeaderBar({

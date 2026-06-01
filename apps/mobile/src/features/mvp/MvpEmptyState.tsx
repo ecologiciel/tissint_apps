@@ -1,6 +1,7 @@
 import { router } from "expo-router";
 import { Settings2 } from "lucide-react-native";
-import { Pressable, StyleSheet, Text, View, useWindowDimensions } from "react-native";
+import { Pressable, StyleSheet, View, useWindowDimensions } from "react-native";
+import { ResponsiveText as Text } from "@/components/ui/ResponsiveText";
 
 const CREAM = "#FBF4E6";
 const ORANGE = "#FF7A2A";
@@ -8,8 +9,8 @@ const TEXT = "#68717A";
 
 function useMetrics() {
   const { width, height } = useWindowDimensions();
-  const sx = width / 360;
-  const sy = height / 800;
+  const sx = Math.min(width / 360, 1);
+  const sy = Math.min(height / 800, 1);
   const s = Math.min(sx, sy);
   return {
     x: (value: number) => value * sx,

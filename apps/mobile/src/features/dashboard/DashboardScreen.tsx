@@ -1,8 +1,9 @@
 import { LinearGradient } from "expo-linear-gradient";
 import { router } from "expo-router";
 import { Bell, BookOpen, Crown, Heart, ScanLine, Search } from "lucide-react-native";
-import { Pressable, ScrollView, StyleSheet, Text, View, useWindowDimensions } from "react-native";
+import { Pressable, ScrollView, StyleSheet, View, useWindowDimensions } from "react-native";
 import { MeteoriteThumb } from "@/components/tissint/MeteoriteThumb";
+import { ResponsiveText as Text } from "@/components/ui/ResponsiveText";
 
 const DASH = {
   navy: "#1B4C66",
@@ -19,8 +20,8 @@ const scanGradient = ["#FF8228", "#F4C457"] as const;
 
 function useDashMetrics() {
   const { width, height } = useWindowDimensions();
-  const sx = width / 360;
-  const sy = height / 800;
+  const sx = Math.min(width / 360, 1);
+  const sy = Math.min(height / 800, 1);
   const s = Math.min(sx, sy);
   return {
     width,

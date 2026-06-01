@@ -3,15 +3,9 @@ import * as ImageManipulator from "expo-image-manipulator";
 import { router } from "expo-router";
 import { Camera, Check, ChevronRight, Scale, Settings2, Sparkles } from "lucide-react-native";
 import { useRef, useState } from "react";
-import {
-  ActivityIndicator,
-  Pressable,
-  StyleSheet,
-  Text,
-  View,
-  useWindowDimensions,
-} from "react-native";
+import { ActivityIndicator, Pressable, StyleSheet, View, useWindowDimensions } from "react-native";
 import type { MobileImageFile } from "@tissint/api-client";
+import { ResponsiveText as Text } from "@/components/ui/ResponsiveText";
 import { scanExterior } from "@/lib/api";
 import { getOrCreateDeviceId } from "@/lib/device-id";
 import { useScanStore } from "@/store/scan-store";
@@ -42,8 +36,8 @@ const UI = {
 
 function useMetrics() {
   const { width, height } = useWindowDimensions();
-  const sx = width / 360;
-  const sy = height / 800;
+  const sx = Math.min(width / 360, 1);
+  const sy = Math.min(height / 800, 1);
   const s = Math.min(sx, sy);
   return {
     width,

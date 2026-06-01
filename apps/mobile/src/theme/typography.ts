@@ -61,15 +61,19 @@ export const typography = {
   weights: fontWeights,
 } as const;
 
-export function fontFamilyForWeight(weight: NonNullable<TextStyle["fontWeight"]>) {
+export function fontFamilyForWeight(weight?: TextStyle["fontWeight"]) {
+  const normalizedWeight = String(weight ?? fontWeights.regular);
   return Platform.select({
     web: fontFamilies.webDisplay,
     default:
-      weight === fontWeights.black
+      normalizedWeight === fontWeights.black || normalizedWeight === "900"
         ? fontFamilies.tajawalBlack
-        : weight === fontWeights.bold || weight === fontWeights.semibold
+        : normalizedWeight === fontWeights.bold ||
+            normalizedWeight === fontWeights.semibold ||
+            normalizedWeight === "800" ||
+            normalizedWeight === "bold"
           ? fontFamilies.tajawalBold
-          : weight === fontWeights.medium
+          : normalizedWeight === fontWeights.medium
             ? fontFamilies.tajawalMedium
             : fontFamilies.tajawalRegular,
   });

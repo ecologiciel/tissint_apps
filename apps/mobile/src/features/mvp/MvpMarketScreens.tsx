@@ -40,11 +40,13 @@ import {
   Pressable,
   ScrollView,
   StyleSheet,
-  Text,
-  TextInput,
   View,
   useWindowDimensions,
 } from "react-native";
+import {
+  ResponsiveText as Text,
+  ResponsiveTextInput as TextInput,
+} from "@/components/ui/ResponsiveText";
 import { MvpEmptyActionScreen } from "@/features/mvp/MvpEmptyState";
 import { createListing, getListing, listMarketplace } from "@/lib/api";
 import { isHttpApiEnabled } from "@/lib/env";
@@ -127,8 +129,8 @@ const MARKET_PROTOTYPE: PrototypeMarketListing[] = [
 
 function useMvpMetrics() {
   const { width, height } = useWindowDimensions();
-  const sx = width / 360;
-  const sy = height / 800;
+  const sx = Math.min(width / 360, 1);
+  const sy = Math.min(height / 800, 1);
   const s = Math.min(sx, sy);
   return {
     width,

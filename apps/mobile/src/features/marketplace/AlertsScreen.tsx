@@ -1,11 +1,12 @@
 import { router } from "expo-router";
 import { Bell, Lock, Plus, Trash2 } from "lucide-react-native";
 import { useState } from "react";
-import { Pressable, StyleSheet, TextInput, View } from "react-native";
+import { Pressable, StyleSheet, View } from "react-native";
 import { AppText } from "@/components/ui/AppText";
 import { Badge } from "@/components/ui/Badge";
 import { Button } from "@/components/ui/Button";
 import { Card } from "@/components/ui/Card";
+import { ResponsiveTextInput as TextInput } from "@/components/ui/ResponsiveText";
 import { Screen } from "@/components/ui/Screen";
 import { createAlert } from "@/lib/api";
 import { useEngagementStore } from "@/store/engagement-store";

@@ -12,15 +12,11 @@ import {
   GitCompare,
 } from "lucide-react-native";
 import type { ReactNode } from "react";
+import { Pressable, ScrollView, StyleSheet, View, useWindowDimensions } from "react-native";
 import {
-  Pressable,
-  ScrollView,
-  StyleSheet,
-  Text,
-  TextInput,
-  View,
-  useWindowDimensions,
-} from "react-native";
+  ResponsiveText as Text,
+  ResponsiveTextInput as TextInput,
+} from "@/components/ui/ResponsiveText";
 import { MeteoriteThumb } from "@/components/tissint/MeteoriteThumb";
 import {
   DEMO_COLLECTION,
@@ -43,8 +39,8 @@ const gradient = ["#FF7A2A", "#F7C75E"] as const;
 
 function useMvpMetrics() {
   const { width, height } = useWindowDimensions();
-  const sx = width / 360;
-  const sy = height / 800;
+  const sx = Math.min(width / 360, 1);
+  const sy = Math.min(height / 800, 1);
   const s = Math.min(sx, sy);
   return {
     x: (value: number) => value * sx,

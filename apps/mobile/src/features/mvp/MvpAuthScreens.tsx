@@ -22,13 +22,15 @@ import {
   ActivityIndicator,
   Pressable,
   StyleSheet,
-  Text,
-  TextInput,
   View,
   useWindowDimensions,
   type KeyboardTypeOptions,
   type TextInputProps,
 } from "react-native";
+import {
+  ResponsiveText as Text,
+  ResponsiveTextInput as TextInput,
+} from "@/components/ui/ResponsiveText";
 import { setApiAccessToken } from "@/lib/api";
 import { authErrorMessage, loginWithCredentials, registerAccount } from "@/lib/auth";
 import { saveSession } from "@/lib/session-storage";
@@ -56,8 +58,8 @@ const iconGradient = ["#FF8A2B", "#F7C75E"] as const;
 
 function useMvpMetrics() {
   const { width, height } = useWindowDimensions();
-  const sx = width / 360;
-  const sy = height / 800;
+  const sx = Math.min(width / 360, 1);
+  const sy = Math.min(height / 800, 1);
   const s = Math.min(sx, sy);
   return {
     width,
