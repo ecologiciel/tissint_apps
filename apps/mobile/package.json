@@ -12,6 +12,8 @@
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {
+    "@expo-google-fonts/noto-sans-arabic": "^0.4.3",
+    "@expo-google-fonts/tajawal": "^0.4.1",
     "@tanstack/react-query": "5.100.14",
     "@tissint/api-client": "0.1.0",
     "@tissint/shared": "0.1.0",
@@ -20,6 +22,7 @@
     "expo-camera": "56.0.7",
     "expo-crypto": "56.0.4",
     "expo-device": "56.0.4",
+    "expo-font": "~56.0.5",
     "expo-image-manipulator": "^56.0.16",
     "expo-linear-gradient": "^56.0.4",
     "expo-localization": "56.0.6",

@@ -1,22 +1,24 @@
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import { useFonts } from "expo-font";
 import { Redirect, Stack, usePathname } from "expo-router";
 import { useEffect, useState, type ReactNode } from "react";
 import { ActivityIndicator, StatusBar, StyleSheet, View } from "react-native";
 import { SafeAreaProvider } from "react-native-safe-area-context";
+import { AppText } from "@/components/ui/AppText";
 import { Button } from "@/components/ui/Button";
 import { Card } from "@/components/ui/Card";
-import { AppText } from "@/components/ui/AppText";
 import { ResponsiveViewport } from "@/components/ui/ResponsiveViewport";
 import { ensureRtl } from "@/i18n";
 import { restoreAuthenticatedSession } from "@/lib/auth";
 import { getConfigurationIssue } from "@/lib/env";
 import { useSessionStore } from "@/store/session-store";
-import { colors, spacing } from "@/theme";
+import { appFontAssets, colors, spacing } from "@/theme";
 
 export function AppProviders({ children }: { children: ReactNode }) {
   const setSession = useSessionStore((state) => state.setSession);
   const setBooted = useSessionStore((state) => state.setBooted);
   const configurationIssue = getConfigurationIssue();
+  const [fontsLoaded, fontError] = useFonts(appFontAssets);
   const [client] = useState(
     () =>
       new QueryClient({
@@ -65,7 +67,9 @@ export function AppProviders({ children }: { children: ReactNode }) {
       <QueryClientProvider client={client}>
         <ResponsiveViewport>
           <StatusBar hidden barStyle="light-content" backgroundColor="#1C2024" />
-          {configurationIssue ? (
+          {!fontsLoaded && !fontError ? (
+            <BootScreen />
+          ) : configurationIssue ? (
             <ConfigurationErrorScreen message={configurationIssue} />
           ) : (
             <RouteAccessGate>{children}</RouteAccessGate>
@@ -144,7 +148,7 @@ function ConfigurationErrorScreen({ message }: { message: string }) {
         <AppText variant="body" color={colors.textMuted} style={styles.configText}>
           {message}
         </AppText>
-        <Button tone="dark">راجِع ملف البيئة</Button>
+        <Button tone="dark">راجع ملف البيئة</Button>
       </Card>
     </View>
   );
