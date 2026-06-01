@@ -1,5 +1,5 @@
-import * as SecureStore from "expo-secure-store";
 import type { AuthSession } from "@tissint/shared";
+import { deleteStoredValue, getStoredValue, setStoredValue } from "./storage-adapter";
 
 const SESSION_KEY = "tissint.auth_session.v1";
 
@@ -14,17 +14,11 @@ function withoutPersistedAccessToken(session: AuthSession): AuthSession {
 }
 
 export async function saveSession(session: AuthSession): Promise<void> {
-  await SecureStore.setItemAsync(
-    SESSION_KEY,
-    JSON.stringify(withoutPersistedAccessToken(session)),
-    {
-      keychainAccessible: SecureStore.WHEN_UNLOCKED_THIS_DEVICE_ONLY,
-    },
-  );
+  await setStoredValue(SESSION_KEY, JSON.stringify(withoutPersistedAccessToken(session)));
 }
 
 export async function loadSession(): Promise<AuthSession | null> {
-  const raw = await SecureStore.getItemAsync(SESSION_KEY);
+  const raw = await getStoredValue(SESSION_KEY);
   if (!raw) return null;
   try {
     return JSON.parse(raw) as AuthSession;
@@ -35,5 +29,5 @@ export async function loadSession(): Promise<AuthSession | null> {
 }
 
 export async function clearSavedSession(): Promise<void> {
-  await SecureStore.deleteItemAsync(SESSION_KEY);
+  await deleteStoredValue(SESSION_KEY);
 }
