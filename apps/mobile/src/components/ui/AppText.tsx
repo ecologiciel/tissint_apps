@@ -1,6 +1,16 @@
 import type { ReactNode } from "react";
-import { StyleSheet, Text, type TextStyle } from "react-native";
-import { colors } from "@/theme";
+import { StyleSheet, Text, type StyleProp, type TextStyle } from "react-native";
+import {
+  arabicTextBase,
+  colors,
+  legacyTextVariantMap,
+  textVariants,
+  typography,
+  type TextVariant,
+} from "@/theme";
+
+type LegacyTextVariant = "title" | "subtitle";
+type AppTextVariant = TextVariant | "title" | "subtitle";
 
 export function AppText({
   children,
@@ -8,52 +18,36 @@ export function AppText({
   color,
   style,
   numberOfLines,
+  maxFontSizeMultiplier = typography.maxFontSizeMultiplier,
 }: {
   children: ReactNode;
-  variant?: "hero" | "title" | "subtitle" | "body" | "caption";
+  variant?: AppTextVariant;
   color?: string;
-  style?: TextStyle;
+  style?: StyleProp<TextStyle>;
   numberOfLines?: number;
+  maxFontSizeMultiplier?: number;
 }) {
+  const resolvedVariant = resolveVariant(variant);
   return (
     <Text
+      maxFontSizeMultiplier={maxFontSizeMultiplier}
       numberOfLines={numberOfLines}
-      style={[styles.base, styles[variant], color ? { color } : null, style]}
+      style={[styles.base, textVariants[resolvedVariant], color ? { color } : null, style]}
     >
       {children}
     </Text>
   );
 }
 
+function resolveVariant(variant: AppTextVariant): TextVariant {
+  return variant in legacyTextVariantMap
+    ? legacyTextVariantMap[variant as LegacyTextVariant]
+    : (variant as TextVariant);
+}
+
 const styles = StyleSheet.create({
   base: {
+    ...arabicTextBase,
     color: colors.text,
-    textAlign: "right",
-    writingDirection: "rtl",
-  },
-  hero: {
-    fontSize: 30,
-    lineHeight: 38,
-    fontWeight: "900",
-  },
-  title: {
-    fontSize: 22,
-    lineHeight: 30,
-    fontWeight: "800",
-  },
-  subtitle: {
-    fontSize: 16,
-    lineHeight: 24,
-    fontWeight: "700",
-  },
-  body: {
-    fontSize: 14,
-    lineHeight: 22,
-    fontWeight: "500",
-  },
-  caption: {
-    fontSize: 12,
-    lineHeight: 18,
-    color: colors.textMuted,
   },
 });

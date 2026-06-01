@@ -2,7 +2,7 @@ import type { ReactNode } from "react";
 import { ActivityIndicator, Pressable, StyleSheet, View } from "react-native";
 import type { LucideIcon } from "lucide-react-native";
 import { AppText } from "./AppText";
-import { colors, radius, spacing } from "@/theme";
+import { colors, fontWeights, radius, spacing } from "@/theme";
 
 type ButtonTone = "primary" | "secondary" | "dark" | "ghost" | "danger";
 
@@ -37,7 +37,7 @@ export function Button({
       <View style={styles.inner}>
         {loading ? <ActivityIndicator color={palette.foreground} /> : null}
         {!loading && Icon ? <Icon color={palette.foreground} size={18} /> : null}
-        <AppText style={styles.label} color={palette.foreground}>
+        <AppText variant="button" style={styles.label} color={palette.foreground}>
           {children}
         </AppText>
       </View>
@@ -69,7 +69,7 @@ const styles = StyleSheet.create({
     gap: spacing.sm,
   },
   label: {
-    fontWeight: "800",
+    fontWeight: fontWeights.bold,
     textAlign: "center",
   },
   pressed: {

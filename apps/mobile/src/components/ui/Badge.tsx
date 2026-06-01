@@ -1,6 +1,6 @@
 import { StyleSheet, View } from "react-native";
 import { AppText } from "./AppText";
-import { colors, radius, spacing } from "@/theme";
+import { colors, fontWeights, radius, spacing } from "@/theme";
 
 export function Badge({
   label,
@@ -35,6 +35,6 @@ const styles = StyleSheet.create({
     paddingVertical: spacing.xs,
   },
   label: {
-    fontWeight: "800",
+    fontWeight: fontWeights.bold,
   },
 });

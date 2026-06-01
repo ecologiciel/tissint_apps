@@ -6,6 +6,7 @@ import { SafeAreaProvider } from "react-native-safe-area-context";
 import { Button } from "@/components/ui/Button";
 import { Card } from "@/components/ui/Card";
 import { AppText } from "@/components/ui/AppText";
+import { ResponsiveViewport } from "@/components/ui/ResponsiveViewport";
 import { ensureRtl } from "@/i18n";
 import { restoreAuthenticatedSession } from "@/lib/auth";
 import { getConfigurationIssue } from "@/lib/env";
@@ -62,12 +63,14 @@ export function AppProviders({ children }: { children: ReactNode }) {
   return (
     <SafeAreaProvider>
       <QueryClientProvider client={client}>
-        <StatusBar hidden barStyle="light-content" backgroundColor="#1C2024" />
-        {configurationIssue ? (
-          <ConfigurationErrorScreen message={configurationIssue} />
-        ) : (
-          <RouteAccessGate>{children}</RouteAccessGate>
-        )}
+        <ResponsiveViewport>
+          <StatusBar hidden barStyle="light-content" backgroundColor="#1C2024" />
+          {configurationIssue ? (
+            <ConfigurationErrorScreen message={configurationIssue} />
+          ) : (
+            <RouteAccessGate>{children}</RouteAccessGate>
+          )}
+        </ResponsiveViewport>
       </QueryClientProvider>
     </SafeAreaProvider>
   );
