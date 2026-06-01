@@ -17,6 +17,8 @@ dist-ssr
 .expo
 apps/mobile/.expo
 apps/mobile/.expo-export*/
+.env
+**/.env
 *.local
 
 # Wrangler / Cloudflare

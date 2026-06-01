@@ -264,9 +264,7 @@ export function normalizeListing(payload: ServerListingItem): MarketplaceListing
   };
 }
 
-export function normalizeAdminRadarListing(
-  payload: ServerAdminRadarListing,
-): AdminRadarListing {
+export function normalizeAdminRadarListing(payload: ServerAdminRadarListing): AdminRadarListing {
   return {
     listingId: payload.listing_id,
     scanId: payload.scan_id,
@@ -335,8 +333,7 @@ export function normalizeSubscription(payload: ServerSubscriptionResponse): Subs
     status: normalizeSubscriptionStatus(payload.status),
     role: normalizeUserRole(payload.role),
     provider: payload.provider ? (payload.provider as Subscription["provider"]) : undefined,
-    plan:
-      payload.plan === "monthly" || payload.plan === "yearly" ? payload.plan : undefined,
+    plan: payload.plan === "monthly" || payload.plan === "yearly" ? payload.plan : undefined,
     renewsAt: payload.renews_at ?? undefined,
     cancelsAt: payload.cancels_at ?? undefined,
   };

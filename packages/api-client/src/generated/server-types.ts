@@ -2,310 +2,310 @@
 // Do not edit by hand. Update docs/openapi.json, then regenerate.
 
 export type AdminActionResponse = {
-  "status": string;
-  "message": string;
-  "listing": AdminRadarListingResponse;
+  status: string;
+  message: string;
+  listing: AdminRadarListingResponse;
 };
 
 export type AdminListingActionInput = {
-  "reason"?: string | null;
+  reason?: string | null;
 };
 
 export type AdminRadarListingResponse = {
-  "listing_id": string;
-  "scan_id": string;
-  "status": string;
-  "dominant_class": string;
-  "confidence": number;
-  "meteorite_probability": number;
-  "price": number;
-  "price_mode"?: string;
-  "title"?: string | null;
-  "description"?: string | null;
-  "region"?: string | null;
-  "weight"?: number | null;
-  "magnetic"?: boolean | null;
-  "latitude"?: number | null;
-  "longitude"?: number | null;
-  "is_rare"?: boolean;
-  "hold_until"?: string | null;
-  "created_at"?: string | null;
-  "seller_user_id"?: string | null;
-  "seller_name"?: string | null;
-  "seller_phone"?: string | null;
-  "seller_email"?: string | null;
-  "seller_verified"?: boolean;
+  listing_id: string;
+  scan_id: string;
+  status: string;
+  dominant_class: string;
+  confidence: number;
+  meteorite_probability: number;
+  price: number;
+  price_mode?: string;
+  title?: string | null;
+  description?: string | null;
+  region?: string | null;
+  weight?: number | null;
+  magnetic?: boolean | null;
+  latitude?: number | null;
+  longitude?: number | null;
+  is_rare?: boolean;
+  hold_until?: string | null;
+  created_at?: string | null;
+  seller_user_id?: string | null;
+  seller_name?: string | null;
+  seller_phone?: string | null;
+  seller_email?: string | null;
+  seller_verified?: boolean;
 };
 
 export type ApiError = {
-  "code": string;
-  "message": string;
-  "details"?: unknown | null;
+  code: string;
+  message: string;
+  details?: unknown | null;
 };
 
 export type ApiErrorResponse = {
-  "status_code"?: string;
-  "error": ApiError;
+  status_code?: string;
+  error: ApiError;
 };
 
 export type AuditLogResponse = {
-  "id": string;
-  "actor_user_id": string;
-  "action": string;
-  "entity_type": string;
-  "entity_id": string;
-  "metadata"?: unknown | null;
-  "created_at": string;
+  id: string;
+  actor_user_id: string;
+  action: string;
+  entity_type: string;
+  entity_id: string;
+  metadata?: unknown | null;
+  created_at: string;
 };
 
 export type AuthResponse = {
-  "access_token": string;
-  "refresh_token"?: string;
-  "expires_at": string;
-  "user": AuthUserResponse;
-  "quota": QuotaResponse;
+  access_token: string;
+  refresh_token?: string;
+  expires_at: string;
+  user: AuthUserResponse;
+  quota: QuotaResponse;
 };
 
 export type AuthUserResponse = {
-  "id": string;
-  "first_name"?: string | null;
-  "last_name"?: string | null;
-  "phone"?: string | null;
-  "email"?: string | null;
-  "role": string;
-  "premium_expires_at"?: string | null;
+  id: string;
+  first_name?: string | null;
+  last_name?: string | null;
+  phone?: string | null;
+  email?: string | null;
+  role: string;
+  premium_expires_at?: string | null;
 };
 
 export type BillingCheckoutInput = {
-  "plan"?: string;
-  "provider"?: string;
-  "return_url"?: string | null;
+  plan?: string;
+  provider?: string;
+  return_url?: string | null;
 };
 
 export type BillingWebhookResponse = {
-  "status": string;
-  "processed": boolean;
-  "event_id": string;
-  "subscription"?: SubscriptionResponse | null;
+  status: string;
+  processed: boolean;
+  event_id: string;
+  subscription?: SubscriptionResponse | null;
 };
 
 export type Body_scan_exterior_api_v1_scan_exterior_post = {
-  "client_uuid": string;
-  "files_exterior": string[];
-  "file_interior"?: string | null;
-  "weight"?: number | null;
-  "magnetic"?: boolean | null;
-  "latitude"?: number | null;
-  "longitude"?: number | null;
-  "user_id": string;
+  client_uuid: string;
+  files_exterior: string[];
+  file_interior?: string | null;
+  weight?: number | null;
+  magnetic?: boolean | null;
+  latitude?: number | null;
+  longitude?: number | null;
+  user_id: string;
 };
 
 export type Body_scan_interior_update_api_v1_scan__scan_id__interior_patch = {
-  "file_interior": string;
+  file_interior: string;
 };
 
 export type CheckoutSessionResponse = {
-  "id": string;
-  "provider": string;
-  "checkout_url"?: string | null;
-  "amount_dh": number;
-  "currency"?: string;
-  "expires_at"?: string | null;
-  "status"?: string;
+  id: string;
+  provider: string;
+  checkout_url?: string | null;
+  amount_dh: number;
+  currency?: string;
+  expires_at?: string | null;
+  status?: string;
 };
 
 export type CollectionItemResponse = {
-  "id": string;
-  "scan_id": string;
-  "class_name": string;
-  "fusion_score": number;
-  "status": string;
-  "created_at": string;
-  "main_image_uri"?: string | null;
-  "meteorite_probability"?: number | null;
+  id: string;
+  scan_id: string;
+  class_name: string;
+  fusion_score: number;
+  status: string;
+  created_at: string;
+  main_image_uri?: string | null;
+  meteorite_probability?: number | null;
 };
 
 export type CreateMessageInput = {
-  "conversation_id": string;
-  "sender_id": string;
-  "receiver_id": string;
-  "text_content": string;
+  conversation_id: string;
+  sender_id: string;
+  receiver_id: string;
+  text_content: string;
 };
 
 export type HealthResponse = {
-  "status": string;
-  "service": string;
-  "database": string;
+  status: string;
+  service: string;
+  database: string;
 };
 
 export type InvoiceResponse = {
-  "id": string;
-  "number": string;
-  "amount_dh": number;
-  "vat_dh"?: number | null;
-  "total_dh": number;
-  "status": string;
-  "created_at": string;
-  "download_url"?: string | null;
+  id: string;
+  number: string;
+  amount_dh: number;
+  vat_dh?: number | null;
+  total_dh: number;
+  status: string;
+  created_at: string;
+  download_url?: string | null;
 };
 
 export type LoginInput = {
-  "phone_or_email": string;
-  "password": string;
-  "device_id"?: string | null;
+  phone_or_email: string;
+  password: string;
+  device_id?: string | null;
 };
 
 export type LogoutInput = {
-  "refresh_token"?: string | null;
+  refresh_token?: string | null;
 };
 
 export type MarketplaceListingResponse = {
-  "status": string;
-  "message": string;
-  "listing_id": string;
-  "scan_id": string;
-  "is_rare_candidate": boolean;
-  "dominant_class": string;
-  "confidence": number;
-  "price": number;
-  "price_mode"?: string;
-  "title"?: string | null;
-  "description"?: string | null;
-  "region"?: string | null;
-  "weight"?: number | null;
-  "magnetic"?: boolean | null;
-  "blurred_latitude"?: number | null;
-  "blurred_longitude"?: number | null;
-  "contact_locked_until"?: string | null;
+  status: string;
+  message: string;
+  listing_id: string;
+  scan_id: string;
+  is_rare_candidate: boolean;
+  dominant_class: string;
+  confidence: number;
+  price: number;
+  price_mode?: string;
+  title?: string | null;
+  description?: string | null;
+  region?: string | null;
+  weight?: number | null;
+  magnetic?: boolean | null;
+  blurred_latitude?: number | null;
+  blurred_longitude?: number | null;
+  contact_locked_until?: string | null;
 };
 
 export type MessageResponse = {
-  "id": string;
-  "conversation_id": string;
-  "sender_id": string;
-  "receiver_id": string;
-  "text_content": string;
-  "timestamp": string;
+  id: string;
+  conversation_id: string;
+  sender_id: string;
+  receiver_id: string;
+  text_content: string;
+  timestamp: string;
 };
 
 export type PublicListingItem = {
-  "listing_id": string;
-  "scan_id": string;
-  "price": number;
-  "status": string;
-  "dominant_class": string;
-  "confidence": number;
-  "weight": number | null;
-  "blurred_latitude": number | null;
-  "blurred_longitude": number | null;
-  "is_rare"?: boolean;
-  "price_mode"?: string;
-  "created_at"?: string | null;
-  "title"?: string | null;
-  "description"?: string | null;
-  "region"?: string | null;
-  "seller_masked_name"?: string | null;
-  "seller_name"?: string | null;
-  "seller_phone"?: string | null;
-  "seller_whatsapp"?: string | null;
-  "seller_verified"?: boolean;
-  "can_contact"?: boolean;
-  "contact_lock_reason"?: string | null;
-  "contact_locked_until"?: string | null;
+  listing_id: string;
+  scan_id: string;
+  price: number;
+  status: string;
+  dominant_class: string;
+  confidence: number;
+  weight: number | null;
+  blurred_latitude: number | null;
+  blurred_longitude: number | null;
+  is_rare?: boolean;
+  price_mode?: string;
+  created_at?: string | null;
+  title?: string | null;
+  description?: string | null;
+  region?: string | null;
+  seller_masked_name?: string | null;
+  seller_name?: string | null;
+  seller_phone?: string | null;
+  seller_whatsapp?: string | null;
+  seller_verified?: boolean;
+  can_contact?: boolean;
+  contact_lock_reason?: string | null;
+  contact_locked_until?: string | null;
 };
 
 export type PublishListingInput = {
-  "price"?: number | null;
-  "title"?: string | null;
-  "description"?: string | null;
-  "price_mode"?: string;
-  "region"?: string | null;
+  price?: number | null;
+  title?: string | null;
+  description?: string | null;
+  price_mode?: string;
+  region?: string | null;
 };
 
 export type QuotaResponse = {
-  "role": string;
-  "daily_limit": number;
-  "remaining_today": number;
-  "resets_at"?: string | null;
+  role: string;
+  daily_limit: number;
+  remaining_today: number;
+  resets_at?: string | null;
 };
 
 export type RefreshTokenInput = {
-  "refresh_token": string;
+  refresh_token: string;
 };
 
 export type RegisterInput = {
-  "first_name": string;
-  "last_name": string;
-  "phone": string;
-  "email"?: string | null;
-  "password": string;
-  "desired_role"?: string;
-  "device_id"?: string | null;
+  first_name: string;
+  last_name: string;
+  phone: string;
+  email?: string | null;
+  password: string;
+  desired_role?: string;
+  device_id?: string | null;
 };
 
 export type ScanActions = {
-  "add_to_collection": boolean;
-  "enable_marketplace_button": boolean;
-  "invite_interior_cut": boolean;
+  add_to_collection: boolean;
+  enable_marketplace_button: boolean;
+  invite_interior_cut: boolean;
 };
 
 export type ScanDecisionResponse = {
-  "status_code": string;
-  "is_meteorite": boolean;
-  "meteorite_probability": number;
-  "dominant_class": string;
-  "class_confidence": number;
-  "actions": ScanActions;
-  "trigger_radar_admin": boolean;
-  "metadata_applied": ScanMetadataApplied;
-  "scan_id": string;
-  "is_sync_retry"?: boolean;
+  status_code: string;
+  is_meteorite: boolean;
+  meteorite_probability: number;
+  dominant_class: string;
+  class_confidence: number;
+  actions: ScanActions;
+  trigger_radar_admin: boolean;
+  metadata_applied: ScanMetadataApplied;
+  scan_id: string;
+  is_sync_retry?: boolean;
 };
 
 export type ScanMetadataApplied = {
-  "weight_provided": boolean;
-  "magnetic_status"?: boolean | null;
-  "has_coordinates": boolean;
+  weight_provided: boolean;
+  magnetic_status?: boolean | null;
+  has_coordinates: boolean;
 };
 
 export type SubscriptionResponse = {
-  "status": string;
-  "role": string;
-  "provider"?: string | null;
-  "plan"?: string | null;
-  "renews_at"?: string | null;
-  "cancels_at"?: string | null;
+  status: string;
+  role: string;
+  provider?: string | null;
+  plan?: string | null;
+  renews_at?: string | null;
+  cancels_at?: string | null;
 };
 
 export type ApiSchemas = {
-  "AdminActionResponse": AdminActionResponse;
-  "AdminListingActionInput": AdminListingActionInput;
-  "AdminRadarListingResponse": AdminRadarListingResponse;
-  "ApiError": ApiError;
-  "ApiErrorResponse": ApiErrorResponse;
-  "AuditLogResponse": AuditLogResponse;
-  "AuthResponse": AuthResponse;
-  "AuthUserResponse": AuthUserResponse;
-  "BillingCheckoutInput": BillingCheckoutInput;
-  "BillingWebhookResponse": BillingWebhookResponse;
-  "Body_scan_exterior_api_v1_scan_exterior_post": Body_scan_exterior_api_v1_scan_exterior_post;
-  "Body_scan_interior_update_api_v1_scan__scan_id__interior_patch": Body_scan_interior_update_api_v1_scan__scan_id__interior_patch;
-  "CheckoutSessionResponse": CheckoutSessionResponse;
-  "CollectionItemResponse": CollectionItemResponse;
-  "CreateMessageInput": CreateMessageInput;
-  "HealthResponse": HealthResponse;
-  "InvoiceResponse": InvoiceResponse;
-  "LoginInput": LoginInput;
-  "LogoutInput": LogoutInput;
-  "MarketplaceListingResponse": MarketplaceListingResponse;
-  "MessageResponse": MessageResponse;
-  "PublicListingItem": PublicListingItem;
-  "PublishListingInput": PublishListingInput;
-  "QuotaResponse": QuotaResponse;
-  "RefreshTokenInput": RefreshTokenInput;
-  "RegisterInput": RegisterInput;
-  "ScanActions": ScanActions;
-  "ScanDecisionResponse": ScanDecisionResponse;
-  "ScanMetadataApplied": ScanMetadataApplied;
-  "SubscriptionResponse": SubscriptionResponse;
+  AdminActionResponse: AdminActionResponse;
+  AdminListingActionInput: AdminListingActionInput;
+  AdminRadarListingResponse: AdminRadarListingResponse;
+  ApiError: ApiError;
+  ApiErrorResponse: ApiErrorResponse;
+  AuditLogResponse: AuditLogResponse;
+  AuthResponse: AuthResponse;
+  AuthUserResponse: AuthUserResponse;
+  BillingCheckoutInput: BillingCheckoutInput;
+  BillingWebhookResponse: BillingWebhookResponse;
+  Body_scan_exterior_api_v1_scan_exterior_post: Body_scan_exterior_api_v1_scan_exterior_post;
+  Body_scan_interior_update_api_v1_scan__scan_id__interior_patch: Body_scan_interior_update_api_v1_scan__scan_id__interior_patch;
+  CheckoutSessionResponse: CheckoutSessionResponse;
+  CollectionItemResponse: CollectionItemResponse;
+  CreateMessageInput: CreateMessageInput;
+  HealthResponse: HealthResponse;
+  InvoiceResponse: InvoiceResponse;
+  LoginInput: LoginInput;
+  LogoutInput: LogoutInput;
+  MarketplaceListingResponse: MarketplaceListingResponse;
+  MessageResponse: MessageResponse;
+  PublicListingItem: PublicListingItem;
+  PublishListingInput: PublishListingInput;
+  QuotaResponse: QuotaResponse;
+  RefreshTokenInput: RefreshTokenInput;
+  RegisterInput: RegisterInput;
+  ScanActions: ScanActions;
+  ScanDecisionResponse: ScanDecisionResponse;
+  ScanMetadataApplied: ScanMetadataApplied;
+  SubscriptionResponse: SubscriptionResponse;
 };

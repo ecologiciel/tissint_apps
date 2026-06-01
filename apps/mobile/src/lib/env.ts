@@ -5,6 +5,7 @@ const rawApiMode = process.env.EXPO_PUBLIC_TISSINT_API_MODE ?? "mock";
 const rawRuntimeEnvironment =
   process.env.EXPO_PUBLIC_TISSINT_ENV ?? (__DEV__ ? "development" : "production");
 const apiBaseUrl = (process.env.EXPO_PUBLIC_TISSINT_API_BASE_URL ?? "").trim().replace(/\/+$/, "");
+const allowInsecureHttp = process.env.EXPO_PUBLIC_TISSINT_ALLOW_INSECURE_HTTP === "true";
 
 function normalizeApiMode(value: string): ApiMode {
   return value === "http" || value === "mock" ? value : "mock";
@@ -19,6 +20,7 @@ export const env = {
   runtimeEnvironment: normalizeRuntimeEnvironment(rawRuntimeEnvironment),
   apiMode: normalizeApiMode(rawApiMode),
   apiBaseUrl,
+  allowInsecureHttp,
   // Public app keys are allowed only for non-secret gateway identifiers.
   // Never put backend secrets in EXPO_PUBLIC_* variables.
   apiKey: process.env.EXPO_PUBLIC_TISSINT_API_KEY?.trim() ?? "",
@@ -43,6 +45,10 @@ export function getConfigurationIssue(): string | null {
     return "EXPO_PUBLIC_TISSINT_API_BASE_URL est obligatoire lorsque l'API HTTP est active.";
   }
 
+  if (!env.apiKey) {
+    return "EXPO_PUBLIC_TISSINT_API_KEY est obligatoire pour le backend Tissint actuel. Recupere-la dans /opt/tissint/backend/.env cote serveur.";
+  }
+
   const isLocalhost =
     env.apiBaseUrl.startsWith("http://127.0.0.1") ||
     env.apiBaseUrl.startsWith("http://localhost") ||
@@ -55,7 +61,9 @@ export function getConfigurationIssue(): string | null {
   }
 
   if (!requiresHttps && !env.apiBaseUrl.startsWith("https://") && !isLocalhost) {
-    return "En developpement, l'API HTTP doit cibler localhost/10.0.2.2 ou HTTPS.";
+    if (!env.allowInsecureHttp) {
+      return "En developpement, l'API HTTP externe exige EXPO_PUBLIC_TISSINT_ALLOW_INSECURE_HTTP=true.";
+    }
   }
 
   return null;

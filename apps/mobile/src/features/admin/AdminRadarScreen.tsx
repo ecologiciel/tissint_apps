@@ -1,6 +1,13 @@
 import { useCallback, useEffect, useState } from "react";
 import { router } from "expo-router";
-import { ArrowRight, CheckCircle, RefreshCw, Send, ShieldAlert, XCircle } from "lucide-react-native";
+import {
+  ArrowRight,
+  CheckCircle,
+  RefreshCw,
+  Send,
+  ShieldAlert,
+  XCircle,
+} from "lucide-react-native";
 import { ActivityIndicator, ScrollView, StyleSheet, View } from "react-native";
 import { Badge } from "@/components/ui/Badge";
 import { Button } from "@/components/ui/Button";
@@ -46,10 +53,7 @@ export function AdminRadarScreen() {
     void refresh();
   }, [refresh]);
 
-  async function runAction(
-    listing: AdminRadarListing,
-    action: "reserve" | "release" | "reject",
-  ) {
+  async function runAction(listing: AdminRadarListing, action: "reserve" | "release" | "reject") {
     setActionId(`${action}:${listing.listingId}`);
     setError(null);
     try {
@@ -127,12 +131,7 @@ export function AdminRadarScreen() {
 
       <ScrollView contentContainerStyle={styles.list}>
         {items.map((item) => (
-          <RadarCard
-            key={item.listingId}
-            item={item}
-            actionId={actionId}
-            onAction={runAction}
-          />
+          <RadarCard key={item.listingId} item={item} actionId={actionId} onAction={runAction} />
         ))}
 
         {audit.length > 0 ? (

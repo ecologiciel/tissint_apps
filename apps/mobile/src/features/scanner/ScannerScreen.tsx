@@ -190,7 +190,7 @@ export function ScannerScreen() {
           ]}
         >
           <Text style={[styles.instructionText, { fontSize: m.z(13.5), lineHeight: m.z(22) }]}>
-            ضع الحجر داخل الإطار - أمامية
+            ضع الحجر داخل الإطار - {activeShot.label}
           </Text>
         </View>
 

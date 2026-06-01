@@ -136,12 +136,12 @@ function ConfigurationErrorScreen({ message }: { message: string }) {
     <View style={styles.configRoot}>
       <Card style={styles.configCard}>
         <AppText variant="title" color={colors.danger} style={styles.configTitle}>
-          إعداد الإنتاج غير مكتمل
+          إعداد الاتصال غير مكتمل
         </AppText>
         <AppText variant="body" color={colors.textMuted} style={styles.configText}>
           {message}
         </AppText>
-        <Button tone="dark">راجِع إعدادات EAS / env</Button>
+        <Button tone="dark">راجِع ملف البيئة</Button>
       </Card>
     </View>
   );
