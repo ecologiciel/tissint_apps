@@ -22,6 +22,18 @@
         "EXPO_PUBLIC_TISSINT_API_BASE_URL": "https://api-staging.tissint.ma"
       }
     },
+    "hostinger": {
+      "distribution": "internal",
+      "android": {
+        "buildType": "apk"
+      },
+      "env": {
+        "EXPO_PUBLIC_TISSINT_ENV": "development",
+        "EXPO_PUBLIC_TISSINT_API_MODE": "http",
+        "EXPO_PUBLIC_TISSINT_API_BASE_URL": "http://72.62.236.197:8000",
+        "EXPO_PUBLIC_TISSINT_ALLOW_INSECURE_HTTP": "true"
+      }
+    },
     "production": {
       "autoIncrement": true,
       "android": {
