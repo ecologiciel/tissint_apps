@@ -159,6 +159,16 @@ export function authErrorMessage(error: unknown, fallback: string): string {
     return error instanceof Error ? error.message : fallback;
   }
 
+  if (error.code === "NETWORK_ERROR") {
+    const healthUrl = env.apiBaseUrl ? `${env.apiBaseUrl}/health` : "";
+    if (env.apiBaseUrl.startsWith("http://")) {
+      return healthUrl
+        ? `تعذر الاتصال بالخادم. افتح ${healthUrl} من متصفح الهاتف. إذا فتح الرابط، أعد تثبيت نسخة APK Hostinger الأحدث.`
+        : "تعذر الاتصال بالخادم. تحقق من الشبكة وأعد تثبيت نسخة APK Hostinger الأحدث.";
+    }
+    return "تعذر الاتصال بالخادم. تحقق من الشبكة.";
+  }
+
   if (error.code === "UNAUTHORIZED") return "بيانات الدخول غير صحيحة.";
   if (error.code === "VALIDATION_ERROR") return "يرجى التحقق من المعلومات المدخلة.";
   if (error.code === "RATE_LIMITED") return "محاولات كثيرة. حاول مرة أخرى لاحقاً.";
