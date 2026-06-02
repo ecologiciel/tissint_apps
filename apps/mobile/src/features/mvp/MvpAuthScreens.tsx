@@ -376,6 +376,12 @@ function MvpInput({
   compact?: boolean;
 }) {
   const m = useMvpMetrics();
+  const isLtrInput =
+    keyboardType === "email-address" ||
+    keyboardType === "phone-pad" ||
+    keyboardType === "number-pad" ||
+    keyboardType === "decimal-pad" ||
+    keyboardType === "url";
   return (
     <View style={[styles.fieldBlock, { marginBottom: m.y(compact ? 9 : 13) }]}>
       <Text
@@ -411,7 +417,12 @@ function MvpInput({
           secureTextEntry={secureTextEntry}
           keyboardType={keyboardType}
           autoCapitalize="none"
-          style={[styles.textInput, { fontSize: m.z(15.5), lineHeight: m.z(22) }]}
+          textAlign={isLtrInput ? "left" : "right"}
+          style={[
+            styles.textInput,
+            isLtrInput ? styles.ltrTextInput : null,
+            { fontSize: m.z(15.5), lineHeight: m.z(22) },
+          ]}
         />
         {trailing}
         <Icon color={MVP.fieldIcon} size={m.z(18)} strokeWidth={2.2} />
@@ -1271,6 +1282,10 @@ const styles = StyleSheet.create({
     paddingVertical: 0,
     textAlign: "right",
     writingDirection: "rtl",
+  },
+  ltrTextInput: {
+    textAlign: "left",
+    writingDirection: "ltr",
   },
   forgotText: {
     color: MVP.orange,
