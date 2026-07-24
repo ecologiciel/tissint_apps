@@ -136,6 +136,14 @@ export class TissintClient {
     this.http = new HttpTransport(config);
   }
 
+  private resolveExpertMedia(item: ExpertQueueItem): ExpertQueueItem {
+    return {
+      ...item,
+      imageUrl: this.http.resolveUrl(item.imageUrl),
+      thumbnailUrl: this.http.resolveUrl(item.thumbnailUrl),
+    };
+  }
+
   async health(): Promise<HealthResponse> {
     return this.http.request<HealthResponse>("/health", { skipAuth: true });
   }
@@ -418,7 +426,7 @@ export class TissintClient {
     const payload = await this.http.request<Record<string, unknown> | null>(
       `/api/v1/expert/queue/next${query}`,
     );
-    return payload ? normalizeExpertQueueItem(payload) : null;
+    return payload ? this.resolveExpertMedia(normalizeExpertQueueItem(payload)) : null;
   }
 
   async annotateExpertItem(
@@ -443,7 +451,8 @@ export class TissintClient {
         }),
       },
     );
-    return normalizeExpertAnnotationResult(payload);
+    const result = normalizeExpertAnnotationResult(payload);
+    return { ...result, item: this.resolveExpertMedia(result.item) };
   }
 
   async releaseExpertItem(itemId: string): Promise<void> {

@@ -20,6 +20,12 @@ export class HttpTransport {
     this.timeoutMs = config.timeoutMs ?? 30000;
   }
 
+  resolveUrl(path?: string): string | undefined {
+    if (!path) return undefined;
+    if (/^https?:\/\//i.test(path)) return path;
+    return `${this.baseUrl}${path.startsWith("/") ? path : `/${path}`}`;
+  }
+
   async request<T>(path: string, init: TissintRequestInit = {}): Promise<T> {
     const { skipAuth, ...fetchInit } = init;
     const headers = new Headers(init.headers);
