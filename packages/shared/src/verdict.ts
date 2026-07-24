@@ -57,6 +57,7 @@ export function isPremiumRole(role: string): boolean {
 }
 
 export function quotaLimitForRole(role: string): number {
+  if (role === "expert") return 0;
   if (role === "premium" || role === "admin") return 10;
   return 5;
 }

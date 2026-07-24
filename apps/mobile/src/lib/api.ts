@@ -16,6 +16,13 @@ import {
   type CollectionItem,
   type CreateAlertRuleInput,
   type CreateListingInput,
+  type ExpertAnnotationInput,
+  type ExpertAnnotationResult,
+  type ExpertAudit,
+  type ExpertDataset,
+  type ExpertDatasetStats,
+  type ExpertExport,
+  type ExpertQueueItem,
   type FavoriteListing,
   type Invoice,
   type MarketplaceListing,
@@ -331,6 +338,57 @@ export async function rejectAdminListing(
 export async function listAuditLogs(): Promise<AuditLogEntry[]> {
   if (!isHttpApiEnabled()) return [];
   return tissintClient.listAuditLogs(50);
+}
+
+export async function listExpertDatasets(): Promise<ExpertDataset[]> {
+  if (!isHttpApiEnabled()) return [];
+  return tissintClient.listExpertDatasets();
+}
+
+export async function getExpertDatasetStats(datasetId: string): Promise<ExpertDatasetStats> {
+  if (!isHttpApiEnabled()) {
+    return {
+      datasetId,
+      counts: {},
+      labelCounts: {},
+      qualityCounts: {},
+    };
+  }
+  return tissintClient.getExpertDatasetStats(datasetId);
+}
+
+export async function getNextExpertItem(datasetId?: string): Promise<ExpertQueueItem | null> {
+  if (!isHttpApiEnabled()) return null;
+  return tissintClient.getNextExpertItem(datasetId);
+}
+
+export async function annotateExpertItem(
+  itemId: string,
+  input: ExpertAnnotationInput,
+): Promise<ExpertAnnotationResult> {
+  if (!isHttpApiEnabled()) {
+    throw new Error("Le mode expert nécessite une API serveur active.");
+  }
+  return tissintClient.annotateExpertItem(itemId, input);
+}
+
+export async function releaseExpertItem(itemId: string): Promise<void> {
+  if (!isHttpApiEnabled()) return;
+  return tissintClient.releaseExpertItem(itemId);
+}
+
+export async function createExpertAudit(datasetId: string, modelVersion = "trio-v1"): Promise<ExpertAudit> {
+  if (!isHttpApiEnabled()) {
+    throw new Error("Le mode expert nécessite une API serveur active.");
+  }
+  return tissintClient.createExpertAudit({ datasetId, modelVersion });
+}
+
+export async function createExpertExport(datasetId: string, version?: string): Promise<ExpertExport> {
+  if (!isHttpApiEnabled()) {
+    throw new Error("Le mode expert nécessite une API serveur active.");
+  }
+  return tissintClient.createExpertExport({ datasetId, version });
 }
 
 export async function createCheckout(input: CheckoutInput): Promise<CheckoutSession> {

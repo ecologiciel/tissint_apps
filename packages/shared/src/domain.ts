@@ -1,4 +1,4 @@
-export type UserRole = "guest" | "free" | "premium" | "admin";
+export type UserRole = "guest" | "free" | "premium" | "expert" | "admin";
 
 export type SupportedLocale = "ar" | "en";
 
@@ -166,6 +166,108 @@ export interface AuthSession {
   quota: QuotaSnapshot;
 }
 
+export type ExpertTopLabel =
+  | "meteorite"
+  | "terrestrial_rock"
+  | "uncertain"
+  | "unusable"
+  | "non_rock";
+
+export type ExpertAnnotationAction = "label" | "skip" | "unusable" | "review";
+export type ExpertConfidence = "high" | "medium" | "low" | "not_assessed";
+
+export interface ExpertDataset {
+  id: string;
+  name: string;
+  description?: string;
+  status: string;
+  taxonomyVersion: string;
+  annotationPolicyVersion: string;
+  statistics: Record<string, unknown>;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface ExpertPrediction {
+  modelVersion?: string;
+  meteoriteProbability?: number;
+  decisionBand?: string;
+  dominantClass?: string;
+  classConfidence?: number;
+  models: Record<string, {
+    meteoriteProbability?: number;
+    dominantClass?: string;
+    classConfidence?: number;
+  }>;
+  raw: Record<string, unknown>;
+}
+
+export interface ExpertQueueItem {
+  itemId: string;
+  datasetId: string;
+  status: string;
+  imageUrl?: string;
+  thumbnailUrl?: string;
+  originalFilename?: string;
+  specimenId?: string;
+  contentType: string;
+  qualityReport?: Record<string, unknown>;
+  metadata: Record<string, unknown>;
+  prediction?: ExpertPrediction;
+  leaseExpiresAt?: string;
+}
+
+export interface ExpertAnnotationInput {
+  clientUuid: string;
+  action: ExpertAnnotationAction;
+  topLabel?: ExpertTopLabel;
+  meteoriteSubclass?: string;
+  terrestrialFamily?: string;
+  confidence?: ExpertConfidence;
+  comment?: string;
+  specimenId?: string;
+  metadata?: Record<string, unknown>;
+}
+
+export interface ExpertAnnotationResult {
+  item: ExpertQueueItem;
+  annotationId: string;
+  consensusStatus: string;
+  reviewRequired: boolean;
+  nextItemAvailable: boolean;
+}
+
+export interface ExpertDatasetStats {
+  datasetId: string;
+  counts: Record<string, number>;
+  labelCounts: Record<string, number>;
+  qualityCounts: Record<string, number>;
+  lastAuditId?: string;
+}
+
+export interface ExpertAudit {
+  id: string;
+  datasetId: string;
+  status: string;
+  modelVersion: string;
+  summary: Record<string, unknown>;
+  recommendations: string[];
+  reportUrl?: string;
+  errorsUrl?: string;
+  createdAt: string;
+  completedAt?: string;
+}
+
+export interface ExpertExport {
+  id: string;
+  datasetId: string;
+  version: string;
+  status: string;
+  statistics: Record<string, number>;
+  manifestUrl?: string;
+  createdAt: string;
+}
+
 export interface LoginInput {
   phoneOrEmail: string;
   password: string;
@@ -178,7 +280,7 @@ export interface RegisterInput {
   phone: string;
   email?: string;
   password: string;
-  desiredRole: Exclude<UserRole, "guest" | "admin">;
+  desiredRole: Exclude<UserRole, "guest" | "admin" | "expert">;
   deviceId: string;
 }
 

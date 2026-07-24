@@ -24,6 +24,13 @@ import {
   type Subscription,
   type SubscriptionStatus,
   type UserRole,
+  type ExpertDataset,
+  type ExpertPrediction,
+  type ExpertQueueItem,
+  type ExpertAnnotationResult,
+  type ExpertAudit,
+  type ExpertDatasetStats,
+  type ExpertExport,
 } from "@tissint/shared";
 import type {
   AdminActionResponse as ServerAdminActionContract,
@@ -178,7 +185,106 @@ function normalizeMarketplaceStatus(status?: string): MarketplaceStatus {
 }
 
 function normalizeUserRole(role?: string): UserRole {
-  return role === "premium" || role === "admin" || role === "free" ? role : "free";
+  return role === "premium" || role === "admin" || role === "expert" || role === "free" ? role : "free";
+}
+
+export function normalizeExpertDataset(payload: any): ExpertDataset {
+  return {
+    id: String(payload.id),
+    name: String(payload.name ?? "Dataset"),
+    description: payload.description ?? undefined,
+    status: String(payload.status ?? "active"),
+    taxonomyVersion: String(payload.taxonomy_version ?? "taxonomy-v1"),
+    annotationPolicyVersion: String(payload.annotation_policy_version ?? "annotation-policy-v1"),
+    statistics: payload.statistics ?? {},
+    createdAt: String(payload.created_at ?? new Date().toISOString()),
+    updatedAt: String(payload.updated_at ?? new Date().toISOString()),
+  };
+}
+
+export function normalizeExpertPrediction(payload: any): ExpertPrediction {
+  const models: ExpertPrediction["models"] = {};
+  for (const [key, value] of Object.entries(payload?.models ?? {})) {
+    const model = value as any;
+    models[key] = {
+      meteoriteProbability: typeof model?.meteorite_probability === "number" ? model.meteorite_probability : undefined,
+      dominantClass: model?.dominant_class ?? undefined,
+      classConfidence: typeof model?.class_confidence === "number" ? model.class_confidence : undefined,
+    };
+  }
+  return {
+    modelVersion: payload?.model_version ?? undefined,
+    meteoriteProbability: typeof payload?.meteorite_probability === "number" ? payload.meteorite_probability : undefined,
+    decisionBand: payload?.decision_band ?? undefined,
+    dominantClass: payload?.dominant_class ?? undefined,
+    classConfidence: typeof payload?.class_confidence === "number" ? payload.class_confidence : undefined,
+    models,
+    raw: payload?.raw ?? {},
+  };
+}
+
+export function normalizeExpertQueueItem(payload: any): ExpertQueueItem {
+  return {
+    itemId: String(payload.item_id),
+    datasetId: String(payload.dataset_id),
+    status: String(payload.status ?? "pending_annotation"),
+    imageUrl: payload.image_url ?? undefined,
+    thumbnailUrl: payload.thumbnail_url ?? undefined,
+    originalFilename: payload.original_filename ?? undefined,
+    specimenId: payload.specimen_id ?? undefined,
+    contentType: String(payload.content_type ?? "image/jpeg"),
+    qualityReport: payload.quality_report ?? undefined,
+    metadata: payload.metadata ?? {},
+    prediction: payload.prediction ? normalizeExpertPrediction(payload.prediction) : undefined,
+    leaseExpiresAt: payload.lease_expires_at ?? undefined,
+  };
+}
+
+export function normalizeExpertAnnotationResult(payload: any): ExpertAnnotationResult {
+  return {
+    item: normalizeExpertQueueItem(payload.item),
+    annotationId: String(payload.annotation_id),
+    consensusStatus: String(payload.consensus_status ?? "pending"),
+    reviewRequired: Boolean(payload.review_required),
+    nextItemAvailable: Boolean(payload.next_item_available),
+  };
+}
+
+export function normalizeExpertStats(payload: any): ExpertDatasetStats {
+  return {
+    datasetId: String(payload?.dataset_id ?? ""),
+    counts: payload?.counts ?? {},
+    labelCounts: payload?.label_counts ?? {},
+    qualityCounts: payload?.quality_counts ?? {},
+    lastAuditId: payload?.last_audit_id ?? undefined,
+  };
+}
+
+export function normalizeExpertAudit(payload: any): ExpertAudit {
+  return {
+    id: String(payload?.id),
+    datasetId: String(payload?.dataset_id),
+    status: String(payload?.status ?? "pending"),
+    modelVersion: String(payload?.model_version ?? "trio-v1"),
+    summary: payload?.summary ?? {},
+    recommendations: Array.isArray(payload?.recommendations) ? payload.recommendations : [],
+    reportUrl: payload?.report_url ?? undefined,
+    errorsUrl: payload?.errors_url ?? undefined,
+    createdAt: String(payload?.created_at ?? new Date().toISOString()),
+    completedAt: payload?.completed_at ?? undefined,
+  };
+}
+
+export function normalizeExpertExport(payload: any): ExpertExport {
+  return {
+    id: String(payload?.id),
+    datasetId: String(payload?.dataset_id),
+    version: String(payload?.version ?? "export-v1"),
+    status: String(payload?.status ?? "pending"),
+    statistics: payload?.statistics ?? {},
+    manifestUrl: payload?.manifest_url ?? undefined,
+    createdAt: String(payload?.created_at ?? new Date().toISOString()),
+  };
 }
 
 function normalizeSubscriptionStatus(status?: string): SubscriptionStatus {

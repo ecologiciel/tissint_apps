@@ -45,7 +45,7 @@ export const useSessionStore = create<SessionState>((set) => ({
   setRole: (role) =>
     set((state) => {
       if (!state.user) return state;
-      const dailyLimit = role === "premium" || role === "admin" ? 10 : 5;
+      const dailyLimit = role === "expert" ? 0 : role === "premium" || role === "admin" ? 10 : 5;
       return {
         user: { ...state.user, role },
         quota: {

@@ -10,6 +10,13 @@ import type {
   CreateAlertRuleInput,
   CreateCollectionItemInput,
   CreateListingInput,
+  ExpertAnnotationInput,
+  ExpertAnnotationResult,
+  ExpertAudit,
+  ExpertDataset,
+  ExpertDatasetStats,
+  ExpertExport,
+  ExpertQueueItem,
   FavoriteListing,
   Invoice,
   LoginInput,
@@ -32,6 +39,12 @@ import {
   normalizeAuthSession,
   normalizeCheckoutSession,
   normalizeCollectionItem,
+  normalizeExpertAnnotationResult,
+  normalizeExpertAudit,
+  normalizeExpertDataset,
+  normalizeExpertExport,
+  normalizeExpertQueueItem,
+  normalizeExpertStats,
   normalizeFavorite,
   normalizeInvoice,
   normalizeListing,
@@ -73,6 +86,23 @@ export interface CheckoutInput {
   plan: "monthly" | "yearly";
   provider: PaymentProvider;
   returnUrl?: string;
+}
+
+export interface ExpertDatasetCreateInput {
+  name: string;
+  description?: string;
+  taxonomyVersion?: string;
+  annotationPolicyVersion?: string;
+}
+
+export interface ExpertAuditCreateInput {
+  datasetId: string;
+  modelVersion?: string;
+}
+
+export interface ExpertExportCreateInput {
+  datasetId: string;
+  version?: string;
 }
 
 function appendImage(form: FormData, field: string, image: MobileImageFile) {
@@ -352,6 +382,95 @@ export class TissintClient {
       `/api/v1/admin/audit?limit=${encodeURIComponent(String(limit))}`,
     );
     return payload.map(normalizeAuditLog);
+  }
+
+  async createExpertDataset(input: ExpertDatasetCreateInput): Promise<ExpertDataset> {
+    const payload = await this.http.request<Record<string, unknown>>(
+      "/api/v1/expert/datasets",
+      {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          name: input.name,
+          description: input.description,
+          taxonomy_version: input.taxonomyVersion,
+          annotation_policy_version: input.annotationPolicyVersion,
+        }),
+      },
+    );
+    return normalizeExpertDataset(payload);
+  }
+
+  async listExpertDatasets(): Promise<ExpertDataset[]> {
+    const payload = await this.http.request<Record<string, unknown>[]>("/api/v1/expert/datasets");
+    return payload.map(normalizeExpertDataset);
+  }
+
+  async getExpertDatasetStats(datasetId: string): Promise<ExpertDatasetStats> {
+    const payload = await this.http.request<Record<string, unknown>>(
+      `/api/v1/expert/datasets/${encodeURIComponent(datasetId)}/stats`,
+    );
+    return normalizeExpertStats(payload);
+  }
+
+  async getNextExpertItem(datasetId?: string): Promise<ExpertQueueItem | null> {
+    const query = datasetId ? `?dataset_id=${encodeURIComponent(datasetId)}` : "";
+    const payload = await this.http.request<Record<string, unknown> | null>(
+      `/api/v1/expert/queue/next${query}`,
+    );
+    return payload ? normalizeExpertQueueItem(payload) : null;
+  }
+
+  async annotateExpertItem(
+    itemId: string,
+    input: ExpertAnnotationInput,
+  ): Promise<ExpertAnnotationResult> {
+    const payload = await this.http.request<Record<string, unknown>>(
+      `/api/v1/expert/items/${encodeURIComponent(itemId)}/annotation`,
+      {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          client_uuid: input.clientUuid,
+          action: input.action,
+          top_label: input.topLabel,
+          meteorite_subclass: input.meteoriteSubclass,
+          terrestrial_family: input.terrestrialFamily,
+          confidence: input.confidence,
+          comment: input.comment,
+          specimen_id: input.specimenId,
+          metadata: input.metadata ?? {},
+        }),
+      },
+    );
+    return normalizeExpertAnnotationResult(payload);
+  }
+
+  async releaseExpertItem(itemId: string): Promise<void> {
+    await this.http.request(`/api/v1/expert/items/${encodeURIComponent(itemId)}/release`, {
+      method: "POST",
+    });
+  }
+
+  async createExpertAudit(input: ExpertAuditCreateInput): Promise<ExpertAudit> {
+    const payload = await this.http.request<Record<string, unknown>>("/api/v1/expert/audits", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        dataset_id: input.datasetId,
+        model_version: input.modelVersion ?? "trio-v1",
+      }),
+    });
+    return normalizeExpertAudit(payload);
+  }
+
+  async createExpertExport(input: ExpertExportCreateInput): Promise<ExpertExport> {
+    const payload = await this.http.request<Record<string, unknown>>("/api/v1/expert/exports", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ dataset_id: input.datasetId, version: input.version }),
+    });
+    return normalizeExpertExport(payload);
   }
 
   async createCheckout(input: CheckoutInput): Promise<CheckoutSession> {
