@@ -6,6 +6,7 @@ const rawRuntimeEnvironment =
   process.env.EXPO_PUBLIC_TISSINT_ENV ?? (__DEV__ ? "development" : "production");
 const apiBaseUrl = (process.env.EXPO_PUBLIC_TISSINT_API_BASE_URL ?? "").trim().replace(/\/+$/, "");
 const allowInsecureHttp = process.env.EXPO_PUBLIC_TISSINT_ALLOW_INSECURE_HTTP === "true";
+const isSameOriginApi = apiBaseUrl.startsWith("/");
 
 function normalizeApiMode(value: string): ApiMode {
   return value === "http" || value === "mock" ? value : "mock";
@@ -45,7 +46,7 @@ export function getConfigurationIssue(): string | null {
     return "EXPO_PUBLIC_TISSINT_API_BASE_URL est obligatoire lorsque l'API HTTP est active.";
   }
 
-  if (!env.apiKey) {
+  if (!env.apiKey && !isSameOriginApi) {
     return "EXPO_PUBLIC_TISSINT_API_KEY est obligatoire pour le backend Tissint actuel. Recupere-la dans /opt/tissint/backend/.env cote serveur.";
   }
 
@@ -56,11 +57,11 @@ export function getConfigurationIssue(): string | null {
   const requiresHttps =
     env.runtimeEnvironment === "preview" || env.runtimeEnvironment === "production";
 
-  if (requiresHttps && !env.apiBaseUrl.startsWith("https://")) {
+  if (!isSameOriginApi && requiresHttps && !env.apiBaseUrl.startsWith("https://")) {
     return "Les builds preview/production doivent utiliser une API HTTPS.";
   }
 
-  if (!requiresHttps && !env.apiBaseUrl.startsWith("https://") && !isLocalhost) {
+  if (!isSameOriginApi && !requiresHttps && !env.apiBaseUrl.startsWith("https://") && !isLocalhost) {
     if (!env.allowInsecureHttp) {
       return "En developpement, l'API HTTP externe exige EXPO_PUBLIC_TISSINT_ALLOW_INSECURE_HTTP=true.";
     }
