@@ -1,4 +1,4 @@
-export type UserRole = "guest" | "free" | "premium" | "admin";
+export type UserRole = "guest" | "free" | "premium" | "expert" | "admin";
 export type ScenarioKey = "A" | "B" | "C" | "D";
 export type Verdict = "likely" | "possible" | "unlikely" | "rejected";
 export type ListingStatus = "pending" | "approved" | "rejected" | "sold";

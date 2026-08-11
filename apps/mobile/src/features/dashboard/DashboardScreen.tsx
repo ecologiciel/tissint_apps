@@ -1,9 +1,10 @@
 import { LinearGradient } from "expo-linear-gradient";
 import { router } from "expo-router";
-import { Bell, BookOpen, Crown, Heart, ScanLine, Search } from "lucide-react-native";
+import { Bell, BookOpen, Crown, Heart, ScanLine, Search, ShieldCheck } from "lucide-react-native";
 import { Pressable, ScrollView, StyleSheet, View, useWindowDimensions } from "react-native";
 import { MeteoriteThumb } from "@/components/tissint/MeteoriteThumb";
 import { ResponsiveText as Text } from "@/components/ui/ResponsiveText";
+import { useSessionStore } from "@/store/session-store";
 
 const DASH = {
   navy: "#1B4C66",
@@ -34,6 +35,8 @@ function useDashMetrics() {
 
 export function DashboardScreen() {
   const m = useDashMetrics();
+  const role = useSessionStore((state) => state.user?.role ?? "guest");
+  const canOpenExpert = role === "expert" || role === "admin";
 
   return (
     <View style={styles.root}>
@@ -149,6 +152,34 @@ export function DashboardScreen() {
             </View>
             <Crown color={DASH.gold} size={m.z(28)} strokeWidth={2.3} />
           </Pressable>
+
+          {canOpenExpert ? (
+            <Pressable
+              onPress={() => router.push("/expert" as never)}
+              style={[
+                styles.expertCard,
+                { minHeight: m.y(72), borderRadius: m.z(20), paddingHorizontal: m.x(18) },
+              ]}
+            >
+              <Text style={[styles.expertArrow, { fontSize: m.z(20) }]}>←</Text>
+              <View style={styles.expertCopy}>
+                <Text style={[styles.expertTitle, { fontSize: m.z(18), lineHeight: m.z(25) }]}>
+                  وضع الخبير
+                </Text>
+                <Text style={[styles.expertSubtitle, { fontSize: m.z(13.5), lineHeight: m.z(20) }]}>
+                  مراجعة الصور والتصنيفات العلمية
+                </Text>
+              </View>
+              <View
+                style={[
+                  styles.expertIcon,
+                  { width: m.z(48), height: m.z(48), borderRadius: m.z(24) },
+                ]}
+              >
+                <ShieldCheck color={DASH.navy} size={m.z(23)} strokeWidth={2.4} />
+              </View>
+            </Pressable>
+          ) : null}
 
           <View style={styles.sectionHeader}>
             <Text style={[styles.showAll, { fontSize: m.z(15), lineHeight: m.z(22) }]}>
@@ -394,6 +425,39 @@ const styles = StyleSheet.create({
     color: DASH.muted,
     textAlign: "right",
     writingDirection: "rtl",
+  },
+  expertCard: {
+    borderWidth: 1,
+    borderColor: "rgba(27,76,102,0.16)",
+    backgroundColor: "#FFFFFF",
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+  },
+  expertArrow: {
+    color: DASH.orange,
+    fontWeight: "900",
+  },
+  expertCopy: {
+    flex: 1,
+    alignItems: "flex-end",
+    paddingRight: 18,
+  },
+  expertTitle: {
+    color: DASH.text,
+    fontWeight: "900",
+    textAlign: "right",
+    writingDirection: "rtl",
+  },
+  expertSubtitle: {
+    color: DASH.muted,
+    textAlign: "right",
+    writingDirection: "rtl",
+  },
+  expertIcon: {
+    backgroundColor: "rgba(27,76,102,0.10)",
+    alignItems: "center",
+    justifyContent: "center",
   },
   sectionHeader: {
     flexDirection: "row",

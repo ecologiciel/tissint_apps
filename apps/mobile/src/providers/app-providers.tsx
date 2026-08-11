@@ -127,6 +127,10 @@ function RouteAccessGate({ children }: { children: ReactNode }) {
     return <Redirect href="/dashboard" />;
   }
 
+  if (pathname.startsWith("/expert") && role !== "expert" && role !== "admin") {
+    return <Redirect href="/dashboard" />;
+  }
+
   return children;
 }
 
@@ -206,6 +210,7 @@ export function RootStack() {
       <Stack.Screen name="scan/failed/[scanId]" />
       <Stack.Screen name="stats" />
       <Stack.Screen name="wallet" />
+      <Stack.Screen name="expert" />
       <Stack.Screen name="admin" />
       <Stack.Screen name="admin/radar" />
     </Stack>

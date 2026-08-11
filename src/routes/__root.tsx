@@ -7,6 +7,7 @@ import {
   HeadContent,
   Scripts,
 } from "@tanstack/react-router";
+import { useEffect } from "react";
 import { AppProvider } from "@/lib/store";
 import { Toaster } from "@/components/ui/sonner";
 import { DeviceFrame } from "@/components/tissint/device-frame";
@@ -68,6 +69,9 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
     ],
     links: [
       { rel: "stylesheet", href: appCss },
+      { rel: "manifest", href: "/manifest.json" },
+      { rel: "icon", href: "/icon.svg", type: "image/svg+xml" },
+      { rel: "apple-touch-icon", href: "/icon.svg" },
       { rel: "preconnect", href: "https://fonts.googleapis.com" },
       { rel: "preconnect", href: "https://fonts.gstatic.com", crossOrigin: "" },
       {
@@ -102,6 +106,7 @@ function RootComponent() {
     <QueryClientProvider client={queryClient}>
       <AppProvider>
         <OfflineCacheBridge />
+        <ServiceWorkerBridge />
         <div
           className="min-h-screen w-full bg-stone flex items-center justify-center"
           style={{
@@ -123,5 +128,15 @@ function RootComponent() {
 
 function OfflineCacheBridge() {
   useOfflineCache();
+  return null;
+}
+
+function ServiceWorkerBridge() {
+  useEffect(() => {
+    if (!("serviceWorker" in navigator) || import.meta.env.DEV) return;
+    navigator.serviceWorker.register("/sw.js").catch((error) => {
+      console.warn("Tissint service worker registration failed", error);
+    });
+  }, []);
   return null;
 }

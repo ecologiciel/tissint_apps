@@ -367,7 +367,7 @@ export async function annotateExpertItem(
   input: ExpertAnnotationInput,
 ): Promise<ExpertAnnotationResult> {
   if (!isHttpApiEnabled()) {
-    throw new Error("Le mode expert nécessite une API serveur active.");
+    throw new Error("وضع الخبير يحتاج إلى API الخادم مفعلة.");
   }
   return tissintClient.annotateExpertItem(itemId, input);
 }
@@ -379,14 +379,14 @@ export async function releaseExpertItem(itemId: string): Promise<void> {
 
 export async function createExpertAudit(datasetId: string, modelVersion = "trio-v1"): Promise<ExpertAudit> {
   if (!isHttpApiEnabled()) {
-    throw new Error("Le mode expert nécessite une API serveur active.");
+    throw new Error("وضع الخبير يحتاج إلى API الخادم مفعلة.");
   }
   return tissintClient.createExpertAudit({ datasetId, modelVersion });
 }
 
 export async function createExpertExport(datasetId: string, version?: string): Promise<ExpertExport> {
   if (!isHttpApiEnabled()) {
-    throw new Error("Le mode expert nécessite une API serveur active.");
+    throw new Error("وضع الخبير يحتاج إلى API الخادم مفعلة.");
   }
   return tissintClient.createExpertExport({ datasetId, version });
 }

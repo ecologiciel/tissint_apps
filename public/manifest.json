@@ -1,0 +1,35 @@
+{
+  "name": "Tissint",
+  "short_name": "Tissint",
+  "description": "تطبيق Tissint لتحديد النيازك وإدارة مراجعة الخبراء.",
+  "lang": "ar",
+  "dir": "rtl",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "background_color": "#FBF4E6",
+  "theme_color": "#123F5A",
+  "orientation": "portrait",
+  "icons": [
+    {
+      "src": "/icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ],
+  "shortcuts": [
+    {
+      "name": "مسح حجر",
+      "short_name": "مسح",
+      "url": "/scan",
+      "description": "ابدأ فحص عينة جديدة."
+    },
+    {
+      "name": "وضع الخبير",
+      "short_name": "خبير",
+      "url": "/expert",
+      "description": "افتح مساحة مراجعة الخبراء."
+    }
+  ]
+}

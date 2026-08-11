@@ -2,7 +2,16 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { useApp } from "@/lib/store";
 import { TabBar } from "@/components/tissint/tab-bar";
 import { MeteoriteThumb } from "@/components/tissint/meteorite-thumb";
-import { ScanLine, TrendingUp, BookOpen, Crown, Bell, Search, Heart } from "lucide-react";
+import {
+  ScanLine,
+  TrendingUp,
+  BookOpen,
+  Crown,
+  Bell,
+  Search,
+  Heart,
+  ShieldCheck,
+} from "lucide-react";
 
 export const Route = createFileRoute("/dashboard")({ component: Dashboard });
 
@@ -11,6 +20,7 @@ function Dashboard() {
     useApp();
   const recentScans = collection.slice(0, 3);
   const hot = listings.slice(0, 4);
+  const canOpenExpert = role === "expert" || role === "admin";
 
   return (
     <div className="flex h-full flex-col" dir="rtl">
@@ -113,6 +123,21 @@ function Dashboard() {
               <div className="flex-1">
                 <p className="text-sm font-bold">ارفع الحد اليومي</p>
                 <p className="text-xs text-muted-foreground">Premium بـ 100 درهم/شهر</p>
+              </div>
+              <span className="text-orange text-sm font-bold">←</span>
+            </div>
+          </Link>
+        )}
+
+        {canOpenExpert && (
+          <Link to="/expert" className="block">
+            <div className="rounded-2xl border border-navy/15 bg-card p-4 flex items-center gap-3 shadow-sm">
+              <span className="grid h-11 w-11 place-items-center rounded-full bg-navy/10 text-navy">
+                <ShieldCheck className="h-5 w-5" />
+              </span>
+              <div className="flex-1">
+                <p className="text-sm font-bold">وضع الخبير</p>
+                <p className="text-xs text-muted-foreground">مراجعة الصور والتصنيفات العلمية</p>
               </div>
               <span className="text-orange text-sm font-bold">←</span>
             </div>

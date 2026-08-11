@@ -29,6 +29,7 @@ import { Route as HelpRouteImport } from './routes/help'
 import { Route as ForgotPasswordRouteImport } from './routes/forgot-password'
 import { Route as FirstScanRouteImport } from './routes/first-scan'
 import { Route as FavoritesRouteImport } from './routes/favorites'
+import { Route as ExpertRouteImport } from './routes/expert'
 import { Route as DashboardRouteImport } from './routes/dashboard'
 import { Route as CompareRouteImport } from './routes/compare'
 import { Route as CheckoutRouteImport } from './routes/checkout'
@@ -153,6 +154,11 @@ const FirstScanRoute = FirstScanRouteImport.update({
 const FavoritesRoute = FavoritesRouteImport.update({
   id: '/favorites',
   path: '/favorites',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ExpertRoute = ExpertRouteImport.update({
+  id: '/expert',
+  path: '/expert',
   getParentRoute: () => rootRouteImport,
 } as any)
 const DashboardRoute = DashboardRouteImport.update({
@@ -289,6 +295,7 @@ export interface FileRoutesByFullPath {
   '/checkout': typeof CheckoutRouteWithChildren
   '/compare': typeof CompareRoute
   '/dashboard': typeof DashboardRoute
+  '/expert': typeof ExpertRoute
   '/favorites': typeof FavoritesRoute
   '/first-scan': typeof FirstScanRoute
   '/forgot-password': typeof ForgotPasswordRoute
@@ -336,6 +343,7 @@ export interface FileRoutesByTo {
   '/checkout': typeof CheckoutRouteWithChildren
   '/compare': typeof CompareRoute
   '/dashboard': typeof DashboardRoute
+  '/expert': typeof ExpertRoute
   '/favorites': typeof FavoritesRoute
   '/first-scan': typeof FirstScanRoute
   '/forgot-password': typeof ForgotPasswordRoute
@@ -384,6 +392,7 @@ export interface FileRoutesById {
   '/checkout': typeof CheckoutRouteWithChildren
   '/compare': typeof CompareRoute
   '/dashboard': typeof DashboardRoute
+  '/expert': typeof ExpertRoute
   '/favorites': typeof FavoritesRoute
   '/first-scan': typeof FirstScanRoute
   '/forgot-password': typeof ForgotPasswordRoute
@@ -433,6 +442,7 @@ export interface FileRouteTypes {
     | '/checkout'
     | '/compare'
     | '/dashboard'
+    | '/expert'
     | '/favorites'
     | '/first-scan'
     | '/forgot-password'
@@ -480,6 +490,7 @@ export interface FileRouteTypes {
     | '/checkout'
     | '/compare'
     | '/dashboard'
+    | '/expert'
     | '/favorites'
     | '/first-scan'
     | '/forgot-password'
@@ -527,6 +538,7 @@ export interface FileRouteTypes {
     | '/checkout'
     | '/compare'
     | '/dashboard'
+    | '/expert'
     | '/favorites'
     | '/first-scan'
     | '/forgot-password'
@@ -575,6 +587,7 @@ export interface RootRouteChildren {
   CheckoutRoute: typeof CheckoutRouteWithChildren
   CompareRoute: typeof CompareRoute
   DashboardRoute: typeof DashboardRoute
+  ExpertRoute: typeof ExpertRoute
   FavoritesRoute: typeof FavoritesRoute
   FirstScanRoute: typeof FirstScanRoute
   ForgotPasswordRoute: typeof ForgotPasswordRoute
@@ -749,6 +762,13 @@ declare module '@tanstack/react-router' {
       path: '/favorites'
       fullPath: '/favorites'
       preLoaderRoute: typeof FavoritesRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/expert': {
+      id: '/expert'
+      path: '/expert'
+      fullPath: '/expert'
+      preLoaderRoute: typeof ExpertRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/dashboard': {
@@ -977,6 +997,7 @@ const rootRouteChildren: RootRouteChildren = {
   CheckoutRoute: CheckoutRouteWithChildren,
   CompareRoute: CompareRoute,
   DashboardRoute: DashboardRoute,
+  ExpertRoute: ExpertRoute,
   FavoritesRoute: FavoritesRoute,
   FirstScanRoute: FirstScanRoute,
   ForgotPasswordRoute: ForgotPasswordRoute,

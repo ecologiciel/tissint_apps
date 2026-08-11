@@ -17,6 +17,9 @@ dist-ssr
 .expo
 apps/mobile/.expo
 apps/mobile/.expo-export*/
+.runtime
+.vercel
+apps/mobile/.vercel
 .env
 **/.env
 *.local

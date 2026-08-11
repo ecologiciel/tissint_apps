@@ -100,7 +100,8 @@ export function AppProvider({ children }: { children: ReactNode }) {
     [],
   );
 
-  const dailyLimit = role === "premium" || role === "admin" ? 999 : role === "free" ? 5 : 1;
+  const dailyLimit =
+    role === "premium" || role === "admin" ? 999 : role === "expert" ? 0 : role === "free" ? 5 : 1;
 
   const incrementScans = useCallback(() => setScansToday((s) => s + 1), []);
   const resetScans = useCallback(() => setScansToday(0), []);

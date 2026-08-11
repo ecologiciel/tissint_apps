@@ -1,0 +1,26 @@
+{
+  "buildCommand": "npm run vercel-build",
+  "installCommand": "npm install --legacy-peer-deps",
+  "functions": {
+    "api/proxy.js": {
+      "maxDuration": 30
+    }
+  },
+  "routes": [
+    {
+      "handle": "filesystem"
+    },
+    {
+      "src": "^/api/proxy(?:/(.*))?$",
+      "dest": "/api/proxy?path=/$1"
+    },
+    {
+      "src": "^/api(/.*)?$",
+      "status": 404
+    },
+    {
+      "src": "^(?!/api).*$",
+      "dest": "/__server"
+    }
+  ]
+}

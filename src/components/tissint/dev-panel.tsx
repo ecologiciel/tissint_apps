@@ -14,6 +14,7 @@ const ROLES: { k: UserRole; label: string }[] = [
   { k: "guest", label: "زائر" },
   { k: "free", label: "مجاني" },
   { k: "premium", label: "Premium" },
+  { k: "expert", label: "خبير" },
   { k: "admin", label: "Admin" },
 ];
 
