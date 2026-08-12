@@ -1,6 +1,28 @@
+import { useState } from "react";
 import { seedGradient } from "@/lib/mock-data";
 
-export function MeteoriteThumb({ seed, className = "" }: { seed: string; className?: string }) {
+export function MeteoriteThumb({
+  seed,
+  className = "",
+  imageUrl,
+}: {
+  seed: string;
+  className?: string;
+  imageUrl?: string;
+}) {
+  const [failed, setFailed] = useState(false);
+  if (imageUrl && !failed) {
+    return (
+      <img
+        src={imageUrl}
+        alt=""
+        className={`block h-full w-full object-cover ${className}`}
+        loading="lazy"
+        onError={() => setFailed(true)}
+      />
+    );
+  }
+
   return (
     <div
       className={`relative overflow-hidden ${className}`}

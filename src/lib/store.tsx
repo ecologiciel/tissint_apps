@@ -1,4 +1,5 @@
 import { createContext, useContext, useState, useCallback, useMemo, type ReactNode } from "react";
+import type { AuthSession, QuotaSnapshot as ServerQuotaSnapshot } from "@tissint/shared";
 import type {
   UserRole,
   ScenarioKey,
@@ -23,6 +24,7 @@ import {
   MOCK_TRANSACTIONS,
   MOCK_INVOICES,
 } from "./mock-data";
+import { isUnlimitedRole, sessionDisplayName } from "./server-api";
 
 interface AppState {
   role: UserRole;
@@ -31,6 +33,7 @@ interface AppState {
   scenario: ScenarioKey;
   scansToday: number;
   dailyLimit: number;
+  serverQuota: ServerQuotaSnapshot | null;
   collection: CollectionItem[];
   listings: Listing[];
   lastScan: ScanResult | null;
@@ -49,6 +52,10 @@ interface AppState {
   favoriteIds: string[];
   toggleFavorite: (listingId: string) => void;
   setRole: (r: UserRole) => void;
+  applyServerSession: (session: AuthSession) => void;
+  setServerQuota: (quota: ServerQuotaSnapshot) => void;
+  setServerCollection: (items: CollectionItem[]) => void;
+  setServerListings: (items: Listing[]) => void;
   setOnboarded: (v: boolean) => void;
   setUserName: (n: string) => void;
   setScenario: (s: ScenarioKey) => void;
@@ -81,6 +88,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
   const [userName, setUserName] = useState("صديق النيازك");
   const [scenario, setScenario] = useState<ScenarioKey>("A");
   const [scansToday, setScansToday] = useState(2);
+  const [serverQuota, setServerQuotaState] = useState<ServerQuotaSnapshot | null>(null);
   const [collection, setCollection] = useState<CollectionItem[]>(MOCK_COLLECTION);
   const [listings, setListings] = useState<Listing[]>(MOCK_LISTINGS);
   const [lastScan, setLastScan] = useState<ScanResult | null>(null);
@@ -100,8 +108,16 @@ export function AppProvider({ children }: { children: ReactNode }) {
     [],
   );
 
-  const dailyLimit =
+  const derivedDailyLimit =
     role === "premium" || role === "admin" ? 999 : role === "expert" ? 0 : role === "free" ? 5 : 1;
+  const dailyLimit = serverQuota
+    ? isUnlimitedRole(serverQuota.role)
+      ? 999
+      : serverQuota.dailyLimit
+    : derivedDailyLimit;
+  const displayedScansToday = serverQuota
+    ? Math.max(0, serverQuota.dailyLimit - serverQuota.remainingToday)
+    : scansToday;
 
   const incrementScans = useCallback(() => setScansToday((s) => s + 1), []);
   const resetScans = useCallback(() => setScansToday(0), []);
@@ -117,6 +133,28 @@ export function AppProvider({ children }: { children: ReactNode }) {
     [],
   );
   const toggleDevPanel = useCallback(() => setDevPanelOpen((v) => !v), []);
+
+  const applyServerSession = useCallback((session: AuthSession) => {
+    setRole(session.user.role as UserRole);
+    setUserName(sessionDisplayName(session));
+    setServerQuotaState(session.quota);
+    setOnboarded(true);
+    setScansToday(Math.max(0, session.quota.dailyLimit - session.quota.remainingToday));
+  }, []);
+
+  const setServerQuota = useCallback((quota: ServerQuotaSnapshot) => {
+    setServerQuotaState(quota);
+    setRole(quota.role as UserRole);
+    setScansToday(Math.max(0, quota.dailyLimit - quota.remainingToday));
+  }, []);
+
+  const setServerCollection = useCallback((items: CollectionItem[]) => {
+    setCollection(items);
+  }, []);
+
+  const setServerListings = useCallback((items: Listing[]) => {
+    setListings(items);
+  }, []);
 
   const sendMessage = useCallback((threadId: string, text: string) => {
     const now = new Date().toISOString();
@@ -288,8 +326,9 @@ export function AppProvider({ children }: { children: ReactNode }) {
         onboarded,
         userName,
         scenario,
-        scansToday,
+        scansToday: displayedScansToday,
         dailyLimit,
+        serverQuota,
         collection,
         listings,
         lastScan,
@@ -308,6 +347,10 @@ export function AppProvider({ children }: { children: ReactNode }) {
         favoriteIds,
         toggleFavorite,
         setRole,
+        applyServerSession,
+        setServerQuota,
+        setServerCollection,
+        setServerListings,
         setOnboarded,
         setUserName,
         setScenario,

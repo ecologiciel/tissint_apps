@@ -3,6 +3,7 @@ import { useState } from "react";
 import { User, Mail, Phone, Lock, MapPin } from "lucide-react";
 import { AuthShell, AuthInput, AuthButton } from "@/components/tissint/auth-shell";
 import { useApp } from "@/lib/store";
+import { registerWeb, webAuthErrorMessage } from "@/lib/server-api";
 import { toast } from "sonner";
 
 export const Route = createFileRoute("/register")({ component: RegisterPage });
@@ -22,7 +23,7 @@ const REGIONS = [
 
 function RegisterPage() {
   const nav = useNavigate();
-  const { setUserName } = useApp();
+  const { applyServerSession } = useApp();
   const [form, setForm] = useState({
     name: "",
     email: "",
@@ -35,7 +36,7 @@ function RegisterPage() {
 
   const update = (k: keyof typeof form) => (v: string) => setForm({ ...form, [k]: v });
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!form.name || !form.email || !form.phone || !form.password) {
       toast.error("الرجاء إكمال جميع الحقول");
@@ -50,11 +51,24 @@ function RegisterPage() {
       return;
     }
     setLoading(true);
-    setTimeout(() => {
-      setUserName(form.name);
-      toast.success("تم إنشاء الحساب! تحقق من رمز التأكيد");
-      nav({ to: "/verify-otp", search: { phone: form.phone } });
-    }, 900);
+    try {
+      const [firstName, ...lastNameParts] = form.name.trim().split(/\s+/);
+      const session = await registerWeb({
+        firstName: firstName || form.name.trim(),
+        lastName: lastNameParts.join(" "),
+        phone: form.phone.trim(),
+        email: form.email.trim() || undefined,
+        password: form.password,
+        desiredRole: "free",
+      });
+      applyServerSession(session);
+      toast.success("تم إنشاء الحساب بنجاح");
+      nav({ to: "/dashboard" });
+    } catch (error) {
+      toast.error(webAuthErrorMessage(error, "تعذر إنشاء الحساب."));
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (

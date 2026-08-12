@@ -1,10 +1,23 @@
+import { useQuery } from "@tanstack/react-query";
 import { LinearGradient } from "expo-linear-gradient";
 import { router } from "expo-router";
 import { Bell, BookOpen, Crown, Heart, ScanLine, Search, ShieldCheck } from "lucide-react-native";
-import { Pressable, ScrollView, StyleSheet, View, useWindowDimensions } from "react-native";
+import { useEffect, useState } from "react";
+import {
+  Image,
+  Pressable,
+  ScrollView,
+  StyleSheet,
+  View,
+  useWindowDimensions,
+} from "react-native";
 import { MeteoriteThumb } from "@/components/tissint/MeteoriteThumb";
 import { ResponsiveText as Text } from "@/components/ui/ResponsiveText";
+import { getQuota, listCollection, listMarketplace } from "@/lib/api";
+import { env } from "@/lib/env";
+import { useScanStore } from "@/store/scan-store";
 import { useSessionStore } from "@/store/session-store";
+import type { CollectionItem } from "@tissint/shared";
 
 const DASH = {
   navy: "#1B4C66",
@@ -35,8 +48,35 @@ function useDashMetrics() {
 
 export function DashboardScreen() {
   const m = useDashMetrics();
-  const role = useSessionStore((state) => state.user?.role ?? "guest");
+  const { user, quota, setQuota } = useSessionStore();
+  const role = user?.role ?? "guest";
+  const lastResult = useScanStore((state) => state.lastResult);
   const canOpenExpert = role === "expert" || role === "admin";
+  const showPremiumUpsell = role !== "premium" && role !== "admin" && role !== "expert";
+  const quotaQuery = useQuery({
+    queryKey: ["dashboard-quota", role],
+    queryFn: () => getQuota(role),
+    enabled: role !== "guest",
+  });
+  const collectionQuery = useQuery({
+    queryKey: ["dashboard-collection", lastResult?.scanId],
+    queryFn: () => listCollection(lastResult),
+  });
+  const marketplaceQuery = useQuery({
+    queryKey: ["dashboard-marketplace"],
+    queryFn: listMarketplace,
+  });
+
+  const activeQuota = quotaQuery.data ?? quota;
+  const dailyLimit = role === "premium" || role === "admin" ? 999 : activeQuota.dailyLimit;
+  const scansToday = Math.max(0, activeQuota.dailyLimit - activeQuota.remainingToday);
+  const quotaLabel = dailyLimit >= 999 ? "∞" : String(dailyLimit);
+  const collection = collectionQuery.data ?? [];
+  const marketCount = marketplaceQuery.data?.length ?? 0;
+
+  useEffect(() => {
+    if (quotaQuery.data) setQuota(quotaQuery.data);
+  }, [quotaQuery.data, setQuota]);
 
   return (
     <View style={styles.root}>
@@ -75,9 +115,9 @@ export function DashboardScreen() {
             </View>
           </View>
           <View style={[styles.statRow, { top: m.y(112), gap: m.x(8) }]}>
-            <StatCard value="3" label="في مجموعتي" />
-            <StatCard value="2/5" label="مسح اليوم" />
-            <StatCard value="6" label="في السوق" />
+            <StatCard value={String(collection.length)} label="في مجموعتي" />
+            <StatCard value={`${scansToday}/${quotaLabel}`} label="مسح اليوم" />
+            <StatCard value={String(marketCount)} label="في السوق" />
           </View>
         </View>
 
@@ -134,24 +174,26 @@ export function DashboardScreen() {
             </View>
           </Pressable>
 
-          <Pressable
-            onPress={() => router.push("/premium" as never)}
-            style={[
-              styles.premiumCard,
-              { height: m.y(72), borderRadius: m.z(20), paddingHorizontal: m.x(18) },
-            ]}
-          >
-            <Text style={[styles.premiumArrow, { fontSize: m.z(20) }]}>←</Text>
-            <View style={styles.premiumCopy}>
-              <Text style={[styles.premiumTitle, { fontSize: m.z(18), lineHeight: m.z(25) }]}>
-                ارفع الحد اليومي
-              </Text>
-              <Text style={[styles.premiumSubtitle, { fontSize: m.z(13.5), lineHeight: m.z(20) }]}>
-                Premium بـ 100 درهم/شهر
-              </Text>
-            </View>
-            <Crown color={DASH.gold} size={m.z(28)} strokeWidth={2.3} />
-          </Pressable>
+          {showPremiumUpsell ? (
+            <Pressable
+              onPress={() => router.push("/premium" as never)}
+              style={[
+                styles.premiumCard,
+                { height: m.y(72), borderRadius: m.z(20), paddingHorizontal: m.x(18) },
+              ]}
+            >
+              <Text style={[styles.premiumArrow, { fontSize: m.z(20) }]}>←</Text>
+              <View style={styles.premiumCopy}>
+                <Text style={[styles.premiumTitle, { fontSize: m.z(18), lineHeight: m.z(25) }]}>
+                  ارفع الحد اليومي
+                </Text>
+                <Text style={[styles.premiumSubtitle, { fontSize: m.z(13.5), lineHeight: m.z(20) }]}>
+                  Premium بـ 100 درهم/شهر
+                </Text>
+              </View>
+              <Crown color={DASH.gold} size={m.z(28)} strokeWidth={2.3} />
+            </Pressable>
+          ) : null}
 
           {canOpenExpert ? (
             <Pressable
@@ -194,30 +236,16 @@ export function DashboardScreen() {
           </View>
 
           <View style={[styles.scanGrid, { gap: m.x(8) }]}>
-            {[
-              { id: "sample-1", label: "العينة #1", score: "87/100" },
-              { id: "sample-2", label: "العينة #2", score: "42/100" },
-              { id: "sample-3", label: "العينة #3", score: "12/100" },
-            ].map((item) => (
-              <Pressable
-                key={item.id}
-                onPress={() =>
-                  router.push({ pathname: "/collection/[scanId]", params: { scanId: item.id } })
-                }
-                style={styles.sampleItem}
-              >
-                <MeteoriteThumb
-                  seed={item.id}
-                  style={[styles.sampleThumb, { height: m.y(100), borderRadius: m.z(17) }]}
-                />
-                <Text style={[styles.sampleLabel, { fontSize: m.z(13.5), lineHeight: m.z(20) }]}>
-                  {item.label}
-                </Text>
-                <Text style={[styles.sampleScore, { fontSize: m.z(12.5), lineHeight: m.z(18) }]}>
-                  {item.score}
-                </Text>
-              </Pressable>
+            {collection.slice(0, 3).map((item) => (
+              <DashboardSample key={item.id} item={item} height={m.y(100)} radius={m.z(17)} />
             ))}
+            {collection.length === 0 ? (
+              <View style={styles.emptySamples}>
+                <Text style={[styles.sampleScore, { fontSize: m.z(13), lineHeight: m.z(20) }]}>
+                  لا توجد مسوحات محفوظة بعد
+                </Text>
+              </View>
+            ) : null}
           </View>
         </View>
       </ScrollView>
@@ -254,6 +282,53 @@ function StatCard({ value, label }: { value: string; label: string }) {
       <Text style={[styles.statLabel, { fontSize: m.z(11.5), lineHeight: m.z(18) }]}>{label}</Text>
     </View>
   );
+}
+
+function DashboardSample({
+  item,
+  height,
+  radius,
+}: {
+  item: CollectionItem;
+  height: number;
+  radius: number;
+}) {
+  const [imageFailed, setImageFailed] = useState(false);
+  const imageUri = resolveImageUri(item.mainImageUri);
+  const score = Math.round(item.fusionScore * 100);
+
+  return (
+    <Pressable
+      onPress={() =>
+        router.push({ pathname: "/collection/[scanId]", params: { scanId: item.scanId } })
+      }
+      style={styles.sampleItem}
+    >
+      {imageUri && !imageFailed ? (
+        <Image
+          source={{ uri: imageUri }}
+          style={[styles.sampleThumb, { height, borderRadius: radius }]}
+          resizeMode="cover"
+          onError={() => setImageFailed(true)}
+        />
+      ) : (
+        <MeteoriteThumb
+          seed={item.scanId}
+          style={[styles.sampleThumb, { height, borderRadius: radius }]}
+        />
+      )}
+      <Text style={styles.sampleLabel}>العينة #{item.scanId.slice(-4)}</Text>
+      <Text style={styles.sampleScore}>{score}/100</Text>
+    </Pressable>
+  );
+}
+
+function resolveImageUri(uri?: string) {
+  if (!uri) return undefined;
+  if (/^(https?:|file:|data:|blob:)/i.test(uri)) return uri;
+  const base = env.apiBaseUrl || "";
+  if (!base) return uri;
+  return `${base.replace(/\/+$/, "")}${uri.startsWith("/") ? uri : `/${uri}`}`;
 }
 
 const styles = StyleSheet.create({
@@ -492,6 +567,8 @@ const styles = StyleSheet.create({
   },
   sampleLabel: {
     color: DASH.text,
+    fontSize: 13.5,
+    lineHeight: 20,
     fontWeight: "900",
     textAlign: "center",
     writingDirection: "rtl",
@@ -499,6 +576,20 @@ const styles = StyleSheet.create({
   },
   sampleScore: {
     color: DASH.muted,
+    fontSize: 12.5,
+    lineHeight: 18,
     textAlign: "center",
+    writingDirection: "rtl",
+  },
+  emptySamples: {
+    flex: 1,
+    minHeight: 90,
+    borderRadius: 17,
+    borderWidth: 1,
+    borderStyle: "dashed",
+    borderColor: DASH.cardBorder,
+    alignItems: "center",
+    justifyContent: "center",
+    paddingHorizontal: 16,
   },
 });

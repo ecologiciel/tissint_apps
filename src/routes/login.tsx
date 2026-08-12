@@ -3,32 +3,36 @@ import { useState } from "react";
 import { Mail, Lock, Eye, EyeOff } from "lucide-react";
 import { AuthShell, AuthInput, AuthButton } from "@/components/tissint/auth-shell";
 import { useApp } from "@/lib/store";
+import { loginWeb, webAuthErrorMessage } from "@/lib/server-api";
 import { toast } from "sonner";
 
 export const Route = createFileRoute("/login")({ component: LoginPage });
 
 function LoginPage() {
   const nav = useNavigate();
-  const { setRole, setOnboarded, setUserName } = useApp();
+  const { applyServerSession } = useApp();
   const [email, setEmail] = useState("user@tissint.ma");
   const [password, setPassword] = useState("");
   const [show, setShow] = useState(false);
   const [loading, setLoading] = useState(false);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!email || !password) {
       toast.error("الرجاء إكمال جميع الحقول");
       return;
     }
     setLoading(true);
-    setTimeout(() => {
-      setRole("free");
-      setOnboarded(true);
-      setUserName("صديق النيازك");
+    try {
+      const session = await loginWeb(email.trim(), password);
+      applyServerSession(session);
       toast.success("مرحباً بعودتك!");
       nav({ to: "/dashboard" });
-    }, 900);
+    } catch (error) {
+      toast.error(webAuthErrorMessage(error, "تعذر تسجيل الدخول."));
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (

@@ -19,6 +19,7 @@ export interface ScanResult {
   eligibleForMarket: boolean;
   createdAt: string;
   imageSeed: string;
+  imageUrl?: string;
   isSyncRetry?: boolean;
   originalScanAt?: string;
   isRare?: boolean;
@@ -35,6 +36,7 @@ export interface CollectionItem {
   origin?: string;
   notes?: string;
   imageSeed: string;
+  imageUrl?: string;
   createdAt: string;
 }
 
@@ -52,6 +54,7 @@ export interface Listing {
   score: number;
   status: ListingStatus;
   imageSeed: string;
+  imageUrl?: string;
   createdAt: string;
   description: string;
 }

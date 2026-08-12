@@ -2,6 +2,7 @@ import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useState } from "react";
 import { useApp } from "@/lib/store";
 import { SCENARIO_LABELS } from "@/lib/scenarios";
+import { addWebScanToCollection, webApiErrorMessage } from "@/lib/server-api";
 import { MeteoriteThumb } from "@/components/tissint/meteorite-thumb";
 import {
   Check,
@@ -21,6 +22,7 @@ function ScanSuccessPage() {
   const { lastScan, addToCollection } = useApp();
   const nav = useNavigate();
   const [saved, setSaved] = useState(false);
+  const [saving, setSaving] = useState(false);
 
   if (!lastScan || lastScan.scanId !== scanId) {
     return (
@@ -43,19 +45,19 @@ function ScanSuccessPage() {
   const accent = isReady ? "bg-success" : "bg-warning";
   const accentText = isReady ? "text-success" : "text-warning";
 
-  const saveToCollection = () => {
-    addToCollection({
-      id: "col-" + r.scanId,
-      scanId: r.scanId,
-      name: "العينة #" + r.scanId.slice(-3),
-      classification: r.classification,
-      score: r.score,
-      verdict: r.verdict,
-      imageSeed: r.imageSeed,
-      createdAt: r.createdAt,
-    });
-    setSaved(true);
-    toast.success("تم الحفظ في مجموعتك");
+  const saveToCollection = async () => {
+    if (saved || saving) return;
+    setSaving(true);
+    try {
+      const item = await addWebScanToCollection(r.scanId);
+      addToCollection(item);
+      setSaved(true);
+      toast.success("تم الحفظ في مجموعتك");
+    } catch (error) {
+      toast.error(webApiErrorMessage(error, "تعذر الحفظ في مجموعتك"));
+    } finally {
+      setSaving(false);
+    }
   };
 
   const publish = () => {
@@ -96,7 +98,11 @@ function ScanSuccessPage() {
         <p className="mt-1 text-xs text-warm/60">السيناريو: {scenarioLabel}</p>
 
         <div className="mt-6 w-full max-w-sm rounded-2xl bg-white/5 p-4 border border-white/10 space-y-3">
-          <MeteoriteThumb seed={r.imageSeed} className="aspect-[4/3] rounded-xl overflow-hidden" />
+          <MeteoriteThumb
+            seed={r.imageSeed}
+            imageUrl={r.imageUrl}
+            className="aspect-[4/3] rounded-xl overflow-hidden"
+          />
           <div className="text-right space-y-1.5 text-sm">
             <div className="flex justify-between">
               <span className="text-warm/60">التصنيف</span>
@@ -118,10 +124,10 @@ function ScanSuccessPage() {
         <div className="grid grid-cols-2 gap-2">
           <button
             onClick={saveToCollection}
-            disabled={saved}
+            disabled={saved || saving}
             className="rounded-xl bg-white/10 text-warm py-3 font-bold flex items-center justify-center gap-2 disabled:opacity-50"
           >
-            <BookmarkPlus className="h-4 w-4" /> {saved ? "محفوظ" : "حفظ في المجموعة"}
+            <BookmarkPlus className="h-4 w-4" /> {saved ? "محفوظ" : saving ? "جار الحفظ..." : "حفظ في المجموعة"}
           </button>
           <button
             onClick={publish}

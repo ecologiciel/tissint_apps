@@ -7,6 +7,12 @@ const FORWARDED_HEADERS = [
   "x-user-id",
 ];
 
+export const config = {
+  api: {
+    bodyParser: false,
+  },
+};
+
 function setCors(res, origin) {
   res.setHeader("Access-Control-Allow-Origin", origin || "*");
   res.setHeader(
@@ -23,11 +29,28 @@ function requestPath(req) {
   return value.startsWith("/") ? value : `/${value}`;
 }
 
-function requestBody(req) {
+function readRawBody(req) {
+  return new Promise((resolve, reject) => {
+    if (req.readableEnded) {
+      resolve(Buffer.alloc(0));
+      return;
+    }
+    const chunks = [];
+    req.on("data", (chunk) => chunks.push(Buffer.isBuffer(chunk) ? chunk : Buffer.from(chunk)));
+    req.on("end", () => resolve(Buffer.concat(chunks)));
+    req.on("error", reject);
+  });
+}
+
+async function requestBody(req) {
   if (["GET", "HEAD"].includes(req.method)) return undefined;
-  if (req.body == null || req.body === "") return undefined;
-  if (Buffer.isBuffer(req.body)) return req.body;
-  return typeof req.body === "string" ? req.body : JSON.stringify(req.body);
+  if (req.body != null && req.body !== "") {
+    if (Buffer.isBuffer(req.body)) return req.body;
+    if (typeof req.body === "string") return req.body;
+    if (typeof req.body === "object") return JSON.stringify(req.body);
+  }
+  const raw = await readRawBody(req);
+  return raw.length > 0 ? raw : undefined;
 }
 
 export default async function handler(req, res) {
@@ -64,7 +87,7 @@ export default async function handler(req, res) {
     const upstream = await fetch(target, {
       method: req.method,
       headers,
-      body: requestBody(req),
+      body: await requestBody(req),
     });
     const body = await upstream.arrayBuffer();
     const contentType = upstream.headers.get("content-type");

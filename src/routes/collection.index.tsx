@@ -101,7 +101,7 @@ function CollectionPage() {
                 params={{ id: c.id }}
                 className="rounded-2xl bg-card border overflow-hidden"
               >
-                <MeteoriteThumb seed={c.imageSeed} className="aspect-square" />
+                <MeteoriteThumb seed={c.imageSeed} imageUrl={c.imageUrl} className="aspect-square" />
                 <div className="p-2.5">
                   <p className="text-xs font-bold truncate">{c.name}</p>
                   <p className="text-[10px] text-muted-foreground truncate">{c.classification}</p>

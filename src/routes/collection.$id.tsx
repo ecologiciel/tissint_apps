@@ -46,7 +46,7 @@ function ItemPage() {
       </header>
 
       <main className="flex-1 overflow-y-auto">
-        <MeteoriteThumb seed={item.imageSeed} className="aspect-square" />
+        <MeteoriteThumb seed={item.imageSeed} imageUrl={item.imageUrl} className="aspect-square" />
         <div className="p-5 space-y-4">
           <div className="flex items-center justify-between">
             <h2 className="text-xl font-bold">{item.classification}</h2>

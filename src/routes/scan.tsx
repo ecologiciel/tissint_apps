@@ -1,7 +1,13 @@
 import { createFileRoute, useNavigate, Link } from "@tanstack/react-router";
 import { useEffect, useRef, useState } from "react";
+import type { MobileImageFile } from "@tissint/api-client";
 import { useApp } from "@/lib/store";
-import { tissintApi } from "@/lib/tissint-api";
+import {
+  getSavedWebSession,
+  getWebQuota,
+  scanWebExterior,
+  webApiErrorMessage,
+} from "@/lib/server-api";
 import {
   ChevronRight,
   Zap,
@@ -39,7 +45,8 @@ const OPTIONAL_SHOT: Shot = { id: "cut", label: "صورة مقطع", optional: t
 
 function ScanPage() {
   const nav = useNavigate();
-  const { scenario, scansToday, dailyLimit, role, incrementScans, setLastScan } = useApp();
+  const { scenario, scansToday, dailyLimit, role, incrementScans, setLastScan, setServerQuota } =
+    useApp();
   const [shots, setShots] = useState<Shot[]>([...REQUIRED_SHOTS, OPTIONAL_SHOT]);
   const [activeIdx, setActiveIdx] = useState(0);
   const [permission, setPermission] = useState<"idle" | "granted" | "denied">("idle");
@@ -121,19 +128,40 @@ function ScanPage() {
     }
     setScanning(true);
     try {
-      const result = await tissintApi.scanExterior({
+      const session = getSavedWebSession();
+      const exteriorFiles = shots
+        .filter((s) => !s.optional && s.uri)
+        .map((s) => shotToFile(s));
+      const interiorShot = shots.find((s) => s.optional && s.uri);
+      const parsedWeight = Number.parseFloat(weight.replace(",", "."));
+      const result = await scanWebExterior(
+        {
+          metadata: {
+            clientUuid: `web-${scenario}-${Date.now()}`,
+            userId: session?.user.id,
+            weightGram: Number.isFinite(parsedWeight) ? parsedWeight : undefined,
+            magnetic: magnetism === "none" ? false : true,
+            region,
+          },
+          exteriorFiles,
+          interiorFile: interiorShot ? shotToFile(interiorShot) : undefined,
+        },
         scenario,
-        clientUuid: `demo-${scenario}-${Date.now()}`,
-      });
-      incrementScans();
+        exteriorFiles[0]?.uri,
+      );
+      try {
+        setServerQuota(await getWebQuota());
+      } catch {
+        incrementScans();
+      }
       setLastScan(result);
       if (result.score < 50) {
         await nav({ to: "/scan/failed/$scanId", params: { scanId: result.scanId } });
       } else {
         await nav({ to: "/scan/success/$scanId", params: { scanId: result.scanId } });
       }
-    } catch {
-      toast.error("تعذّر التحليل");
+    } catch (error) {
+      toast.error(webApiErrorMessage(error, "تعذّر التحليل"));
     } finally {
       setScanning(false);
     }
@@ -424,4 +452,12 @@ function ScanPage() {
       )}
     </div>
   );
+}
+
+function shotToFile(shot: Shot): MobileImageFile {
+  return {
+    uri: shot.uri!,
+    name: `${shot.id}-${Date.now()}.jpg`,
+    type: "image/jpeg",
+  };
 }

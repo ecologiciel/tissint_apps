@@ -1,7 +1,16 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
+import { useQuery } from "@tanstack/react-query";
+import { useEffect, useState } from "react";
 import { useApp } from "@/lib/store";
 import { TabBar } from "@/components/tissint/tab-bar";
 import { MeteoriteThumb } from "@/components/tissint/meteorite-thumb";
+import {
+  getSavedWebSession,
+  getWebQuota,
+  isUnlimitedRole,
+  listWebCollection,
+  listWebMarketplace,
+} from "@/lib/server-api";
 import {
   ScanLine,
   TrendingUp,
@@ -16,11 +25,54 @@ import {
 export const Route = createFileRoute("/dashboard")({ component: Dashboard });
 
 function Dashboard() {
-  const { userName, role, scansToday, dailyLimit, collection, listings, unreadNotifications } =
-    useApp();
-  const recentScans = collection.slice(0, 3);
-  const hot = listings.slice(0, 4);
+  const {
+    userName,
+    role,
+    scansToday,
+    dailyLimit,
+    collection,
+    listings,
+    unreadNotifications,
+    setServerQuota,
+    setServerCollection,
+    setServerListings,
+  } = useApp();
+  const hasServerSession = Boolean(getSavedWebSession()?.tokens.accessToken);
+  const quotaQuery = useQuery({
+    queryKey: ["web-quota"],
+    queryFn: getWebQuota,
+    enabled: hasServerSession,
+  });
+  const collectionQuery = useQuery({
+    queryKey: ["web-collection"],
+    queryFn: listWebCollection,
+    enabled: hasServerSession,
+  });
+  const marketplaceQuery = useQuery({
+    queryKey: ["web-marketplace"],
+    queryFn: listWebMarketplace,
+    enabled: hasServerSession,
+  });
+
+  useEffect(() => {
+    if (quotaQuery.data) setServerQuota(quotaQuery.data);
+  }, [quotaQuery.data, setServerQuota]);
+
+  useEffect(() => {
+    if (collectionQuery.data) setServerCollection(collectionQuery.data);
+  }, [collectionQuery.data, setServerCollection]);
+
+  useEffect(() => {
+    if (marketplaceQuery.data) setServerListings(marketplaceQuery.data);
+  }, [marketplaceQuery.data, setServerListings]);
+
+  const activeCollection = hasServerSession && collectionQuery.data ? collectionQuery.data : collection;
+  const activeListings = hasServerSession && marketplaceQuery.data ? marketplaceQuery.data : listings;
+  const recentScans = activeCollection.slice(0, 3);
+  const hot = activeListings.slice(0, 4);
+  const quotaLimitLabel = isUnlimitedRole(role) || dailyLimit >= 999 ? "∞" : String(dailyLimit);
   const canOpenExpert = role === "expert" || role === "admin";
+  const showPremiumUpsell = role !== "premium" && role !== "admin" && role !== "expert";
 
   return (
     <div className="flex h-full flex-col" dir="rtl">
@@ -69,18 +121,18 @@ function Dashboard() {
 
         <div className="mt-5 grid grid-cols-3 gap-2 text-center">
           <div className="rounded-xl bg-white/10 p-3">
-            <p className="text-lg font-black text-gold">{collection.length}</p>
+            <p className="text-lg font-black text-gold">{activeCollection.length}</p>
             <p className="text-[10px] text-warm/70">في مجموعتي</p>
           </div>
           <div className="rounded-xl bg-white/10 p-3">
             <p className="text-lg font-black text-gold">
-              {scansToday}/{dailyLimit === 999 ? "∞" : dailyLimit}
+              {scansToday}/{quotaLimitLabel}
             </p>
             <p className="text-[10px] text-warm/70">مسح اليوم</p>
           </div>
           <div className="rounded-xl bg-white/10 p-3">
             <p className="text-lg font-black text-gold">
-              {listings.filter((l) => l.status === "approved").length}
+              {activeListings.filter((l) => l.status === "approved").length}
             </p>
             <p className="text-[10px] text-warm/70">في السوق</p>
           </div>
@@ -116,7 +168,7 @@ function Dashboard() {
           <span className="text-orange text-sm font-bold">›</span>
         </Link>
 
-        {role !== "premium" && (
+        {showPremiumUpsell && (
           <Link to="/premium" className="block">
             <div className="rounded-2xl border-2 border-dashed border-gold/50 bg-gold/10 p-4 flex items-center gap-3">
               <Crown className="h-6 w-6 text-gold" />
@@ -154,13 +206,23 @@ function Dashboard() {
             </Link>
           </div>
           <div className="grid grid-cols-3 gap-2">
-            {recentScans.map((s) => (
-              <Link key={s.id} to="/collection/$id" params={{ id: s.id }} className="block">
-                <MeteoriteThumb seed={s.imageSeed} className="aspect-square rounded-xl" />
-                <p className="text-[11px] mt-1 truncate font-semibold">{s.name}</p>
-                <p className="text-[10px] text-muted-foreground">{s.score}/100</p>
-              </Link>
-            ))}
+            {recentScans.length > 0 ? (
+              recentScans.map((s) => (
+                <Link key={s.id} to="/collection/$id" params={{ id: s.id }} className="block">
+                  <DashboardThumb
+                    seed={s.imageSeed}
+                    imageUrl={s.imageUrl}
+                    className="aspect-square rounded-xl"
+                  />
+                  <p className="text-[11px] mt-1 truncate font-semibold">{s.name}</p>
+                  <p className="text-[10px] text-muted-foreground">{s.score}/100</p>
+                </Link>
+              ))
+            ) : (
+              <p className="col-span-3 rounded-xl border border-dashed border-border bg-card p-4 text-center text-xs text-muted-foreground">
+                لا توجد مسوحات محفوظة بعد
+              </p>
+            )}
           </div>
         </section>
 
@@ -181,7 +243,7 @@ function Dashboard() {
                 params={{ listingId: l.id }}
                 className="block rounded-xl bg-card border border-border overflow-hidden"
               >
-                <MeteoriteThumb seed={l.imageSeed} className="aspect-square" />
+                <DashboardThumb seed={l.imageSeed} imageUrl={l.imageUrl} className="aspect-square" />
                 <div className="p-2">
                   <p className="text-[11px] font-bold truncate">{l.title}</p>
                   <p className="text-[10px] text-orange font-black">
@@ -197,4 +259,28 @@ function Dashboard() {
       <TabBar />
     </div>
   );
+}
+
+function DashboardThumb({
+  seed,
+  imageUrl,
+  className,
+}: {
+  seed: string;
+  imageUrl?: string;
+  className: string;
+}) {
+  const [failed, setFailed] = useState(false);
+  if (imageUrl && !failed) {
+    return (
+      <img
+        src={imageUrl}
+        alt=""
+        className={`${className} block h-full w-full object-cover bg-stone/10`}
+        loading="lazy"
+        onError={() => setFailed(true)}
+      />
+    );
+  }
+  return <MeteoriteThumb seed={seed} className={className} />;
 }

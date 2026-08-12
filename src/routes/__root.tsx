@@ -8,12 +8,13 @@ import {
   Scripts,
 } from "@tanstack/react-router";
 import { useEffect } from "react";
-import { AppProvider } from "@/lib/store";
+import { AppProvider, useApp } from "@/lib/store";
 import { Toaster } from "@/components/ui/sonner";
 import { DeviceFrame } from "@/components/tissint/device-frame";
 import { DevPanel } from "@/components/tissint/dev-panel";
 import { OfflineBanner } from "@/components/tissint/offline-banner";
 import { useOfflineCache } from "@/lib/offline-cache";
+import { restoreWebSession } from "@/lib/server-api";
 import appCss from "../styles.css?url";
 
 function NotFoundComponent() {
@@ -105,6 +106,7 @@ function RootComponent() {
   return (
     <QueryClientProvider client={queryClient}>
       <AppProvider>
+        <WebSessionBridge />
         <OfflineCacheBridge />
         <ServiceWorkerBridge />
         <div
@@ -124,6 +126,24 @@ function RootComponent() {
       </AppProvider>
     </QueryClientProvider>
   );
+}
+
+function WebSessionBridge() {
+  const { applyServerSession } = useApp();
+
+  useEffect(() => {
+    let mounted = true;
+    restoreWebSession()
+      .then((session) => {
+        if (mounted && session) applyServerSession(session);
+      })
+      .catch(() => {});
+    return () => {
+      mounted = false;
+    };
+  }, [applyServerSession]);
+
+  return null;
 }
 
 function OfflineCacheBridge() {

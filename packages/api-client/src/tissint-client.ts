@@ -105,7 +105,46 @@ export interface ExpertExportCreateInput {
   version?: string;
 }
 
-function appendImage(form: FormData, field: string, image: MobileImageFile) {
+function dataUrlToBlob(uri: string, fallbackType: MobileImageFile["type"]): Blob | null {
+  const match = /^data:([^;,]+)?(;base64)?,(.*)$/i.exec(uri);
+  if (!match) return null;
+
+  const contentType = (match[1] || fallbackType) as MobileImageFile["type"];
+  const payload = match[3] ?? "";
+  if (match[2]) {
+    const binary = atob(payload);
+    const bytes = new Uint8Array(binary.length);
+    for (let index = 0; index < binary.length; index += 1) {
+      bytes[index] = binary.charCodeAt(index);
+    }
+    return new Blob([bytes], { type: contentType });
+  }
+
+  return new Blob([decodeURIComponent(payload)], { type: contentType });
+}
+
+async function appendImage(form: FormData, field: string, image: MobileImageFile) {
+  const isBrowserRuntime = typeof window !== "undefined" && typeof document !== "undefined";
+  if (isBrowserRuntime && typeof Blob !== "undefined") {
+    if (/^data:/i.test(image.uri)) {
+      const blob = dataUrlToBlob(image.uri, image.type);
+      if (blob) {
+        form.append(field, blob, image.name);
+        return;
+      }
+    }
+
+    if (typeof fetch === "function" && /^(blob:|file:)/i.test(image.uri)) {
+      try {
+        const blob = await fetch(image.uri).then((response) => response.blob());
+        form.append(field, blob, image.name);
+        return;
+      } catch {
+        // React Native file URIs are handled by the fallback below.
+      }
+    }
+  }
+
   form.append(field, {
     uri: image.uri,
     name: image.name,
@@ -214,8 +253,9 @@ export class TissintClient {
     if (input.metadata.latitude != null) form.append("latitude", String(input.metadata.latitude));
     if (input.metadata.longitude != null)
       form.append("longitude", String(input.metadata.longitude));
-    for (const file of input.exteriorFiles) appendImage(form, "files_exterior", file);
-    if (input.interiorFile) appendImage(form, "file_interior", input.interiorFile);
+    if (input.metadata.region) form.append("region", input.metadata.region);
+    for (const file of input.exteriorFiles) await appendImage(form, "files_exterior", file);
+    if (input.interiorFile) await appendImage(form, "file_interior", input.interiorFile);
 
     const payload = await this.http.request<ServerScanResponse>("/api/v1/scan/exterior", {
       method: "POST",
@@ -227,7 +267,7 @@ export class TissintClient {
 
   async addInterior(scanId: string, file: MobileImageFile) {
     const form = new FormData();
-    appendImage(form, "file_interior", file);
+    await appendImage(form, "file_interior", file);
     const payload = await this.http.request<ServerScanResponse>(`/api/v1/scan/${scanId}/interior`, {
       method: "PATCH",
       body: form,

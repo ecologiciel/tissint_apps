@@ -58,7 +58,11 @@ function ScanFailedPage() {
         </p>
 
         <div className="mt-6 w-full max-w-sm rounded-2xl bg-card border border-border p-4 space-y-3">
-          <MeteoriteThumb seed={r.imageSeed} className="aspect-[4/3] rounded-xl overflow-hidden" />
+          <MeteoriteThumb
+            seed={r.imageSeed}
+            imageUrl={r.imageUrl}
+            className="aspect-[4/3] rounded-xl overflow-hidden"
+          />
           <div className="text-right space-y-1.5 text-sm">
             <div className="flex justify-between">
               <span className="text-muted-foreground">التصنيف</span>

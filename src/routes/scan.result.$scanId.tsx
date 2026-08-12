@@ -1,7 +1,7 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useEffect, useMemo, useState } from "react";
 import { useApp } from "@/lib/store";
-import { tissintApi } from "@/lib/tissint-api";
+import { addWebScanToCollection, webApiErrorMessage } from "@/lib/server-api";
 import { MeteoriteThumb } from "@/components/tissint/meteorite-thumb";
 import {
   Check,
@@ -111,10 +111,11 @@ function ScoreRing({ score, colorClass }: { score: number; colorClass: string })
 
 function ResultPage() {
   const { scanId } = Route.useParams();
-  const { lastScan, scenario, setLastScan, addToCollection } = useApp();
+  const { lastScan, addToCollection } = useApp();
   const nav = useNavigate();
   const [analyzing, setAnalyzing] = useState(false);
   const [saved, setSaved] = useState(false);
+  const [saving, setSaving] = useState(false);
   const [checklist, setChecklist] = useState<Record<string, boolean>>({
     interior: false,
     weight: false,
@@ -145,26 +146,24 @@ function ResultPage() {
 
   const analyzeInterior = async () => {
     setAnalyzing(true);
-    const next = await tissintApi.scanInterior(r.scanId, scenario);
-    setLastScan(next);
     setChecklist((c) => ({ ...c, interior: true }));
     setAnalyzing(false);
-    toast.success("تم تحديث النتيجة بعد فحص الداخل");
+    toast.info("لإعادة التحليل من الخادم أعد المسح مع صورة المقطع.");
   };
 
-  const saveToCollection = () => {
-    addToCollection({
-      id: "col-" + r.scanId,
-      scanId: r.scanId,
-      name: "العينة #" + r.scanId.slice(-3),
-      classification: r.classification,
-      score: r.score,
-      verdict: r.verdict,
-      imageSeed: r.imageSeed,
-      createdAt: r.createdAt,
-    });
-    setSaved(true);
-    toast.success("تم الحفظ في مجموعتك");
+  const saveToCollection = async () => {
+    if (saved || saving) return;
+    setSaving(true);
+    try {
+      const item = await addWebScanToCollection(r.scanId);
+      addToCollection(item);
+      setSaved(true);
+      toast.success("تم الحفظ في مجموعتك");
+    } catch (error) {
+      toast.error(webApiErrorMessage(error, "تعذر الحفظ في مجموعتك"));
+    } finally {
+      setSaving(false);
+    }
   };
 
   const handlePublish = () => {
@@ -222,7 +221,7 @@ function ResultPage() {
 
         {/* Photo */}
         <div className="rounded-2xl bg-card border overflow-hidden relative">
-          <MeteoriteThumb seed={r.imageSeed} className="aspect-[4/3]" />
+          <MeteoriteThumb seed={r.imageSeed} imageUrl={r.imageUrl} className="aspect-[4/3]" />
           {state === "ready" && (
             <div className="absolute top-3 right-3 rounded-full bg-success text-success-foreground px-3 py-1 text-[10px] font-bold flex items-center gap-1 animate-scale-in shadow-lg">
               <ShieldCheck className="h-3 w-3" /> موثّق تيسينت
@@ -336,11 +335,11 @@ function ResultPage() {
           <div className="grid grid-cols-2 gap-3 pt-2">
             <button
               onClick={saveToCollection}
-              disabled={saved}
+              disabled={saved || saving}
               className="rounded-xl border-2 border-primary text-primary py-3 font-bold flex items-center justify-center gap-2 disabled:opacity-50"
             >
               <BookmarkPlus className="h-4 w-4" />
-              {saved ? "محفوظ" : "حفظ"}
+              {saved ? "محفوظ" : saving ? "جار الحفظ..." : "حفظ"}
             </button>
             <button
               onClick={handlePublish}
