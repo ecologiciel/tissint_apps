@@ -118,7 +118,11 @@ function MyListings() {
             return (
               <div key={l.id} className="rounded-2xl bg-card border border-border overflow-hidden">
                 <div className="flex gap-3 p-3">
-                  <MeteoriteThumb seed={l.imageSeed} className="h-20 w-20 rounded-xl shrink-0" />
+                  <MeteoriteThumb
+                    seed={l.imageSeed}
+                    imageUrl={l.imageUrl}
+                    className="h-20 w-20 rounded-xl shrink-0"
+                  />
                   <div className="flex-1 min-w-0">
                     <div className="flex items-start justify-between gap-2">
                       <h3 className="font-bold text-sm truncate flex-1">{l.title}</h3>

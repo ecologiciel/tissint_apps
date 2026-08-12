@@ -71,7 +71,7 @@ function ListingPage() {
       </header>
 
       <main className="flex-1 overflow-y-auto">
-        <MeteoriteThumb seed={l.imageSeed} className="aspect-square" />
+        <MeteoriteThumb seed={l.imageSeed} imageUrl={l.imageUrl} className="aspect-square" />
 
         <div className="p-5 space-y-4 -mt-6 relative bg-background rounded-t-3xl">
           <div>

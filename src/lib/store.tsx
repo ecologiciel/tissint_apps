@@ -206,6 +206,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
         listingId: l.id,
         listingTitle: l.title,
         listingImageSeed: l.imageSeed,
+        listingImageUrl: l.imageUrl,
         peerName: l.sellerName,
         peerVerified: l.sellerVerified,
         lastMessage: "محادثة جديدة",

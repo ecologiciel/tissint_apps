@@ -130,6 +130,7 @@ function PublishPage() {
         score: source.score,
         status: isCertified ? "approved" : "pending",
         imageSeed: photos[0],
+        imageUrl: source.imageUrl,
         createdAt: new Date().toISOString(),
         description,
       });
@@ -145,6 +146,7 @@ function PublishPage() {
         title={title}
         price={parseFloat(price)}
         imageSeed={photos[0]}
+        imageUrl={source.imageUrl}
         certified={isCertified}
         crossSell={crossSell}
         onClose={() => nav({ to: "/market/my-listings" })}
@@ -184,7 +186,11 @@ function PublishPage() {
 
         {/* Source preview */}
         <div className="rounded-2xl bg-card border border-border p-3 flex items-center gap-3 relative overflow-hidden">
-          <MeteoriteThumb seed={source.imageSeed} className="h-16 w-16 rounded-xl" />
+          <MeteoriteThumb
+            seed={source.imageSeed}
+            imageUrl={source.imageUrl}
+            className="h-16 w-16 rounded-xl"
+          />
           <div className="flex-1 min-w-0">
             <p className="text-xs text-muted-foreground">المصدر</p>
             <p className="font-bold text-sm truncate">{source.classification}</p>
@@ -207,7 +213,11 @@ function PublishPage() {
           <div className="grid grid-cols-3 gap-2">
             {photos.map((p, i) => (
               <div key={i} className="relative aspect-square">
-                <MeteoriteThumb seed={p} className="h-full w-full rounded-xl" />
+                <MeteoriteThumb
+                  seed={p}
+                  imageUrl={i === 0 ? source.imageUrl : undefined}
+                  className="h-full w-full rounded-xl"
+                />
                 {i > 0 && (
                   <button
                     type="button"
@@ -355,7 +365,11 @@ function PublishPage() {
             <div className="space-y-2">
               {crossSell.map((l) => (
                 <div key={l.id} className="flex items-center gap-3 rounded-xl bg-warm/40 p-2">
-                  <MeteoriteThumb seed={l.imageSeed} className="h-10 w-10 rounded-lg" />
+                  <MeteoriteThumb
+                    seed={l.imageSeed}
+                    imageUrl={l.imageUrl}
+                    className="h-10 w-10 rounded-lg"
+                  />
                   <div className="flex-1 min-w-0">
                     <p className="text-xs font-bold truncate">{l.title}</p>
                     <p className="text-[10px] text-muted-foreground">
@@ -413,6 +427,7 @@ function SuccessOverlay({
   title,
   price,
   imageSeed,
+  imageUrl,
   certified,
   crossSell,
   onClose,
@@ -421,6 +436,7 @@ function SuccessOverlay({
   title: string;
   price: number;
   imageSeed: string;
+  imageUrl?: string;
   certified: boolean;
   crossSell: ReturnType<typeof useApp>["listings"];
   onClose: () => void;
@@ -463,7 +479,7 @@ function SuccessOverlay({
         {/* Card preview */}
         <div className="rounded-2xl bg-card border-2 border-success/30 p-4 shadow-xl animate-scale-in">
           <div className="flex items-center gap-3">
-            <MeteoriteThumb seed={imageSeed} className="h-20 w-20 rounded-xl" />
+            <MeteoriteThumb seed={imageSeed} imageUrl={imageUrl} className="h-20 w-20 rounded-xl" />
             <div className="flex-1 min-w-0">
               <p className="text-xs text-muted-foreground">
                 {certified ? "منشور" : "قيد المراجعة"}
@@ -523,7 +539,11 @@ function SuccessOverlay({
                   params={{ listingId: l.id }}
                   className="flex items-center gap-3 rounded-xl bg-warm/40 p-2 hover:bg-warm/60 transition"
                 >
-                  <MeteoriteThumb seed={l.imageSeed} className="h-10 w-10 rounded-lg" />
+                  <MeteoriteThumb
+                    seed={l.imageSeed}
+                    imageUrl={l.imageUrl}
+                    className="h-10 w-10 rounded-lg"
+                  />
                   <div className="flex-1 min-w-0">
                     <p className="text-xs font-bold truncate">{l.title}</p>
                     <p className="text-[10px] text-muted-foreground">

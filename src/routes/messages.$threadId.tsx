@@ -51,6 +51,7 @@ function Thread() {
         </button>
         <MeteoriteThumb
           seed={conv.listingImageSeed || conv.peerName}
+          imageUrl={conv.listingImageUrl}
           className="h-10 w-10 rounded-xl"
         />
         <div className="flex-1 min-w-0">

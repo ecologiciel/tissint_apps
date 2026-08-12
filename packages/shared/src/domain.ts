@@ -97,6 +97,11 @@ export interface MarketplaceListing {
   sellerVerified?: boolean;
   sellerRegion?: string;
   contactLockedUntil?: string;
+  mainImageUri?: string;
+  imageUrl?: string;
+  thumbnailUri?: string;
+  interiorImageUri?: string;
+  galleryImages?: string[];
 }
 
 export interface MarketplaceListingDetail extends MarketplaceListing {

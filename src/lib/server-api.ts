@@ -209,6 +209,20 @@ function mediaUrl(uri?: string) {
   return `/api/proxy${uri.startsWith("/") ? uri : `/${uri}`}`;
 }
 
+function listingImageUrl(listing: MarketplaceListing) {
+  return mediaUrl(
+    listing.imageUrl ??
+      listing.mainImageUri ??
+      listing.thumbnailUri ??
+      listing.galleryImages?.find(Boolean),
+  );
+}
+
+function toRootPriceMode(mode?: MarketplaceListing["priceMode"]): PriceMode {
+  if (mode === "negotiable" || mode === "on_request") return "negotiable";
+  return "fixed";
+}
+
 function verdictFromScore(score: number): Verdict {
   if (score >= 85) return "likely";
   if (score >= 50) return "possible";
@@ -291,7 +305,7 @@ function toWebCollectionItem(item: ServerCollectionItem): CollectionItem {
 }
 
 function toWebListing(listing: MarketplaceListing): Listing {
-  const priceMode: PriceMode = listing.priceMode ?? "fixed";
+  const priceMode = toRootPriceMode(listing.priceMode);
   const status: ListingStatus =
     listing.status === "sold" ? "sold" : listing.status === "rejected" ? "rejected" : "approved";
   return {
@@ -308,6 +322,7 @@ function toWebListing(listing: MarketplaceListing): Listing {
     score: Math.round((listing.fusionScore ?? listing.confidence) * 100),
     status,
     imageSeed: listing.listingId,
+    imageUrl: listingImageUrl(listing),
     createdAt: listing.createdAt,
     description: listing.description ?? "",
     isRare: listing.isRare,

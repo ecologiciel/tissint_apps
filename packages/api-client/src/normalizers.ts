@@ -72,6 +72,15 @@ export interface ServerListingItem extends ServerListingContract {
   is_rare?: boolean;
   price_mode?: MarketplaceListing["priceMode"];
   created_at?: string;
+  weight_g?: number;
+  fusion_score?: number;
+  meteorite_probability?: number;
+  class_confidence?: number;
+  main_image_uri?: string | null;
+  image_url?: string | null;
+  thumbnail_uri?: string | null;
+  interior_image_uri?: string | null;
+  gallery_images?: string[] | null;
 }
 
 export interface ServerFavoriteItem {
@@ -134,10 +143,20 @@ export interface ServerCollectionItem extends Partial<ServerCollectionContract> 
   meteorite_probability?: number;
   status?: CollectionItem["status"];
   created_at?: string;
-  main_image_uri?: string;
+  main_image_uri?: string | null;
 }
 
-export type ServerPublishResponse = ServerPublishContract;
+export type ServerPublishResponse = ServerPublishContract & {
+  weight_g?: number;
+  fusion_score?: number;
+  meteorite_probability?: number;
+  class_confidence?: number;
+  main_image_uri?: string | null;
+  image_url?: string | null;
+  thumbnail_uri?: string | null;
+  interior_image_uri?: string | null;
+  gallery_images?: string[] | null;
+};
 
 const MARKETPLACE_STATUSES = new Set<MarketplaceStatus>([
   "draft",
@@ -344,14 +363,20 @@ export function normalizeScanResponse(payload: ServerScanResponse): NormalizedSc
 }
 
 export function normalizeListing(payload: ServerListingItem): MarketplaceListing {
+  const confidence = normalizeScore(
+    payload.confidence ?? payload.class_confidence ?? payload.meteorite_probability ?? 0,
+  );
+  const fusionScore = normalizeScore(
+    payload.fusion_score ?? payload.meteorite_probability ?? payload.confidence ?? 0,
+  );
   return {
     listingId: payload.listing_id,
     scanId: payload.scan_id,
     title: payload.title ?? payload.dominant_class,
     dominantClass: payload.dominant_class,
-    confidence: payload.confidence,
-    fusionScore: payload.confidence,
-    weightGram: payload.weight ?? undefined,
+    confidence,
+    fusionScore,
+    weightGram: payload.weight_g ?? payload.weight ?? undefined,
     priceValue: payload.price,
     priceMode: normalizePriceMode(payload.price_mode),
     status: normalizeMarketplaceStatus(payload.status),
@@ -367,6 +392,11 @@ export function normalizeListing(payload: ServerListingItem): MarketplaceListing
     blurredLatitude: payload.blurred_latitude ?? undefined,
     blurredLongitude: payload.blurred_longitude ?? undefined,
     createdAt: payload.created_at,
+    mainImageUri: payload.main_image_uri ?? undefined,
+    imageUrl: payload.image_url ?? undefined,
+    thumbnailUri: payload.thumbnail_uri ?? undefined,
+    interiorImageUri: payload.interior_image_uri ?? undefined,
+    galleryImages: payload.gallery_images ?? undefined,
   };
 }
 
@@ -520,7 +550,7 @@ export function normalizeCollectionItem(payload: ServerCollectionItem): Collecti
   return {
     id: payload.id ?? payload.scan_id,
     scanId: payload.scan_id,
-    mainImageUri: payload.main_image_uri,
+    mainImageUri: payload.main_image_uri ?? undefined,
     className: payload.class_name ?? payload.dominant_class ?? "Unknown",
     fusionScore,
     status: payload.status ?? (fusionScore >= 0.85 ? "eligible" : "needs_cut"),
@@ -530,6 +560,12 @@ export function normalizeCollectionItem(payload: ServerCollectionItem): Collecti
 
 export function normalizePublishResult(payload: ServerPublishResponse): PublishListingResult {
   const rare = Boolean(payload.is_rare_candidate);
+  const confidence = normalizeScore(
+    payload.confidence ?? payload.class_confidence ?? payload.meteorite_probability ?? 0,
+  );
+  const fusionScore = normalizeScore(
+    payload.fusion_score ?? payload.meteorite_probability ?? payload.confidence ?? 0,
+  );
   const status = payload.status
     ? normalizeMarketplaceStatus(payload.status)
     : rare
@@ -545,9 +581,9 @@ export function normalizePublishResult(payload: ServerPublishResponse): PublishL
       scanId: payload.scan_id,
       title: payload.title ?? payload.dominant_class ?? "Meteorite",
       dominantClass: payload.dominant_class ?? "Unknown",
-      confidence: payload.confidence ?? 0,
-      fusionScore: payload.confidence,
-      weightGram: payload.weight ?? undefined,
+      confidence,
+      fusionScore,
+      weightGram: payload.weight_g ?? payload.weight ?? undefined,
       priceValue: payload.price,
       priceMode: normalizePriceMode(
         payload.price_mode,
@@ -560,6 +596,11 @@ export function normalizePublishResult(payload: ServerPublishResponse): PublishL
       contactLockedUntil: payload.contact_locked_until ?? undefined,
       blurredLatitude: payload.blurred_latitude ?? undefined,
       blurredLongitude: payload.blurred_longitude ?? undefined,
+      mainImageUri: payload.main_image_uri ?? undefined,
+      imageUrl: payload.image_url ?? undefined,
+      thumbnailUri: payload.thumbnail_uri ?? undefined,
+      interiorImageUri: payload.interior_image_uri ?? undefined,
+      galleryImages: payload.gallery_images ?? undefined,
     },
   };
 }

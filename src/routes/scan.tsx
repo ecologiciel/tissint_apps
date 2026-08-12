@@ -33,7 +33,7 @@ type Shot = {
   id: string;
   label: string; // "أمامية", "خلفية", "جانبية", "مقطع"
   optional?: boolean;
-  uri?: string; // data URL (mock)
+  uri?: string; // browser camera data URL
 };
 
 const REQUIRED_SHOTS: Shot[] = [
@@ -91,11 +91,9 @@ function ScanPage() {
     };
   }, []);
 
-  const capture = () => {
+  const capture = async () => {
     if (permission !== "granted" || !videoRef.current) {
-      // mock fallback: use a gradient seed
-      const seed = `mock-${shots[activeIdx].id}-${Date.now()}`;
-      updateShot(activeIdx, seed);
+      await askPermission();
       return;
     }
     const v = videoRef.current;

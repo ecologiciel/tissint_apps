@@ -57,6 +57,7 @@ export interface Listing {
   imageUrl?: string;
   createdAt: string;
   description: string;
+  isRare?: boolean;
 }
 
 export interface Quotas {
@@ -80,6 +81,7 @@ export interface Conversation {
   listingId?: string;
   listingTitle?: string;
   listingImageSeed?: string;
+  listingImageUrl?: string;
   peerName: string;
   peerVerified: boolean;
   lastMessage: string;

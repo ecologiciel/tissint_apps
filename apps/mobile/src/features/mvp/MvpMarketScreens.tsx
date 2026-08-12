@@ -36,6 +36,7 @@ import {
 import type { ReactNode } from "react";
 import { useMemo, useState } from "react";
 import {
+  Image,
   Linking,
   Pressable,
   ScrollView,
@@ -49,7 +50,7 @@ import {
 } from "@/components/ui/ResponsiveText";
 import { MvpEmptyActionScreen } from "@/features/mvp/MvpEmptyState";
 import { createListing, getListing, listMarketplace } from "@/lib/api";
-import { isHttpApiEnabled } from "@/lib/env";
+import { env, isHttpApiEnabled } from "@/lib/env";
 import { useScanStore } from "@/store/scan-store";
 import { useSessionStore } from "@/store/session-store";
 import {
@@ -352,6 +353,44 @@ function GreenThumb({ seed = "sample", style }: { seed?: string; style?: object 
       ))}
     </LinearGradient>
   );
+}
+
+function resolveMarketImageUri(listing: MarketplaceListing) {
+  const raw =
+    listing.imageUrl ??
+    listing.mainImageUri ??
+    listing.thumbnailUri ??
+    listing.galleryImages?.find(Boolean);
+  if (!raw) return undefined;
+  if (/^(https?:|file:|data:|blob:)/i.test(raw)) return raw;
+  if (!env.apiBaseUrl) return raw;
+  return `${env.apiBaseUrl}${raw.startsWith("/") ? raw : `/${raw}`}`;
+}
+
+function MarketThumb({
+  listing,
+  seed,
+  style,
+}: {
+  listing: MarketplaceListing;
+  seed?: string;
+  style?: object;
+}) {
+  const [failed, setFailed] = useState(false);
+  const uri = resolveMarketImageUri(listing);
+
+  if (uri && !failed) {
+    return (
+      <Image
+        source={{ uri }}
+        resizeMode="cover"
+        onError={() => setFailed(true)}
+        style={[styles.marketThumb, style]}
+      />
+    );
+  }
+
+  return <PurpleThumb seed={seed ?? listing.listingId} style={style} />;
 }
 
 export function MvpStatsScreen() {
@@ -705,7 +744,8 @@ function MarketCard({ listing }: { listing: PrototypeMarketListing }) {
       }
       style={[styles.marketCard, { width: m.x(153), height: m.y(227), borderRadius: m.z(22) }]}
     >
-      <PurpleThumb
+      <MarketThumb
+        listing={listing}
         seed={listing.listingId}
         style={{ width: "100%", height: m.y(152), borderRadius: 0 }}
       />
@@ -821,7 +861,8 @@ function CoherentListingDetail({
         contentContainerStyle={{ padding: m.x(20), paddingBottom: m.y(42) }}
       >
         <View style={[styles.detailHero, { borderRadius: m.z(24), padding: m.z(14) }]}>
-          <PurpleThumb
+          <MarketThumb
+            listing={listing}
             seed={listing.listingId}
             style={{ width: "100%", height: m.y(222), borderRadius: m.z(20) }}
           />

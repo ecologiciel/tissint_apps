@@ -41,7 +41,7 @@ function FavoritesPage() {
             {items.map((l) => (
               <div key={l.id} className="rounded-2xl bg-card border overflow-hidden relative">
                 <Link to="/market/$listingId" params={{ listingId: l.id }}>
-                  <MeteoriteThumb seed={l.imageSeed} className="aspect-square" />
+                  <MeteoriteThumb seed={l.imageSeed} imageUrl={l.imageUrl} className="aspect-square" />
                 </Link>
                 <button
                   onClick={() => {

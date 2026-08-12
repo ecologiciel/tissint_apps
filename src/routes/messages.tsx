@@ -59,6 +59,7 @@ function MessagesIndex() {
                 >
                   <MeteoriteThumb
                     seed={c.listingImageSeed || c.peerName}
+                    imageUrl={c.listingImageUrl}
                     className="h-12 w-12 rounded-xl"
                   />
                   <div className="flex-1 min-w-0">

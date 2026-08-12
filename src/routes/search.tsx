@@ -195,7 +195,7 @@ function SearchPage() {
                   params={{ listingId: l.id }}
                   className="rounded-xl bg-card border overflow-hidden"
                 >
-                  <MeteoriteThumb seed={l.imageSeed} className="aspect-square" />
+                  <MeteoriteThumb seed={l.imageSeed} imageUrl={l.imageUrl} className="aspect-square" />
                   <div className="p-2">
                     <p className="text-[11px] font-bold truncate">{l.title}</p>
                     <p className="text-[10px] text-orange font-black">
@@ -218,7 +218,11 @@ function SearchPage() {
                   params={{ id: c.id }}
                   className="flex items-center gap-3 rounded-xl bg-card border p-2"
                 >
-                  <MeteoriteThumb seed={c.imageSeed} className="h-12 w-12 rounded-lg shrink-0" />
+                  <MeteoriteThumb
+                    seed={c.imageSeed}
+                    imageUrl={c.imageUrl}
+                    className="h-12 w-12 rounded-lg shrink-0"
+                  />
                   <div className="flex-1 min-w-0">
                     <p className="text-sm font-bold truncate">{c.name}</p>
                     <p className="text-[11px] text-muted-foreground">{c.classification}</p>
@@ -241,6 +245,7 @@ function SearchPage() {
                 >
                   <MeteoriteThumb
                     seed={c.listingImageSeed ?? "x"}
+                    imageUrl={c.listingImageUrl}
                     className="h-10 w-10 rounded-lg shrink-0"
                   />
                   <div className="flex-1 min-w-0">

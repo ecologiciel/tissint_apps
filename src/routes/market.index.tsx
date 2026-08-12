@@ -183,7 +183,7 @@ function MarketPage() {
                 params={{ listingId: l.id }}
                 className="rounded-2xl bg-card border overflow-hidden flex flex-col"
               >
-                <MeteoriteThumb seed={l.imageSeed} className="aspect-square" />
+                <MeteoriteThumb seed={l.imageSeed} imageUrl={l.imageUrl} className="aspect-square" />
                 <div className="p-2.5 flex-1 flex flex-col">
                   <p className="text-xs font-bold truncate">{l.title}</p>
                   <p className="text-[10px] text-muted-foreground truncate flex items-center gap-1">
