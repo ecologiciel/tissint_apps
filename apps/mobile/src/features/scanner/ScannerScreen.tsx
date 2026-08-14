@@ -1,9 +1,27 @@
 import { CameraView, useCameraPermissions } from "expo-camera";
+import * as ImagePicker from "expo-image-picker";
 import * as ImageManipulator from "expo-image-manipulator";
 import { router } from "expo-router";
-import { Camera, Check, ChevronRight, Scale, Settings2, Sparkles } from "lucide-react-native";
+import {
+  Camera,
+  Check,
+  ChevronRight,
+  ImagePlus,
+  Scale,
+  Settings2,
+  Trash2,
+  Upload,
+} from "lucide-react-native";
 import { useRef, useState } from "react";
-import { ActivityIndicator, Pressable, StyleSheet, View, useWindowDimensions } from "react-native";
+import {
+  ActivityIndicator,
+  Image,
+  Pressable,
+  ScrollView,
+  StyleSheet,
+  View,
+  useWindowDimensions,
+} from "react-native";
 import type { MobileImageFile } from "@tissint/api-client";
 import { ResponsiveText as Text } from "@/components/ui/ResponsiveText";
 import { scanExterior } from "@/lib/api";
@@ -24,6 +42,8 @@ const scanShots: Shot[] = [
   { id: "side", label: "جانبية" },
   { id: "cut", label: "صورة مقطع", optional: true },
 ];
+
+const MAX_EXTERIOR_IMAGES = 8;
 
 const UI = {
   dark: "#1C2024",
@@ -58,8 +78,10 @@ export function ScannerScreen() {
   const { mockScenario, cycleMockScenario, setLastResult } = useScanStore();
   const m = useMetrics();
 
-  const requiredCount = shots.filter((shot) => !shot.optional && shot.file).length;
+  const exteriorShots = shots.filter((shot) => !shot.optional);
+  const requiredCount = exteriorShots.filter((shot) => shot.file).length;
   const canAnalyze = requiredCount >= 3 && !loading;
+  const canAddExterior = exteriorShots.length < MAX_EXTERIOR_IMAGES;
   const activeShot = shots[activeIndex] ?? shots[0];
 
   async function capture() {
@@ -90,10 +112,112 @@ export function ScannerScreen() {
       const updated = current.map((shot, index) =>
         index === activeIndex ? { ...shot, file } : shot,
       );
-      const next = updated.findIndex((shot, index) => index !== activeIndex && !shot.file);
+      const next = updated.findIndex(
+        (shot, index) => index !== activeIndex && !shot.optional && !shot.file,
+      );
       if (next >= 0) setActiveIndex(next);
       return updated;
     });
+  }
+
+  async function prepareLibraryImage(uri: string, prefix: string): Promise<MobileImageFile> {
+    const compressed = await ImageManipulator.manipulateAsync(
+      uri,
+      [{ resize: { width: 1440 } }],
+      { compress: 0.78, format: ImageManipulator.SaveFormat.JPEG },
+    );
+    return {
+      uri: compressed.uri,
+      name: `${prefix}-${Date.now()}.jpg`,
+      type: "image/jpeg",
+    };
+  }
+
+  function addExteriorFiles(files: MobileImageFile[]) {
+    if (files.length === 0) return;
+    setShots((current) => {
+      let next = [...current];
+      for (const file of files) {
+        let slot = next.findIndex((shot) => !shot.optional && !shot.file);
+        if (slot < 0) {
+          const cutIndex = next.findIndex((shot) => shot.optional);
+          slot = cutIndex >= 0 ? cutIndex : next.length;
+          const exteriorTotal = next.filter((shot) => !shot.optional).length;
+          next = [
+            ...next.slice(0, slot),
+            { id: `extra-${Date.now()}-${slot}`, label: `إضافية ${exteriorTotal + 1}` },
+            ...next.slice(slot),
+          ];
+        }
+        next[slot] = { ...next[slot], file };
+      }
+      return next;
+    });
+  }
+
+  async function pickExteriorImages() {
+    const capacity = MAX_EXTERIOR_IMAGES - requiredCount;
+    if (capacity <= 0) return;
+    const permissionResult = await ImagePicker.requestMediaLibraryPermissionsAsync();
+    if (!permissionResult.granted) return;
+    const result = await ImagePicker.launchImageLibraryAsync({
+      mediaTypes: ["images"],
+      allowsMultipleSelection: true,
+      selectionLimit: capacity,
+      quality: 0.86,
+    });
+    if (result.canceled) return;
+    const assets = result.assets.slice(0, capacity);
+    const files = await Promise.all(
+      assets.map((asset, index) =>
+        prepareLibraryImage(
+          asset.uri,
+          asset.fileName?.replace(/\.[^.]+$/, "") || `upload-${index + 1}`,
+        ),
+      ),
+    );
+    addExteriorFiles(files);
+  }
+
+  async function pickInteriorImage() {
+    const permissionResult = await ImagePicker.requestMediaLibraryPermissionsAsync();
+    if (!permissionResult.granted) return;
+    const result = await ImagePicker.launchImageLibraryAsync({
+      mediaTypes: ["images"],
+      allowsMultipleSelection: false,
+      quality: 0.86,
+    });
+    if (result.canceled || !result.assets[0]) return;
+    const file = await prepareLibraryImage(result.assets[0].uri, "interior");
+    setShots((current) => current.map((shot) => (shot.optional ? { ...shot, file } : shot)));
+    const cutIndex = shots.findIndex((shot) => shot.optional);
+    if (cutIndex >= 0) setActiveIndex(cutIndex);
+  }
+
+  function addEmptyExteriorSlot() {
+    if (!canAddExterior) return;
+    const cutIndex = shots.findIndex((shot) => shot.optional);
+    const insertAt = cutIndex >= 0 ? cutIndex : shots.length;
+    const nextLabel = shots.filter((shot) => !shot.optional).length + 1;
+    setShots((current) => [
+      ...current.slice(0, insertAt),
+      { id: `extra-${Date.now()}`, label: `إضافية ${nextLabel}` },
+      ...current.slice(insertAt),
+    ]);
+    setActiveIndex(insertAt);
+  }
+
+  function clearShot(index: number) {
+    setShots((current) => {
+      const target = current[index];
+      if (target && !target.optional && target.id.startsWith("extra-")) {
+        return current.filter((_, itemIndex) => itemIndex !== index);
+      }
+      return current.map((shot, itemIndex) =>
+        itemIndex === index ? { ...shot, file: undefined } : shot,
+      );
+    });
+    setActiveIndex(Math.max(0, Math.min(index, shots.length - 2)));
   }
 
   async function analyze() {
@@ -152,7 +276,7 @@ export function ScannerScreen() {
         التقاط العينة
       </Text>
       <Text style={[styles.subtitle, { top: m.y(73), fontSize: m.z(13.5), lineHeight: m.z(19) }]}>
-        صورة {requiredCount}/3 إلزامية
+        {requiredCount} صور / 3 على الأقل
       </Text>
 
       <View
@@ -243,8 +367,11 @@ export function ScannerScreen() {
           </View>
         )}
 
-        <View
-          style={[styles.shotRow, { left: m.x(12), right: m.x(12), bottom: m.y(12), gap: m.x(8) }]}
+        <ScrollView
+          horizontal
+          showsHorizontalScrollIndicator={false}
+          style={[styles.shotScroller, { left: m.x(12), right: m.x(12), bottom: m.y(12) }]}
+          contentContainerStyle={[styles.shotRow, { gap: m.x(8) }]}
         >
           {shots.map((shot, index) => (
             <Pressable
@@ -253,6 +380,7 @@ export function ScannerScreen() {
               style={[
                 styles.shotCard,
                 {
+                  width: m.x(78),
                   height: m.y(64),
                   borderRadius: m.z(17),
                   borderWidth: m.z(activeIndex === index ? 1.8 : 1.5),
@@ -261,6 +389,10 @@ export function ScannerScreen() {
                 shot.file ? styles.shotCardDone : null,
               ]}
             >
+              {shot.file ? (
+                <Image source={{ uri: shot.file.uri }} style={StyleSheet.absoluteFill} resizeMode="cover" />
+              ) : null}
+              {shot.file ? <View style={styles.shotImageShade} /> : null}
               {shot.optional ? (
                 <View
                   style={[
@@ -276,7 +408,11 @@ export function ScannerScreen() {
                   <Text style={[styles.optionalText, { fontSize: m.z(10.5) }]}>اختياري ✂</Text>
                 </View>
               ) : null}
-              {shot.file ? <Check color="#2E8B57" size={m.z(16)} /> : null}
+              {shot.file ? (
+                <View style={[styles.shotCheck, { top: m.y(6), left: m.x(6) }]}>
+                  <Check color="#FFFFFF" size={m.z(12)} strokeWidth={3} />
+                </View>
+              ) : null}
               <Text
                 style={[
                   styles.shotLabel,
@@ -289,20 +425,53 @@ export function ScannerScreen() {
               >
                 {shot.label}
               </Text>
+              {shot.file ? (
+                <Pressable
+                  onPress={(event) => {
+                    event.stopPropagation();
+                    clearShot(index);
+                  }}
+                  style={[
+                    styles.shotClear,
+                    { width: m.z(24), height: m.z(24), borderRadius: m.z(12), bottom: m.y(5), left: m.x(5) },
+                  ]}
+                >
+                  {shot.id.startsWith("extra-") ? (
+                    <Trash2 color="#FFFFFF" size={m.z(12)} />
+                  ) : (
+                    <Camera color="#FFFFFF" size={m.z(12)} />
+                  )}
+                </Pressable>
+              ) : null}
             </Pressable>
           ))}
-        </View>
+          {canAddExterior ? (
+            <Pressable
+              onPress={addEmptyExteriorSlot}
+              style={[
+                styles.shotAddCard,
+                { width: m.x(78), height: m.y(64), borderRadius: m.z(17), borderWidth: m.z(1.5) },
+              ]}
+            >
+              <ImagePlus color={UI.gold} size={m.z(18)} strokeWidth={2.4} />
+              <Text style={[styles.shotAddText, { fontSize: m.z(11), lineHeight: m.z(16) }]}>
+                إضافة
+              </Text>
+            </Pressable>
+          ) : null}
+        </ScrollView>
       </View>
 
       <View style={[styles.bottomControls, { top: m.y(680), left: 0, right: 0 }]}>
         <Pressable
+          onPress={activeShot.optional ? pickInteriorImage : pickExteriorImages}
           style={[
             styles.sideAction,
             styles.sideActionOrange,
             { width: m.z(48), height: m.z(48), borderRadius: m.z(24) },
           ]}
         >
-          <Sparkles color="rgba(255,255,255,0.58)" size={m.z(27)} strokeWidth={2.2} />
+          <Upload color="#FFFFFF" size={m.z(24)} strokeWidth={2.4} />
         </Pressable>
         <Pressable
           onPress={primaryAction}
@@ -335,7 +504,7 @@ export function ScannerScreen() {
       <Text
         style={[styles.footerText, { top: m.y(773), fontSize: m.z(13.5), lineHeight: m.z(20) }]}
       >
-        {canAnalyze ? "اضغط لتحليل الصور" : "التقط 3 صور إضافية لتفعيل التحليل"}
+        {canAnalyze ? "جاهز للتحليل، ويمكنك إضافة صور أخرى" : "أضف أو التقط 3 صور على الأقل"}
       </Text>
 
       <Pressable
@@ -489,22 +658,62 @@ const styles = StyleSheet.create({
     borderBottomWidth: 4,
     borderLeftWidth: 4,
   },
-  shotRow: {
+  shotScroller: {
     position: "absolute",
+  },
+  shotRow: {
     flexDirection: "row-reverse",
+    paddingHorizontal: 2,
   },
   shotCard: {
-    flex: 1,
     backgroundColor: UI.chip,
     borderColor: "#484C50",
     alignItems: "center",
     justifyContent: "center",
+    overflow: "hidden",
   },
   shotCardActive: {
     borderColor: UI.orange,
   },
   shotCardDone: {
     borderColor: "#2E8B57",
+  },
+  shotImageShade: {
+    position: "absolute",
+    top: 0,
+    right: 0,
+    bottom: 0,
+    left: 0,
+    backgroundColor: "rgba(0,0,0,0.22)",
+  },
+  shotCheck: {
+    position: "absolute",
+    width: 20,
+    height: 20,
+    borderRadius: 10,
+    backgroundColor: "#2E8B57",
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  shotClear: {
+    position: "absolute",
+    backgroundColor: "rgba(0,0,0,0.58)",
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  shotAddCard: {
+    borderStyle: "dashed",
+    borderColor: "rgba(247,199,94,0.58)",
+    backgroundColor: "rgba(255,255,255,0.08)",
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  shotAddText: {
+    color: UI.gold,
+    fontWeight: "900",
+    textAlign: "center",
+    writingDirection: "rtl",
+    marginTop: 2,
   },
   optionalPill: {
     position: "absolute",

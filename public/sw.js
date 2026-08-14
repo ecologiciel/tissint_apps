@@ -1,5 +1,12 @@
-const CACHE_NAME = "tissint-arabic-pwa-v2";
-const APP_SHELL = ["/", "/manifest.json", "/icon.svg", "/icon-192.png", "/icon-512.png", "/apple-touch-icon.png"];
+const CACHE_NAME = "tissint-arabic-pwa-v3";
+const APP_SHELL = [
+  "/",
+  "/manifest.json",
+  "/icon-192.png",
+  "/icon-512.png",
+  "/apple-touch-icon.png",
+  "/brand/logo-symbol.png",
+];
 
 self.addEventListener("install", (event) => {
   event.waitUntil(caches.open(CACHE_NAME).then((cache) => cache.addAll(APP_SHELL)));
@@ -20,11 +27,13 @@ self.addEventListener("activate", (event) => {
 self.addEventListener("fetch", (event) => {
   const request = event.request;
   if (request.method !== "GET") return;
+  const url = new URL(request.url);
+  if (url.pathname.startsWith("/api/")) return;
 
   event.respondWith(
     fetch(request)
       .then((response) => {
-        if (response.ok && new URL(request.url).origin === self.location.origin) {
+        if (response.ok && url.origin === self.location.origin) {
           const copy = response.clone();
           caches.open(CACHE_NAME).then((cache) => cache.put(request, copy));
         }

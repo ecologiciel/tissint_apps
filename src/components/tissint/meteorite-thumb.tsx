@@ -13,13 +13,15 @@ export function MeteoriteThumb({
   const [failed, setFailed] = useState(false);
   if (imageUrl && !failed) {
     return (
-      <img
-        src={imageUrl}
-        alt=""
-        className={`block h-full w-full object-cover ${className}`}
-        loading="lazy"
-        onError={() => setFailed(true)}
-      />
+      <div className={`relative overflow-hidden ${className}`}>
+        <img
+          src={imageUrl}
+          alt=""
+          className="absolute inset-0 block h-full w-full object-cover"
+          loading="lazy"
+          onError={() => setFailed(true)}
+        />
+      </div>
     );
   }
 

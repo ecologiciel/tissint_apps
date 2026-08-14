@@ -44,6 +44,7 @@ import {
   View,
   useWindowDimensions,
 } from "react-native";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 import {
   ResponsiveText as Text,
   ResponsiveTextInput as TextInput,
@@ -547,6 +548,8 @@ function ClassLine({ label, count }: { label: string; count: string }) {
 
 export function MvpMarketplaceScreen() {
   const m = useMvpMetrics();
+  const insets = useSafeAreaInsets();
+  const bottomInset = Math.max(insets.bottom, m.y(28));
   const apiListings = useQuery({
     queryKey: ["marketplace"],
     queryFn: listMarketplace,
@@ -677,7 +680,10 @@ export function MvpMarketplaceScreen() {
 
       <ScrollView
         showsVerticalScrollIndicator={false}
-        contentContainerStyle={{ paddingHorizontal: m.x(20), paddingBottom: m.y(104) }}
+        contentContainerStyle={{
+          paddingHorizontal: m.x(20),
+          paddingBottom: bottomInset + m.y(122),
+        }}
       >
         <View style={[styles.marketGrid, { gap: m.x(13) }]}>
           {filtered.map((listing) => (
@@ -734,6 +740,8 @@ function MarketPill({
 
 function MarketCard({ listing }: { listing: PrototypeMarketListing }) {
   const m = useMvpMetrics();
+  const { width } = useWindowDimensions();
+  const cardWidth = Math.max(m.x(140), Math.floor((width - m.x(53)) / 2));
   return (
     <Pressable
       onPress={() =>
@@ -742,14 +750,23 @@ function MarketCard({ listing }: { listing: PrototypeMarketListing }) {
           params: { listingId: listing.listingId },
         } as never)
       }
-      style={[styles.marketCard, { width: m.x(153), height: m.y(227), borderRadius: m.z(22) }]}
+      style={[styles.marketCard, { width: cardWidth, height: m.y(228), borderRadius: m.z(22) }]}
     >
       <MarketThumb
         listing={listing}
         seed={listing.listingId}
         style={{ width: "100%", height: m.y(152), borderRadius: 0 }}
       />
-      <View style={[styles.marketCardBody, { paddingHorizontal: m.x(10), paddingTop: m.y(10) }]}>
+      <View
+        style={[
+          styles.marketCardBody,
+          {
+            paddingHorizontal: m.x(10),
+            paddingTop: m.y(9),
+            paddingBottom: m.y(10),
+          },
+        ]}
+      >
         <Text
           numberOfLines={1}
           style={[styles.marketCardTitle, { fontSize: m.z(14), lineHeight: m.z(20) }]}
@@ -766,7 +783,10 @@ function MarketCard({ listing }: { listing: PrototypeMarketListing }) {
           </Text>
         </View>
         <View style={styles.marketPriceLine}>
-          <Text style={[styles.marketPrice, { fontSize: m.z(15), lineHeight: m.z(21) }]}>
+          <Text
+            numberOfLines={1}
+            style={[styles.marketPrice, { fontSize: m.z(15), lineHeight: m.z(21) }]}
+          >
             {listing.displayPrice}
           </Text>
           {listing.verified ? (
@@ -836,6 +856,8 @@ function CoherentListingDetail({
   canContact: boolean;
 }) {
   const m = useMvpMetrics();
+  const insets = useSafeAreaInsets();
+  const bottomInset = Math.max(insets.bottom, m.y(24));
   const displayTitle =
     MARKET_PROTOTYPE.find((item) => item.listingId === listing.listingId)?.displayTitle ??
     listing.title;
@@ -858,13 +880,17 @@ function CoherentListingDetail({
       <HeaderPanel title={displayTitle} subtitle={listing.region ?? "السوق"} height={118} />
       <ScrollView
         showsVerticalScrollIndicator={false}
-        contentContainerStyle={{ padding: m.x(20), paddingBottom: m.y(42) }}
+        contentContainerStyle={{
+          paddingHorizontal: m.x(20),
+          paddingTop: m.y(16),
+          paddingBottom: bottomInset + m.y(110),
+        }}
       >
         <View style={[styles.detailHero, { borderRadius: m.z(24), padding: m.z(14) }]}>
           <MarketThumb
             listing={listing}
             seed={listing.listingId}
-            style={{ width: "100%", height: m.y(222), borderRadius: m.z(20) }}
+            style={{ width: "100%", height: m.y(198), borderRadius: m.z(20) }}
           />
           <View style={[styles.detailPriceRow, { marginTop: m.y(14) }]}>
             <Text style={[styles.detailPrice, { fontSize: m.z(25), lineHeight: m.z(35) }]}>
@@ -2492,6 +2518,7 @@ const styles = StyleSheet.create({
   },
   marketCardBody: {
     flex: 1,
+    justifyContent: "space-between",
   },
   marketCardTitle: {
     color: UI.text,
@@ -2515,13 +2542,14 @@ const styles = StyleSheet.create({
     flexDirection: "row-reverse",
     alignItems: "center",
     justifyContent: "space-between",
-    marginTop: 7,
+    gap: 8,
   },
   marketPrice: {
+    flexShrink: 1,
     color: UI.orange,
     fontWeight: "900",
     textAlign: "right",
-    writingDirection: "rtl",
+    writingDirection: "ltr",
   },
   topRightEmpty: {
     position: "absolute",

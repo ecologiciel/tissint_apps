@@ -79,13 +79,13 @@ function Dashboard() {
       <header className="bg-navy text-warm px-5 pt-12 pb-6 rounded-b-3xl shadow-lg">
         <div className="flex items-center justify-between">
           <Link to="/profile" className="flex items-center gap-3">
-            <div className="grid h-11 w-11 place-items-center rounded-full bg-gradient-to-br from-orange to-gold text-white font-black shadow-md">
-              {userName
-                .trim()
-                .split(" ")
-                .map((s) => s[0])
-                .slice(0, 2)
-                .join("") || "؟"}
+            <div className="grid h-12 w-12 place-items-center overflow-hidden rounded-full bg-white shadow-md">
+              <img
+                src="/brand/logo-symbol.png"
+                alt=""
+                className="h-full w-full object-cover"
+                aria-hidden="true"
+              />
             </div>
             <div>
               <p className="text-xs text-gold">مرحباً</p>

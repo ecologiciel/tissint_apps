@@ -1,14 +1,14 @@
 {
-  "name": "Tissint",
+  "name": "Tissint — تطبيق النيازك",
   "short_name": "Tissint",
-  "description": "تطبيق Tissint لتحديد النيازك وإدارة مراجعة الخبراء.",
+  "description": "تطبيق التحقق من النيازك بالذكاء الاصطناعي — المغرب",
   "lang": "ar",
   "dir": "rtl",
   "start_url": "/",
   "scope": "/",
   "display": "standalone",
-  "background_color": "#FBF4E6",
-  "theme_color": "#123F5A",
+  "background_color": "#0F1419",
+  "theme_color": "#1C3D5A",
   "orientation": "portrait",
   "icons": [
     {
@@ -28,12 +28,6 @@
       "sizes": "180x180",
       "type": "image/png",
       "purpose": "any"
-    },
-    {
-      "src": "/icon.svg",
-      "sizes": "any",
-      "type": "image/svg+xml",
-      "purpose": "any maskable"
     }
   ],
   "shortcuts": [
