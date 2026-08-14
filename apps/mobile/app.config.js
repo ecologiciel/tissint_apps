@@ -60,7 +60,6 @@ export default ({ config }) => {
     android: {
       ...config.android,
       permissions: Array.from(androidPermissions),
-      usesCleartextTraffic,
     },
   };
 

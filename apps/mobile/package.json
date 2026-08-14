@@ -26,6 +26,7 @@
     "expo-image-manipulator": "^56.0.16",
     "expo-image-picker": "~56.0.23",
     "expo-linear-gradient": "^56.0.4",
+    "expo-linking": "^56.0.13",
     "expo-localization": "56.0.6",
     "expo-location": "^56.0.15",
     "expo-router": "~56.2.8",
@@ -39,6 +40,7 @@
     "react-native-reanimated": "4.3.1",
     "react-native-safe-area-context": "~5.7.0",
     "react-native-screens": "4.25.2",
+    "react-native-svg": "^15.15.5",
     "react-native-web": "^0.21.2",
     "react-native-worklets": "^0.8.3",
     "zustand": "5.0.14"
